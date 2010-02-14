@@ -220,11 +220,16 @@ QString QCLProgram::log() const
 */
 QCLKernel QCLProgram::createKernel(const char *name) const
 {
-    cl_kernel kernel = clCreateKernel(m_id, name, 0);
-    if (kernel)
+    cl_int error;
+    cl_kernel kernel = clCreateKernel(m_id, name, &error);
+    if (kernel) {
+        context()->setLastError(error);
         return QCLKernel(m_context, kernel);
-    else
-        return QCLKernel();
+    }
+    context()->setLastError(error);
+    qWarning() << "QCLProgram::createKernel(" << name << "):"
+               << QCLContext::errorName(error);
+    return QCLKernel();
 }
 
 /*!

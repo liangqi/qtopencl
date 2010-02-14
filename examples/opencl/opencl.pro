@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = vectoradd
+SUBDIRS = vectoradd mandelbrot
