@@ -45,6 +45,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_UNUSED(argc);
+    Q_UNUSED(argv);
     printf("OpenCL Platforms:\n");
     QList<QCLPlatform> platforms = QCLPlatform::platforms();
     foreach (QCLPlatform platform, platforms) {

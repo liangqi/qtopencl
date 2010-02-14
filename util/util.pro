@@ -1,2 +1,2 @@
-TEMPLATES = subdirs
+TEMPLATE = subdirs
 SUBDIRS = clinfo
