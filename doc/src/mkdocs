@@ -1,0 +1,14 @@
+#!/bin/sh
+SCRIPTDIR=`dirname $0`
+if ! test -f "$SCRIPTDIR/qtopencl.qdocconf" ; then
+    echo "$0: cannot locate qtopencl.qdocconf to generate documentation" 1>&2
+    exit 1
+fi
+case "$SCRIPTDIR" in
+    /*) ;;
+    *)  SCRIPTDIR=`pwd`/"$SCRIPTDIR" ;;
+esac
+export TOPSRC="$SCRIPTDIR/../.."
+export DESTDIR="$SCRIPTDIR/../html"
+mkdir -p "$DESTDIR"
+exec qdoc3 "$SCRIPTDIR/qtopencl.qdocconf"

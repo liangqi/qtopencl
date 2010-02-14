@@ -1,0 +1,2 @@
+TEMPLATES = subdirs
+SUBDIRS = clinfo
