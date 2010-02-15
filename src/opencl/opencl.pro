@@ -27,6 +27,7 @@ HEADERS += \
     qclplatform.h \
     qclprogram.h \
     qclsampler.h \
+    qcltexture2d.h \
     qclworksize.h
 
 SOURCES += \
@@ -43,6 +44,7 @@ SOURCES += \
     qclplatform.cpp \
     qclprogram.cpp \
     qclsampler.cpp \
+    qcltexture2d.cpp \
     qclworksize.cpp
 
 PRIVATE_HEADERS += \
