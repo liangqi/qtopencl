@@ -44,6 +44,7 @@
 
 #include "image.h"
 #include "qclcontextgl.h"
+#include "qcltexture2d.h"
 
 class ImageCL : public Image
 {
@@ -52,7 +53,7 @@ public:
     virtual ~ImageCL();
 
     virtual QMetaType::Type precision() const;
-    virtual void setTextureId(GLuint textureId);
+    virtual GLuint textureId();
     virtual void initialize();
 
     static bool hasOpenCL();
@@ -60,8 +61,7 @@ public:
 protected:
     int wid, ht;
     QCLBuffer data;
-    GLuint texture;
-    QCLImage2D textureBuffer;
+    QCLTexture2D textureBuffer;
     bool initialized;
 
     void init(bool useGL = false);

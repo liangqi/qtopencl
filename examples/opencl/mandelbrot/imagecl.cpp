@@ -90,7 +90,6 @@ Q_GLOBAL_STATIC(ImageCLContext, image_context)
 ImageCL::ImageCL(int width, int height)
     : Image(width, height)
     , wid(width), ht(height)
-    , texture(0)
     , initialized(false)
 {
 }
@@ -121,15 +120,15 @@ QMetaType::Type ImageCL::precision() const
     return QMetaType::Float;
 }
 
-void ImageCL::setTextureId(GLuint textureId)
+GLuint ImageCL::textureId()
 {
     init(true);
 
-    texture = textureId;
-
     ImageCLContext *ctx = image_context();
-    textureBuffer = ctx->glContext->createTexture2D
-        (textureId, QCLMemoryObject::WriteOnly);
+    if (!textureBuffer.create(ctx->glContext, wid, ht))
+        qWarning("Could not create the OpenCL texture to render into.");
+
+    return textureBuffer.textureId();
 }
 
 void ImageCL::initialize()
@@ -179,7 +178,7 @@ void ImageCL::generateImage
     colorBuffer.write(0, floatColors.constData(),
                       maxIterations * sizeof(float) * 4);
 
-    if (!texture) {
+    if (!textureBuffer.textureId()) {
         // Map the image so that both the device and the host can access it.
         QCLImage2D imageBuffer = ctx->context->createImage2DHost
             (image, QCLBuffer::WriteOnly);
@@ -202,7 +201,6 @@ void ImageCL::generateImage
 
         // Release the GL texture object and wait for it complete.
         // After the release is complete, the texture can be used by GL.
-        QCLEvent event = textureBuffer.releaseGL();
-        event.wait();
+        textureBuffer.releaseGL();
     }
 }

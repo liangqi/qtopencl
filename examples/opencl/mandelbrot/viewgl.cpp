@@ -76,14 +76,8 @@ void ViewGL::resizeGL(int width, int height)
 
 void ViewGL::initializeGL()
 {
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 768, 512, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
     image = Image::createImage(768, 512);
-    image->setTextureId(textureId);
+    textureId = image->textureId();
     image->generate(200, *palette);
 }
 
@@ -91,6 +85,7 @@ void ViewGL::paintGL()
 {
     glBindTexture(GL_TEXTURE_2D, textureId);
     glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -98,16 +93,23 @@ void ViewGL::paintGL()
     glLoadIdentity();
 
     static GLfloat const vertices[] = {
-        -1, -1, 1, -1, -1, 1, 1, 1
+        -1, -1, 1, -1, 1, 1, -1, 1
     };
     static GLfloat const texCoords[] = {
-        0, 0, 1, 0, 0, 1, 1, 1
+        0, 0, 1, 0, 1, 1, 0, 1
     };
 
     glVertexPointer(2, GL_FLOAT, 0, vertices);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
 
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);

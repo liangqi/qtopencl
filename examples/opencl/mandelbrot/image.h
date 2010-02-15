@@ -61,7 +61,7 @@ public:
 
     QImage image() const { return img; }
 
-    virtual void setTextureId(GLuint textureId) { Q_UNUSED(textureId); }
+    virtual GLuint textureId() { return 0; }
     virtual void initialize() {}
 
     QRectF region() const { return rgn; }
