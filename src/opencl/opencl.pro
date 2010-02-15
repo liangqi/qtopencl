@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = QtOpenCL
+QT += opengl
 CONFIG += dll \
     warn_on
 win32 { 
@@ -15,6 +16,7 @@ HEADERS += \
     qclbuffer.h \
     qclcommandqueue.h \
     qclcontext.h \
+    qclcontextgl.h \
     qcldevice.h \
     qclevent.h \
     qclglobal.h \
@@ -31,6 +33,7 @@ SOURCES += \
     qclbuffer.cpp \
     qclcommandqueue.cpp \
     qclcontext.cpp \
+    qclcontextgl.cpp \
     qcldevice.cpp \
     qclevent.cpp \
     qclimage.cpp \
@@ -41,6 +44,9 @@ SOURCES += \
     qclprogram.cpp \
     qclsampler.cpp \
     qclworksize.cpp
+
+PRIVATE_HEADERS += \
+    qcl_gl_p.h
 
 HEADERS += $$PRIVATE_HEADERS
 DEFINES += QT_BUILD_OPENCL_LIB

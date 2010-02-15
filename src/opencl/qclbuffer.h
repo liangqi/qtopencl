@@ -70,6 +70,8 @@ public:
         return *this;
     }
 
+    bool isGLBuffer() const;
+
     bool read(size_t offset, void *data, size_t size);
     QCLEvent readAsync(size_t offset, void *data, size_t size,
                        const QVector<QCLEvent>& after = QVector<QCLEvent>());

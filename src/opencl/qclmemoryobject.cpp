@@ -41,6 +41,7 @@
 
 #include "qclmemoryobject.h"
 #include "qclcontext.h"
+#include "qcl_gl_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -209,6 +210,114 @@ QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QVector<QCLEvent>& after)
          (after.isEmpty() ? 0 :
             reinterpret_cast<const cl_event *>(after.constData())), &event);
     context()->reportError("QCLMemoryObject::unmapAsync:", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+}
+
+/*!
+    Acquires access to the OpenGL object behind this OpenCL memory
+    object.  This function must be called before performing an OpenCL
+    operation on any OpenCL memory object.
+
+    Returns an event object that can be used to wait for the
+    request to complete.  The request is executed on the active
+    command queue for context().
+
+    \sa releaseGL()
+*/
+QCLEvent QCLMemoryObject::acquireGL()
+{
+    cl_event event;
+    cl_int error = clEnqueueAcquireGLObjects
+        (context()->activeQueue(), 1, &m_id, 0, 0, &event);
+    context()->reportError("QCLMemoryObject::acquireGL:", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+}
+
+/*!
+    \overload
+
+    Acquires access to the OpenGL object behind this OpenCL memory
+    object.  This function must be called before performing an OpenCL
+    operation on any OpenCL memory object.
+
+    The request will not start until all of the events in \a after
+    have been signalled as completed.
+
+    Returns an event object that can be used to wait for the
+    request to complete.  The request is executed on the active
+    command queue for context().
+
+    \sa releaseGL()
+*/
+QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent>& after)
+{
+    cl_event event;
+    cl_int error = clEnqueueAcquireGLObjects
+        (context()->activeQueue(), 1, &m_id, after.size(),
+         (after.isEmpty() ? 0 :
+            reinterpret_cast<const cl_event *>(after.constData())), &event);
+    context()->reportError("QCLMemoryObject::acquireGL(after):", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+}
+
+/*!
+    Releases access to the OpenGL object behind this OpenCL memory
+    object.  This function must be called after performing an OpenCL
+    operation on any OpenCL memory object, and before performing
+    OpenGL operations on the object.
+
+    Returns an event object that can be used to wait for the
+    request to complete.  The request is executed on the active
+    command queue for context().
+
+    \sa acquireGL()
+*/
+QCLEvent QCLMemoryObject::releaseGL()
+{
+    cl_event event;
+    cl_int error = clEnqueueReleaseGLObjects
+        (context()->activeQueue(), 1, &m_id, 0, 0, &event);
+    context()->reportError("QCLMemoryObject::releaseGL:", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+}
+
+/*!
+    \overload
+
+    Releases access to the OpenGL object behind this OpenCL memory
+    object.  This function must be called after performing an OpenCL
+    operation on any OpenCL memory object, and before performing
+    OpenGL operations on the object.
+
+    The request will not start until all of the events in \a after
+    have been signalled as completed.
+
+    Returns an event object that can be used to wait for the
+    request to complete.  The request is executed on the active
+    command queue for context().
+
+    \sa acquireGL()
+*/
+QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent>& after)
+{
+    cl_event event;
+    cl_int error = clEnqueueReleaseGLObjects
+        (context()->activeQueue(), 1, &m_id, after.size(),
+         (after.isEmpty() ? 0 :
+            reinterpret_cast<const cl_event *>(after.constData())), &event);
+    context()->reportError("QCLMemoryObject::releaseGL(after):", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);
     else

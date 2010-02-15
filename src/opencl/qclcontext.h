@@ -66,7 +66,7 @@ class Q_CL_EXPORT QCLContext
 {
 public:
     QCLContext();
-    ~QCLContext();
+    virtual ~QCLContext();
 
     bool isCreated() const;
 

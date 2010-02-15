@@ -42,6 +42,7 @@
 #include "qclimage.h"
 #include "qclbuffer.h"
 #include "qclcontext.h"
+#include "qcl_gl_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -141,6 +142,34 @@ int QCLImage2D::bytesPerElement() const
 int QCLImage2D::bytesPerLine() const
 {
     return qt_cl_imageParam(id(), CL_IMAGE_ROW_PITCH);
+}
+
+/*!
+    Returns true if this 2D OpenCL image object is also an OpenGL
+    2D texture object; false otherwise.
+
+    \sa isRenderbuffer(), QCLImage3D::isTexture3D()
+*/
+bool QCLImage2D::isTexture2D() const
+{
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_TEXTURE2D;
+}
+
+/*!
+    Returns true if this 2D OpenCL image object is also an OpenGL
+    renderbuffer object; false otherwise.
+
+    \sa isTexture2D()
+*/
+bool QCLImage2D::isRenderbuffer() const
+{
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_RENDERBUFFER;
 }
 
 /*!
@@ -633,6 +662,20 @@ int QCLImage3D::bytesPerLine() const
 int QCLImage3D::bytesPerSlice() const
 {
     return qt_cl_imageParam(id(), CL_IMAGE_SLICE_PITCH);
+}
+
+/*!
+    Returns true if this 3D OpenCL image object is also an OpenGL
+    3D texture object; false otherwise.
+
+    \sa QCLImage2D::isTexture2D()
+*/
+bool QCLImage3D::isTexture3D() const
+{
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_TEXTURE3D;
 }
 
 /*!

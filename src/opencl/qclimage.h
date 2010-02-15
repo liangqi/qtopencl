@@ -79,6 +79,9 @@ public:
     int bytesPerElement() const;
     int bytesPerLine() const;
 
+    bool isTexture2D() const;
+    bool isRenderbuffer() const;
+
     bool read(void *data, const QRect& rect, int bytesPerLine = 0);
     QCLEvent readAsync(void *data, const QRect& rect,
                        const QVector<QCLEvent>& after = QVector<QCLEvent>(),
@@ -140,6 +143,8 @@ public:
     int bytesPerElement() const;
     int bytesPerLine() const;
     int bytesPerSlice() const;
+
+    bool isTexture3D() const;
 
     bool read(void *data, const size_t origin[3], const size_t size[3],
               int bytesPerLine = 0, int bytesPerSlice = 0);

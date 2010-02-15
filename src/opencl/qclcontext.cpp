@@ -51,6 +51,8 @@ QT_BEGIN_NAMESPACE
     \brief The QCLContext class represents an OpenCL context.
     \since 4.7
     \ingroup opencl
+
+    \sa QCLContextGL
 */
 
 class QCLContextPrivate
