@@ -173,7 +173,7 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
     if (!d->platform.isNull()) {
         cl_context_properties props[] = {
             CL_CONTEXT_PLATFORM,
-            intptr_t(d->platform.id()),
+            cl_context_properties(d->platform.id()),
             0
         };
         d->id = clCreateContextFromType
@@ -278,7 +278,7 @@ void QCLContext::setId(cl_context id)
     release();
     clRetainContext(id);
     d->id = id;
-    d->isCreated = false;
+    d->isCreated = true;
 }
 
 /*!
@@ -504,6 +504,10 @@ QString QCLContext::errorName(cl_int code)
 #ifdef CL_INVALID_GLOBAL_WORK_SIZE
     case CL_INVALID_GLOBAL_WORK_SIZE: return QLatin1String("CL_INVALID_GLOBAL_WORK_SIZE");
 #endif
+
+    // OpenCL-OpenGL sharing extension error codes.
+    case -1000: return QLatin1String("CL_INVALID_CL_SHAREGROUP_REFERENCE_KHR");
+
     default: break;
     }
     return QLatin1String("Error ") + QString::number(code);

@@ -54,12 +54,18 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
+class QCLContextGLPrivate;
+
 // Note: this class probably should be in the QtOpenGL library.
 class Q_CL_EXPORT QCLContextGL : public QCLContext
 {
 public:
     QCLContextGL();
     ~QCLContextGL();
+
+    bool create();
+
+    bool supportsObjectSharing() const;
 
     QCLBuffer createGLBuffer
         (GLuint bufobj, QCLMemoryObject::MemoryFlags access);
@@ -104,6 +110,11 @@ public:
 #endif
 
 private:
+    QScopedPointer<QCLContextGLPrivate> d_ptr;
+
+    Q_DISABLE_COPY(QCLContextGL)
+    Q_DECLARE_PRIVATE(QCLContextGL)
+
     void reportError(const char *name, cl_int error);
 };
 

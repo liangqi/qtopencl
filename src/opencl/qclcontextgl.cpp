@@ -42,6 +42,15 @@
 #include "qclcontextgl.h"
 #include "qcl_gl_p.h"
 #include <QtCore/qdebug.h>
+#include <QtCore/qvarlengtharray.h>
+
+#if defined(QT_OPENGL_ES_2)
+#include <EGL/egl.h>
+#elif defined(QT_OPENGL_ES)
+#include <GLES/egl.h>
+#elif defined(Q_WS_X11)
+#include <GL/glx.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -52,12 +61,23 @@ QT_BEGIN_NAMESPACE
     \ingroup opencl
 */
 
+class QCLContextGLPrivate
+{
+public:
+    QCLContextGLPrivate()
+        : supportsSharing(false)
+    {
+    }
+
+    bool supportsSharing;
+};
+
 /*!
     Constructs a new OpenCL context object that is suitable for use
     with OpenGL objects.
 */
 QCLContextGL::QCLContextGL()
-    : QCLContext()
+    : QCLContext(), d_ptr(new QCLContextGLPrivate())
 {
 }
 
@@ -68,9 +88,153 @@ QCLContextGL::~QCLContextGL()
 {
 }
 
+extern "C" {
+
+static void qt_clgl_context_notify(const char *errinfo,
+                                   const void *private_info,
+                                   size_t cb,
+                                   void *user_data)
+{
+    Q_UNUSED(private_info);
+    Q_UNUSED(cb);
+    Q_UNUSED(user_data);
+    qWarning() << "OpenCL/GL context notification: " << errinfo;
+}
+
+};
+
+#define CL_GL_CONTEXT_KHR           0x2008
+#define CL_EGL_DISPLAY_KHR          0x2009
+#define CL_GLX_DISPLAY_KHR          0x200A
+#define CL_WGL_HDC_KHR              0x200B
+#define CL_CGL_SHAREGROUP_KHR       0x200C
+
+/*!
+    Creates an OpenCL context that is compatible with the current
+    QGLContext.  Returns false if there is no OpenGL context current or
+    the OpenCL context could not be created for some reason.
+
+    \sa supportsObjectSharing()
+*/
+bool QCLContextGL::create()
+{
+    Q_D(QCLContextGL);
+
+    // Bail out if the context already exists.
+    if (isCreated())
+        return true;
+
+    // Bail out if we don't have an OpenGL context.
+    if (!QGLContext::currentContext()) {
+        qWarning() << "QCLContextGL::create: needs a current GL context";
+        setLastError(CL_INVALID_CONTEXT);
+        return false;
+    }
+
+    // Find the first gpu device.
+    QCLPlatform plat = platform();
+    QList<QCLDevice> devices;
+    if (plat.isNull())
+        devices = QCLDevice::devices(QCLDevice::GPU);
+    else
+        devices = QCLDevice::devices(QCLDevice::GPU, plat);
+    if (devices.isEmpty()) {
+        qWarning() << "QCLContextGL::create: no gpu devices found";
+        setLastError(CL_DEVICE_NOT_FOUND);
+        return false;
+    }
+    QCLDevice gpu = devices[0];
+
+    // Add the platform identifier to the properties, if present.
+    QVarLengthArray<cl_context_properties> properties;
+    if (!plat.isNull()) {
+        properties.append(CL_CONTEXT_PLATFORM);
+        properties.append(cl_context_properties(plat.id()));
+    }
+
+    // Determine what kind of OpenCL-OpenGL sharing we have and enable it.
+    QStringList extensions = gpu.extensions();
+    bool hasSharing = false;
+#if defined(__APPLE__) || defined(__MACOSX)
+    bool appleSharing = extensions.contains
+        (QLatin1String("cl_apple_gl_sharing"), Qt::CaseInsensitive);
+    if (appleSharing) {
+        CGLContextObj cglContext = CGLGetCurrentContext();
+        CGLShareGroupObj cglShareGroup = CGLGetShareGroup(cglContext);
+        properties.append(CL_CGL_SHAREGROUP_KHR);
+        properties.append(cl_context_properties(cglShareGroup));
+        hasSharing = true;
+    }
+#else
+    bool khrSharing = extensions.contains
+        (QLatin1String("cl_khr_gl_sharing"), Qt::CaseInsensitive);
+#if defined(QT_OPENGL_ES_2) || defined(QT_OPENGL_ES)
+    if (khrSharing) {
+        properties.append(CL_EGL_DISPLAY_KHR);
+        properties.append(cl_context_properties(eglGetCurrentDisplay()));
+#ifdef EGL_OPENGL_ES_API
+        eglBindAPI(EGL_OPENGL_ES_API);
+#endif
+        properties.append(CL_GL_CONTEXT_KHR);
+        properties.append(cl_context_properties(eglGetCurrentContext()));
+        hasSharing = true;
+    }
+#elif defined(Q_WS_X11)
+    if (khrSharing) {
+        properties.append(CL_GLX_DISPLAY_KHR);
+        properties.append(cl_context_properties(glXGetCurrentDisplay()));
+        properties.append(CL_GL_CONTEXT_KHR);
+        properties.append(cl_context_properties(glXGetCurrentContext()));
+        hasSharing = true;
+    }
+#else
+    // Needs to be ported to other platforms.
+    if (khrSharing)
+        qWarning() << "QCLContextGL::create: do not know how to enable sharing";
+#endif
+#endif
+
+    // Create the OpenCL context.
+    cl_context id;
+    cl_int error;
+    if (!properties.isEmpty()) {
+        id = clCreateContextFromType
+            (properties.data(), CL_DEVICE_TYPE_GPU,
+             qt_clgl_context_notify, 0, &error);
+    } else {
+        id = clCreateContextFromType
+            (0, CL_DEVICE_TYPE_GPU, qt_clgl_context_notify, 0, &error);
+    }
+    setLastError(error);
+    if (id == 0) {
+        qWarning() << "QCLContextGL::create:" << errorName(error);
+        d->supportsSharing = false;
+    } else {
+        d->supportsSharing = hasSharing;
+        setId(id);
+        clReleaseContext(id);   // setId() adds an extra reference.
+    }
+    return id != 0;
+}
+
+/*!
+    Returns true if this OpenCL context supports object sharing
+    with OpenGL; false otherwise.
+
+    \sa createGLBuffer(), createTexture2D(), createTexture3D()
+    \sa createRenderbuffer()
+*/
+bool QCLContextGL::supportsObjectSharing() const
+{
+    Q_D(const QCLContextGL);
+    return d->supportsSharing;
+}
+
 /*!
     Creates an OpenCL memory buffer from the OpenGL buffer object
     \a bufobj, with the specified \a access mode.
+
+    This function will only work if supportsObjectSharing() is true.
 */
 QCLBuffer QCLContextGL::createGLBuffer
     (GLuint bufobj, QCLMemoryObject::MemoryFlags access)
@@ -93,6 +257,8 @@ QCLBuffer QCLContextGL::createGLBuffer
 
     Creates an OpenCL memory buffer from the OpenGL buffer object
     \a bufobj, with the specified \a access mode.
+
+    This function will only work if supportsObjectSharing() is true.
 */
 QCLBuffer QCLContextGL::createGLBuffer
     (QGLBuffer *bufobj, QCLMemoryObject::MemoryFlags access)
@@ -114,6 +280,8 @@ QCLBuffer QCLContextGL::createGLBuffer
     \c{GL_TEXTURE_CUBE_MAP_NEGATIVE_Y}, \c{GL_TEXTURE_CUBE_MAP_NEGATIVE_Z},
     or \c{GL_TEXTURE_RECTANGLE}.  The \a texture does not need to be
     bound to an OpenGL texture target.
+
+    This function will only work if supportsObjectSharing() is true.
 
     \sa createTexture3D(), createRenderbuffer()
 */
@@ -139,6 +307,8 @@ QCLImage2D QCLContextGL::createTexture2D
     \a texture object, and the \a access mode.  If texture type is
     assumed to be \c{GL_TEXTURE_2D} and the mipmap level is
     assumed to be 0.
+
+    This function will only work if supportsObjectSharing() is true.
 */
 QCLImage2D QCLContextGL::createTexture2D
     (GLuint texture, QCLMemoryObject::MemoryFlags access)
@@ -152,6 +322,8 @@ QCLImage2D QCLContextGL::createTexture2D
 
     The \a type must be \c{GL_TEXTURE_3D}.  The \a texture does not need
     to be bound to an OpenGL texture target.
+
+    This function will only work if supportsObjectSharing() is true.
 
     \sa createTexture2D()
 */
@@ -177,6 +349,8 @@ QCLImage3D QCLContextGL::createTexture3D
     \a texture object, and \a access mode.  If texture type is
     assumed to be \c{GL_TEXTURE_3D} and the mipmap level is
     assumed to be 0.
+
+    This function will only work if supportsObjectSharing() is true.
 */
 QCLImage3D QCLContextGL::createTexture3D
     (GLuint texture, QCLMemoryObject::MemoryFlags access)
@@ -187,6 +361,8 @@ QCLImage3D QCLContextGL::createTexture3D
 /*!
     Creates a 2D OpenCL image object from the specified OpenGL
     \a renderbuffer object, and the \a access mode.
+
+    This function will only work if supportsObjectSharing() is true.
 
     \sa createTexture2D()
 */
