@@ -39,14 +39,14 @@
 **
 ****************************************************************************/
 
-#include "view.h"
+#include "viewgl.h"
 #include "image.h"
 #include "palette.h"
 #include <QtGui/qpainter.h>
 #include <QtCore/qtimer.h>
 
-View::View(QWidget *parent)
-    : QWidget(parent)
+ViewGL::ViewGL(QWidget *parent)
+    : QGLWidget(parent)
 {
     setMinimumSize(768, 512);
     setMaximumSize(768, 512);
@@ -56,31 +56,64 @@ View::View(QWidget *parent)
     offset = 0.0f;
     step = 0.05f;
 
-    image = Image::createImage(768, 512);
-    image->initialize();
-    image->generate(200, *palette);
+    image = 0;
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer->start(50);
 }
 
-View::~View()
+ViewGL::~ViewGL()
 {
     delete palette;
     delete image;
 }
 
-void View::paintEvent(QPaintEvent *)
+void ViewGL::resizeGL(int width, int height)
 {
-    QPainter painter(this);
-    QImage img = image->image();
-    painter.drawImage((width() - img.width()) / 2,
-                      (height() - img.height()) / 2,
-                      img);
+    glViewport(0, 0, width, height);
 }
 
-void View::animate()
+void ViewGL::initializeGL()
+{
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 768, 512, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    image = Image::createImage(768, 512);
+    image->setTextureId(textureId);
+    image->generate(200, *palette);
+}
+
+void ViewGL::paintGL()
+{
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glEnable(GL_TEXTURE_2D);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    static GLfloat const vertices[] = {
+        -1, -1, 1, -1, -1, 1, 1, 1
+    };
+    static GLfloat const texCoords[] = {
+        0, 0, 1, 0, 0, 1, 1, 1
+    };
+
+    glVertexPointer(2, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void ViewGL::animate()
 {
     if (step > 0) {
         offset += step;
@@ -98,5 +131,5 @@ void View::animate()
     palette->setOffset(offset);
     //image->forceUpdate();
     image->generate(200, *palette);
-    update();
+    updateGL();
 }

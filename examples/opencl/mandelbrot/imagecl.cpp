@@ -46,20 +46,33 @@
 class ImageCLContext
 {
 public:
-    ImageCLContext();
+    ImageCLContext() : context(0), glContext(0) {}
     ~ImageCLContext();
 
+    void init(bool useGL);
+
     QCLContext *context;
+    QCLContextGL *glContext;
     QCLProgram program;
     QCLKernel mandelbrot;
     QCLKernel colorize;
 };
 
-ImageCLContext::ImageCLContext()
+void ImageCLContext::init(bool useGL)
 {
-    context = new QCLContext();
-    if (!context->create())
+    if (context)
         return;
+
+    if (useGL) {
+        glContext = new QCLContextGL();
+        context = glContext;
+        if (!glContext->create())
+            return;
+    } else {
+        context = new QCLContext();
+        if (!context->create())
+            return;
+    }
 
     program = context->buildProgramFromSourceFile
         (QLatin1String(":/mandelbrot.cl"));
@@ -77,17 +90,30 @@ Q_GLOBAL_STATIC(ImageCLContext, image_context)
 ImageCL::ImageCL(int width, int height)
     : Image(width, height)
     , wid(width), ht(height)
+    , texture(0)
+    , initialized(false)
 {
-    // Create an OpenCL buffer to hold the raw iteration count data.
-    // The buffer lives on the OpenCL device and does not need to
-    // be accessed by the host.
-    ImageCLContext *ctx = image_context();
-    data = ctx->context->createBufferDevice
-        (width * height * sizeof(uint), QCLBuffer::ReadWrite);
 }
 
 ImageCL::~ImageCL()
 {
+}
+
+void ImageCL::init(bool useGL)
+{
+    if (initialized)
+        return;
+    initialized = true;
+
+    // Initialize the context for GL or non-GL.
+    ImageCLContext *ctx = image_context();
+    ctx->init(useGL);
+
+    // Create an OpenCL buffer to hold the raw iteration count data.
+    // The buffer lives on the OpenCL device and does not need to
+    // be accessed by the host.
+    data = ctx->context->createBufferDevice
+        (wid * ht * sizeof(uint), QCLBuffer::ReadWrite);
 }
 
 QMetaType::Type ImageCL::precision() const
@@ -95,15 +121,33 @@ QMetaType::Type ImageCL::precision() const
     return QMetaType::Float;
 }
 
+void ImageCL::setTextureId(GLuint textureId)
+{
+    init(true);
+
+    texture = textureId;
+
+    ImageCLContext *ctx = image_context();
+    textureBuffer = ctx->glContext->createTexture2D
+        (textureId, QCLMemoryObject::WriteOnly);
+}
+
+void ImageCL::initialize()
+{
+    init(false);
+}
+
 bool ImageCL::hasOpenCL()
 {
-    ImageCLContext *ctx = image_context();
-    return ctx->context->isCreated();
+    // See if we have a GPU amongst the OpenCL devices.
+    return !QCLDevice::devices(QCLDevice::GPU).isEmpty();
 }
 
 void ImageCL::generateIterationData
     (int maxIterations, const QRectF& region)
 {
+    init();
+
     ImageCLContext *ctx = image_context();
     QCLKernel mandelbrot = ctx->mandelbrot;
 
@@ -135,13 +179,30 @@ void ImageCL::generateImage
     colorBuffer.write(0, floatColors.constData(),
                       maxIterations * sizeof(float) * 4);
 
-    // Map the image so that both the device and the host can access it.
-    QCLImage2D imageBuffer = ctx->context->createImage2DHost
-        (image, QCLBuffer::WriteOnly);
+    if (!texture) {
+        // Map the image so that both the device and the host can access it.
+        QCLImage2D imageBuffer = ctx->context->createImage2DHost
+            (image, QCLBuffer::WriteOnly);
 
-    // Execute the "colorize" kernel.
-    colorize.setGlobalWorkSize(QCLWorkSize(wid, ht));
-    QCLEvent event = colorize
-        (data, imageBuffer, colorBuffer, wid, maxIterations);
-    event.wait();
+        // Execute the "colorize" kernel.
+        colorize.setGlobalWorkSize(QCLWorkSize(wid, ht));
+        QCLEvent event = colorize
+            (data, imageBuffer, colorBuffer, wid, maxIterations);
+        event.wait();
+    } else {
+        // Finish previous GL operations on the texture.
+        glFinish();
+
+        // Acquire the GL texture object.
+        textureBuffer.acquireGL();
+
+        // Execute the "colorize" kernel.
+        colorize.setGlobalWorkSize(QCLWorkSize(wid, ht));
+        colorize(data, textureBuffer, colorBuffer, wid, maxIterations);
+
+        // Release the GL texture object and wait for it complete.
+        // After the release is complete, the texture can be used by GL.
+        QCLEvent event = textureBuffer.releaseGL();
+        event.wait();
+    }
 }

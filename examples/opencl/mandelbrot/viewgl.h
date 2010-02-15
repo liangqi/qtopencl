@@ -39,23 +39,35 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
-#include <QDebug>
-#include "view.h"
-#include "viewgl.h"
-#include "imagecl.h"
+#ifndef VIEWGL_H
+#define VIEWGL_H
 
-int main(int argc, char *argv[])
+#include <QtOpenGL/qgl.h>
+
+class Image;
+class Palette;
+
+class ViewGL : public QGLWidget
 {
-    QApplication app(argc, argv);
-    if (QApplication::arguments().contains(QLatin1String("-opengl")) &&
-            ImageCL::hasOpenCL()) {
-        ViewGL view;
-        view.show();
-        return app.exec();
-    } else {
-        View view;
-        view.show();
-        return app.exec();
-    }
-}
+    Q_OBJECT
+public:
+    ViewGL(QWidget *parent = 0);
+    ~ViewGL();
+
+private slots:
+    void animate();
+
+protected:
+    void resizeGL(int width, int height);
+    void initializeGL();
+    void paintGL();
+
+private:
+    Image *image;
+    Palette *palette;
+    qreal offset;
+    qreal step;
+    GLuint textureId;
+};
+
+#endif

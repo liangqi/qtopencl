@@ -44,6 +44,7 @@
 
 #include <QtGui/qimage.h>
 #include <QtCore/qmetatype.h>
+#include <QtOpenGL/qgl.h>
 
 class Palette;
 
@@ -59,6 +60,9 @@ public:
     virtual QMetaType::Type precision() const = 0;
 
     QImage image() const { return img; }
+
+    virtual void setTextureId(GLuint textureId) { Q_UNUSED(textureId); }
+    virtual void initialize() {}
 
     QRectF region() const { return rgn; }
     void setRegion(const QRectF& value)
