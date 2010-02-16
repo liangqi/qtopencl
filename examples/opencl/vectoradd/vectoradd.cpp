@@ -86,7 +86,7 @@ int main(int, char **)
 
     // Execute the kernel and then read back the results.
     kernel(buffer1, buffer2, buffer3);
-    buffer3.read(0, output, sizeof(output));
+    buffer3.read(output, sizeof(output));
 
     // Check the answer.
     for (int index = 0; index < VECTOR_SIZE; ++index) {

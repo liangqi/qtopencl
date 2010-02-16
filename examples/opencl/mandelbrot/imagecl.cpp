@@ -175,7 +175,7 @@ void ImageCL::generateImage
         floatColors.append(float(color.blueF()));
         floatColors.append(float(color.alphaF()));
     }
-    colorBuffer.write(0, floatColors.constData(),
+    colorBuffer.write(floatColors.constData(),
                       maxIterations * sizeof(float) * 4);
 
     if (!textureBuffer.textureId()) {

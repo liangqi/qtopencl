@@ -112,6 +112,27 @@ bool QCLBuffer::read(size_t offset, void *data, size_t size)
 }
 
 /*!
+    \overload
+
+    Reads \a size bytes from this buffer, starting at offset zero,
+    into the supplied \a data array.  Returns true if the read
+    was successful; false otherwise.
+
+    This function will block until the request completes.
+    The request is executed on the active command queue for context().
+
+    \sa readAsync(), write()
+*/
+bool QCLBuffer::read(void *data, size_t size)
+{
+    cl_int error = clEnqueueReadBuffer
+        (context()->activeQueue(), id(),
+         CL_TRUE, 0, size, data, 0, 0, 0);
+    context()->reportError("QCLBuffer::read:", error);
+    return error == CL_SUCCESS;
+}
+
+/*!
     Reads \a size bytes from this buffer, starting at \a offset,
     into the supplied \a data array.
 
@@ -156,6 +177,25 @@ bool QCLBuffer::write(size_t offset, const void *data, size_t size)
     cl_int error = clEnqueueWriteBuffer
         (context()->activeQueue(), id(),
          CL_TRUE, offset, size, data, 0, 0, 0);
+    context()->reportError("QCLBuffer::write:", error);
+    return error == CL_SUCCESS;
+}
+
+/*!
+    Writes \a size bytes to this buffer, starting at offset zero,
+    from the supplied \a data array.  Returns true if the write
+    was successful; false otherwise.
+
+    This function will block until the request completes.
+    The request is executed on the active command queue for context().
+
+    \sa writeAsync(), read()
+*/
+bool QCLBuffer::write(const void *data, size_t size)
+{
+    cl_int error = clEnqueueWriteBuffer
+        (context()->activeQueue(), id(),
+         CL_TRUE, 0, size, data, 0, 0, 0);
     context()->reportError("QCLBuffer::write:", error);
     return error == CL_SUCCESS;
 }

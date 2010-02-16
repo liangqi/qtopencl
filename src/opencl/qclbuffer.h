@@ -72,10 +72,12 @@ public:
 
     bool isGLBuffer() const;
 
+    bool read(void *data, size_t size);
     bool read(size_t offset, void *data, size_t size);
     QCLEvent readAsync(size_t offset, void *data, size_t size,
                        const QVector<QCLEvent>& after = QVector<QCLEvent>());
 
+    bool write(const void *data, size_t size);
     bool write(size_t offset, const void *data, size_t size);
     QCLEvent writeAsync(size_t offset, const void *data, size_t size,
                         const QVector<QCLEvent>& after = QVector<QCLEvent>());
