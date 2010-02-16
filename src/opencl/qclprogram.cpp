@@ -180,31 +180,24 @@ bool QCLProgram::build(const QList<QCLDevice>& devices, const QString& options)
 */
 QString QCLProgram::log() const
 {
-    // Get the devices associated with the program so we can
-    // retrieve the log for each one.
-    cl_uint numDevs = 0;
-    if (clGetProgramInfo(m_id, CL_PROGRAM_NUM_DEVICES,
-                         sizeof(numDevs), &numDevs, 0) != CL_SUCCESS)
+    // Get the list of devices for the program's context.
+    // Note: CL_PROGRAM_DEVICES is unreliable on some OpenCL implementations.
+    QCLContext *ctx = context();
+    if (!ctx)
         return QString();
-    if (!numDevs)
-        return QString();
-    QVarLengthArray<cl_device_id> devs(numDevs);
-    if (clGetProgramInfo(m_id, CL_PROGRAM_NUM_DEVICES,
-                         numDevs * sizeof(cl_device_id),
-                         devs.data(), 0) != CL_SUCCESS)
-        return QString();
+    QList<QCLDevice> devs = ctx->devices();
 
     // Retrieve the device logs and concatenate them.
     QString log;
-    for (cl_uint index = 0; index < numDevs; ++index) {
+    for (int index = 0; index < devs.size(); ++index) {
         size_t size = 0;
         if (clGetProgramBuildInfo
-                (m_id, devs[index], CL_PROGRAM_BUILD_LOG,
+                (m_id, devs[index].id(), CL_PROGRAM_BUILD_LOG,
                  0, 0, &size) != CL_SUCCESS || !size)
             continue;
         QVarLengthArray<char> buf(size);
         if (clGetProgramBuildInfo
-                (m_id, devs[index], CL_PROGRAM_BUILD_LOG,
+                (m_id, devs[index].id(), CL_PROGRAM_BUILD_LOG,
                  size, buf.data(), 0) != CL_SUCCESS || !size)
             continue;
         log += QString::fromLatin1(buf.constData(), size);
