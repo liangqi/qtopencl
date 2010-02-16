@@ -41,6 +41,8 @@
 
 #include <QtTest/QtTest>
 #include <QtGui/qimage.h>
+#include <QtGui/qcolor.h>
+#include <QtCore/qvarlengtharray.h>
 #include "qclcontext.h"
 
 const int Test_Width = 1024;
@@ -65,17 +67,33 @@ private slots:
     void openclPerPixelHost();
     void openclPerGroup_data();
     void openclPerGroup();
+    void openclImage_data();
+    void openclImage();
 
 private:
     QCLContext context;
     QCLProgram program;
     QCLKernel perPixelKernel;
     QCLKernel perGroupKernel;
+    QCLKernel imageKernel;
+    QVarLengthArray<QRgb> rgbColors;
+    QVarLengthArray<float> floatColors;
 };
 
 void tst_Mandelbrot::initTestCase()
 {
     QVERIFY(context.create());
+
+    // Create a color table to use when generating the pixel values.
+    for (int index = 0; index < Test_MaxIterations; ++index) {
+        qreal amt = qreal(index) / (Test_MaxIterations - 1);
+        QColor color = QColor::fromHsvF(amt, 1.0f, 1.0f);
+        rgbColors.append(color.rgb());
+        floatColors.append(color.redF());
+        floatColors.append(color.greenF());
+        floatColors.append(color.blueF());
+        floatColors.append(color.alphaF());
+    }
 }
 
 // Generate Mandelbrot iteration data using plain C++ and no acceleration.
@@ -142,6 +160,7 @@ void tst_Mandelbrot::buildProgram()
             (QLatin1String(":/mandelbrot.cl"));
         perPixelKernel = program.createKernel("mandelbrot_per_pixel");
         perGroupKernel = program.createKernel("mandelbrot_per_group");
+        imageKernel = program.createKernel("mandelbrot_image2d");
     }
 }
 
@@ -165,9 +184,13 @@ void tst_Mandelbrot::openclPerPixel()
         (Test_Width * Test_Height * sizeof(int), QCLBuffer::WriteOnly);
     perPixelKernel.setGlobalWorkSize(QCLWorkSize(Test_Width, Test_Height));
 
+    QCLBuffer colors = context.createBufferCopy
+        (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
+         QCLBuffer::ReadOnly);
+
     QBENCHMARK {
         QCLEvent event = perPixelKernel
-            (data, float(region.x()), float(region.y()),
+            (data, colors, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations);
         event.wait();
@@ -195,9 +218,13 @@ void tst_Mandelbrot::openclPerPixelHost()
         (0, Test_Width * Test_Height * sizeof(int), QCLBuffer::WriteOnly);
     perPixelKernel.setGlobalWorkSize(QCLWorkSize(Test_Width, Test_Height));
 
+    QCLBuffer colors = context.createBufferCopy
+        (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
+         QCLBuffer::ReadOnly);
+
     QBENCHMARK {
         QCLEvent event = perPixelKernel
-            (data, float(region.x()), float(region.y()),
+            (data, colors, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations);
         event.wait();
@@ -226,11 +253,52 @@ void tst_Mandelbrot::openclPerGroup()
     perGroupKernel.setGlobalWorkSize
         (QCLWorkSize(Test_Width / 16, Test_Height / 16));
 
+    QCLBuffer colors = context.createBufferCopy
+        (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
+         QCLBuffer::ReadOnly);
+
     QBENCHMARK {
         QCLEvent event = perGroupKernel
-            (data, float(region.x()), float(region.y()),
+            (data, colors, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations, 16);
+        event.wait();
+    }
+}
+
+// Generate Mandelbrot iteration data using a per-pixel OpenCL kernel.
+// The data is written to a 2D OpenCL image object rather than a buffer.
+// This test uses a float color table.
+void tst_Mandelbrot::openclImage_data()
+{
+    plain_data();
+}
+void tst_Mandelbrot::openclImage()
+{
+    QFETCH(qreal, centerx);
+    QFETCH(qreal, centery);
+    QFETCH(qreal, diameter);
+
+    QVERIFY(!imageKernel.isNull());
+
+    QRectF region(centerx - diameter / 2, centery - diameter / 2,
+                  diameter, diameter);
+
+    QCLImageFormat format(QCLImageFormat::Order_RGBA,
+                          QCLImageFormat::Type_Normalized_UInt8);
+    QCLImage2D data = context.createImage2DDevice
+        (format, QSize(Test_Width, Test_Height), QCLImage2D::WriteOnly);
+    imageKernel.setGlobalWorkSize(QCLWorkSize(Test_Width, Test_Height));
+
+    QCLBuffer colorBuffer = context.createBufferCopy
+        (floatColors.constData(), sizeof(float) * 4 * Test_MaxIterations,
+         QCLBuffer::ReadOnly);
+
+    QBENCHMARK {
+        QCLEvent event = imageKernel
+            (data, colorBuffer, float(region.x()), float(region.y()),
+             float(region.width()), float(region.height()),
+             Test_Width, Test_Height, Test_MaxIterations);
         event.wait();
     }
 }

@@ -41,6 +41,7 @@
 
 __kernel void mandelbrot_per_pixel
         (__global __write_only int *data,
+         __global __read_only int *colors,
          const float regionx, const float regiony,
          const float regionwidth, const float regionheight,
          const int pixelwidth, const int pixelheight,
@@ -63,11 +64,15 @@ __kernel void mandelbrot_per_pixel
         x = xtemp;
         ++iteration;
     }
-    data[ypixel * pixelwidth + xpixel] = iteration;
+    if (iteration < maxIterations)
+        data[ypixel * pixelwidth + xpixel] = colors[iteration];
+    else
+        data[ypixel * pixelwidth + xpixel] = 0xff000000;
 }
 
 __kernel void mandelbrot_per_group
         (__global __write_only int *data,
+         __global __read_only int *colors,
          const float regionx, const float regiony,
          const float regionwidth, const float regionheight,
          const int pixelwidth, const int pixelheight,
@@ -96,9 +101,43 @@ __kernel void mandelbrot_per_group
                 x = xtemp;
                 ++iteration;
             }
-            data[datapos++] = iteration;
+            if (iteration < maxIterations)
+                data[datapos++] = colors[iteration];
+            else
+                data[datapos++] = 0xff000000;
             xin += xstep;
         }
         yin += ystep;
     }
+}
+
+__kernel void mandelbrot_image2d
+        (__write_only image2d_t data,
+         __global __read_only float4 *colors,
+         const float regionx, const float regiony,
+         const float regionwidth, const float regionheight,
+         const int pixelwidth, const int pixelheight,
+         const int maxIterations)
+{
+    int xpixel = get_global_id(0);
+    int ypixel = get_global_id(1);
+    float xin = regionx + xpixel * regionwidth / pixelwidth;
+    float yin = regiony + ypixel * regionheight / pixelheight;
+    int iteration = 0;
+    float x = 0;
+    float y = 0;
+    while (iteration < maxIterations) {
+        float x2 = x * x;
+        float y2 = y * y;
+        if ((x2 + y2) > 4.0)
+            break;
+        float xtemp = x2 - y2 + xin;
+        y = 2 * x * y + yin;
+        x = xtemp;
+        ++iteration;
+    }
+    if (iteration < maxIterations)
+        write_imagef(data, (int2)(xpixel, ypixel), colors[iteration]);
+    else
+        write_imagef(data, (int2)(xpixel, ypixel), (float4)(0, 0, 0, 1));
 }
