@@ -96,38 +96,38 @@ public:
         (const QCLDevice& device, cl_command_queue_properties properties);
 
     QCLBuffer createBufferDevice
-        (size_t size, QCLMemoryObject::MemoryFlags access);
+        (size_t size, QCLMemoryObject::Access access);
     QCLBuffer createBufferHost
-        (void *data, size_t size, QCLMemoryObject::MemoryFlags access);
+        (void *data, size_t size, QCLMemoryObject::Access access);
     QCLBuffer createBufferCopy
-        (const void *data, size_t size, QCLMemoryObject::MemoryFlags access);
+        (const void *data, size_t size, QCLMemoryObject::Access access);
 
     QCLImage2D createImage2DDevice
         (const QCLImageFormat& format, const QSize& size,
-         QCLMemoryObject::MemoryFlags access);
+         QCLMemoryObject::Access access);
     QCLImage2D createImage2DHost
         (const QCLImageFormat& format, void *data, const QSize& size,
-         QCLMemoryObject::MemoryFlags access, int bytesPerLine = 0);
+         QCLMemoryObject::Access access, int bytesPerLine = 0);
     QCLImage2D createImage2DHost
-        (QImage *image, QCLMemoryObject::MemoryFlags access);
+        (QImage *image, QCLMemoryObject::Access access);
     QCLImage2D createImage2DCopy
         (const QCLImageFormat& format, const void *data, const QSize& size,
-         QCLMemoryObject::MemoryFlags access, int bytesPerLine = 0);
+         QCLMemoryObject::Access access, int bytesPerLine = 0);
     QCLImage2D createImage2DCopy
-        (const QImage& image, QCLMemoryObject::MemoryFlags access);
+        (const QImage& image, QCLMemoryObject::Access access);
 
     QCLImage3D createImage3DDevice
         (const QCLImageFormat& format, int width, int height, int depth,
-         QCLMemoryObject::MemoryFlags access);
+         QCLMemoryObject::Access access);
     QCLImage3D createImage3DHost
         (const QCLImageFormat& format, void *data,
          int width, int height, int depth,
-         QCLMemoryObject::MemoryFlags access,
+         QCLMemoryObject::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
     QCLImage3D createImage3DCopy
         (const QCLImageFormat& format, const void *data,
          int width, int height, int depth,
-         QCLMemoryObject::MemoryFlags access,
+         QCLMemoryObject::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
     QCLSampler createSampler
@@ -142,8 +142,8 @@ public:
     QCLProgram buildProgramFromSourceCode(const QByteArray& sourceCode);
     QCLProgram buildProgramFromSourceFile(const QString& fileName);
 
-    QList<QCLImageFormat> supportedImage2DFormats(QCLMemoryObject::MemoryFlags flags) const;
-    QList<QCLImageFormat> supportedImage3DFormats(QCLMemoryObject::MemoryFlags flags) const;
+    QList<QCLImageFormat> supportedImage2DFormats(cl_mem_flags flags) const;
+    QList<QCLImageFormat> supportedImage3DFormats(cl_mem_flags flags) const;
 
 private:
     QScopedPointer<QCLContextPrivate> d_ptr;

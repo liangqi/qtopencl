@@ -624,7 +624,7 @@ QCLCommandQueue QCLContext::createCommandQueue
     \sa createBufferHost(), createBufferCopy()
 */
 QCLBuffer QCLContext::createBufferDevice
-    (size_t size, QCLMemoryObject::MemoryFlags access)
+    (size_t size, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -651,7 +651,7 @@ QCLBuffer QCLContext::createBufferDevice
     \sa createBufferDevice(), createBufferCopy()
 */
 QCLBuffer QCLContext::createBufferHost
-    (void *data, size_t size, QCLMemoryObject::MemoryFlags access)
+    (void *data, size_t size, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -682,7 +682,7 @@ QCLBuffer QCLContext::createBufferHost
     \sa createBufferDevice(), createBufferHost()
 */
 QCLBuffer QCLContext::createBufferCopy
-    (const void *data, size_t size, QCLMemoryObject::MemoryFlags access)
+    (const void *data, size_t size, QCLMemoryObject::Access access)
 {
     Q_ASSERT(data);
     Q_D(QCLContext);
@@ -713,7 +713,7 @@ QCLBuffer QCLContext::createBufferCopy
 */
 QCLImage2D QCLContext::createImage2DDevice
     (const QCLImageFormat& format, const QSize& size,
-     QCLMemoryObject::MemoryFlags access)
+     QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -744,7 +744,7 @@ QCLImage2D QCLContext::createImage2DDevice
 */
 QCLImage2D QCLContext::createImage2DHost
     (const QCLImageFormat& format, void *data, const QSize& size,
-     QCLMemoryObject::MemoryFlags access, int bytesPerLine)
+     QCLMemoryObject::Access access, int bytesPerLine)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -779,7 +779,7 @@ QCLImage2D QCLContext::createImage2DHost
     \sa createImage2DDevice(), createImage2DCopy()
 */
 QCLImage2D QCLContext::createImage2DHost
-    (QImage *image, QCLMemoryObject::MemoryFlags access)
+    (QImage *image, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
 
@@ -823,7 +823,7 @@ QCLImage2D QCLContext::createImage2DHost
 */
 QCLImage2D QCLContext::createImage2DCopy
     (const QCLImageFormat& format, const void *data, const QSize& size,
-     QCLMemoryObject::MemoryFlags access, int bytesPerLine)
+     QCLMemoryObject::Access access, int bytesPerLine)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -854,7 +854,7 @@ QCLImage2D QCLContext::createImage2DCopy
     \sa createImage2DDevice(), createImage2DHost()
 */
 QCLImage2D QCLContext::createImage2DCopy
-    (const QImage& image, QCLMemoryObject::MemoryFlags access)
+    (const QImage& image, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
 
@@ -897,7 +897,7 @@ QCLImage2D QCLContext::createImage2DCopy
 */
 QCLImage3D QCLContext::createImage3DDevice
     (const QCLImageFormat& format, int width, int height, int depth,
-     QCLMemoryObject::MemoryFlags access)
+     QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -931,7 +931,7 @@ QCLImage3D QCLContext::createImage3DDevice
 QCLImage3D QCLContext::createImage3DHost
     (const QCLImageFormat& format, void *data,
      int width, int height, int depth,
-     QCLMemoryObject::MemoryFlags access,
+     QCLMemoryObject::Access access,
      int bytesPerLine, int bytesPerSlice)
 {
     Q_D(QCLContext);
@@ -971,7 +971,7 @@ QCLImage3D QCLContext::createImage3DHost
 QCLImage3D QCLContext::createImage3DCopy
     (const QCLImageFormat& format, const void *data,
      int width, int height, int depth,
-     QCLMemoryObject::MemoryFlags access,
+     QCLMemoryObject::Access access,
      int bytesPerLine, int bytesPerSlice)
 {
     Q_D(QCLContext);
@@ -1115,18 +1115,17 @@ QCLProgram QCLContext::buildProgramFromSourceFile(const QString& fileName)
 }
 
 static QList<QCLImageFormat> qt_cl_supportedImageFormats
-    (cl_context ctx, QCLMemoryObject::MemoryFlags flags,
-     cl_mem_object_type image_type)
+    (cl_context ctx, cl_mem_flags flags, cl_mem_object_type image_type)
 {
     cl_uint count = 0;
     QList<QCLImageFormat> list;
     if (clGetSupportedImageFormats
-            (ctx, cl_mem_flags(flags), image_type,
+            (ctx, flags, image_type,
              0, 0, &count) != CL_SUCCESS || !count)
         return list;
     QVarLengthArray<cl_image_format> buf(count);
     if (clGetSupportedImageFormats
-            (ctx, cl_mem_flags(flags), image_type,
+            (ctx, flags, image_type,
              count, buf.data(), 0) != CL_SUCCESS)
         return list;
     for (cl_uint index = 0; index < count; ++index) {
@@ -1144,7 +1143,7 @@ static QList<QCLImageFormat> qt_cl_supportedImageFormats
     \sa supportedImage3DFormats()
 */
 QList<QCLImageFormat> QCLContext::supportedImage2DFormats
-    (QCLMemoryObject::MemoryFlags flags) const
+    (cl_mem_flags flags) const
 {
     Q_D(const QCLContext);
     return qt_cl_supportedImageFormats(d->id, flags, CL_MEM_OBJECT_IMAGE2D);
@@ -1157,7 +1156,7 @@ QList<QCLImageFormat> QCLContext::supportedImage2DFormats
     \sa supportedImage2DFormats()
 */
 QList<QCLImageFormat> QCLContext::supportedImage3DFormats
-    (QCLMemoryObject::MemoryFlags flags) const
+    (cl_mem_flags flags) const
 {
     Q_D(const QCLContext);
     return qt_cl_supportedImageFormats(d->id, flags, CL_MEM_OBJECT_IMAGE3D);

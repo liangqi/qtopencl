@@ -462,6 +462,9 @@ QCLEvent QCLImage2D::copyToAsync
         return QCLEvent();
 }
 
+// Defined in qclbuffer.cpp.
+extern cl_map_flags qt_cl_map_flags(QCLMemoryObject::Access access);
+
 /*!
     Maps the image region \a rect into host memory for the
     specified \a access mode.  Returns a pointer to the mapped region.
@@ -475,7 +478,7 @@ QCLEvent QCLImage2D::copyToAsync
     \sa mapAsync(), unmap()
 */
 void *QCLImage2D::map
-    (const QRect& rect, QCLMemoryObject::MapAccess access, int *bytesPerLine)
+    (const QRect& rect, QCLMemoryObject::Access access, int *bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -483,7 +486,7 @@ void *QCLImage2D::map
     size_t rowPitch;
     void *data = clEnqueueMapImage
         (context()->activeQueue(), id(), CL_TRUE,
-         cl_map_flags(access), origin, region,
+         qt_cl_map_flags(access), origin, region,
          &rowPitch, 0, 0, 0, 0, &error);
     context()->reportError("QCLImage2D::map:", error);
     if (bytesPerLine)
@@ -510,7 +513,7 @@ void *QCLImage2D::map
     \sa map(), unmapAsync()
 */
 QCLEvent QCLImage2D::mapAsync
-    (void **ptr, const QRect& rect, QCLMemoryObject::MapAccess access,
+    (void **ptr, const QRect& rect, QCLMemoryObject::Access access,
      const QVector<QCLEvent>& after, int *bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
@@ -520,7 +523,7 @@ QCLEvent QCLImage2D::mapAsync
     cl_event event;
     *ptr = clEnqueueMapImage
         (context()->activeQueue(), id(), CL_FALSE,
-         cl_map_flags(access), origin, region, &rowPitch, 0, after.size(),
+         qt_cl_map_flags(access), origin, region, &rowPitch, 0, after.size(),
          (after.isEmpty() ? 0 :
             reinterpret_cast<const cl_event *>(after.constData())),
          &event, &error);
@@ -1001,13 +1004,13 @@ QCLEvent QCLImage3D::copyToAsync
 */
 void *QCLImage3D::map
     (const size_t origin[3], const size_t size[3],
-     QCLMemoryObject::MapAccess access, int *bytesPerLine, int *bytesPerSlice)
+     QCLMemoryObject::Access access, int *bytesPerLine, int *bytesPerSlice)
 {
     cl_int error;
     size_t rowPitch, slicePitch;
     void *data = clEnqueueMapImage
         (context()->activeQueue(), id(), CL_TRUE,
-         cl_map_flags(access), origin, size,
+         qt_cl_map_flags(access), origin, size,
          &rowPitch, &slicePitch, 0, 0, 0, &error);
     context()->reportError("QCLImage3D::map:", error);
     if (bytesPerLine)
@@ -1039,14 +1042,14 @@ void *QCLImage3D::map
 */
 QCLEvent QCLImage3D::mapAsync
     (void **ptr, const size_t origin[3], const size_t size[3],
-     QCLMemoryObject::MapAccess access, const QVector<QCLEvent>& after,
+     QCLMemoryObject::Access access, const QVector<QCLEvent>& after,
      int *bytesPerLine, int *bytesPerSlice)
 {
     cl_int error;
     size_t rowPitch, slicePitch;
     cl_event event;
     *ptr = clEnqueueMapImage
-        (context()->activeQueue(), id(), CL_FALSE, cl_map_flags(access),
+        (context()->activeQueue(), id(), CL_FALSE, qt_cl_map_flags(access),
          origin, size, &rowPitch, &slicePitch, after.size(),
          (after.isEmpty() ? 0 :
             reinterpret_cast<const cl_event *>(after.constData())),

@@ -53,31 +53,15 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \enum QCLMemoryObject::MemoryFlag
-    This enum defines the flags to use when creating OpenCL memory objects.
+    \enum QCLMemoryObject::Access
+    This enum defines the access mode to use when creating OpenCL
+    memory objects.
 
     \value ReadWrite The memory object will be read and written by a kernel.
     \value WriteOnly The memory object will be written, but not read,
            by a kernel.
     \value ReadOnly The memory object will be read, but not written,
            by a kernel.
-    \value UseHostPointer Use the host's memory pointer as the storage
-           for the memory object.
-    \value AllocateHostPointer Allocate the memory object from host
-           accessible memory.  UseHostPointer and AllocHostPointer
-           are mutually exclusive.
-    \value CopyHostPointer Copy the data at the host pointer to another
-           location to initialize the memory object.
-*/
-
-/*!
-    \enum QCLMemoryObject::MapAccess
-    This enum defines the access mode to use when mapping an OpenCL memory
-    object into host memory.
-
-    \value MapReadOnly Maps the memory read-only.
-    \value MapWriteOnly Maps the memory write-only.
-    \value MapReadWrite Maps the memory for both reading and writing.
 */
 
 /*!
@@ -122,17 +106,38 @@ QCLMemoryObject::~QCLMemoryObject()
     Returns the OpenCL context that created this memory object.
 */
 
+#define QCL_MEM_ACCESS_FLAGS    (CL_MEM_READ_WRITE | \
+                                 CL_MEM_READ_ONLY | \
+                                 CL_MEM_WRITE_ONLY)
+
+/*!
+    Returns the access mode that was used to create this memory object.
+
+    \sa flags()
+*/
+QCLMemoryObject::Access QCLMemoryObject::access() const
+{
+    cl_mem_flags flags;
+    if (clGetMemObjectInfo(m_id, CL_MEM_FLAGS,
+                           sizeof(flags), &flags, 0) != CL_SUCCESS)
+        return QCLMemoryObject::ReadWrite; // Have to return something.
+    else
+        return QCLMemoryObject::Access(flags & QCL_MEM_ACCESS_FLAGS);
+}
+
 /*!
     Returns the flags that were used to create this memory object.
+
+    \sa access()
 */
-QCLMemoryObject::MemoryFlags QCLMemoryObject::flags() const
+cl_mem_flags QCLMemoryObject::flags() const
 {
     cl_mem_flags flags;
     if (clGetMemObjectInfo(m_id, CL_MEM_FLAGS,
                            sizeof(flags), &flags, 0) != CL_SUCCESS)
         return 0;
     else
-        return QCLMemoryObject::MemoryFlags(flags);
+        return flags;
 }
 
 /*!

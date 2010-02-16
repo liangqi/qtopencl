@@ -68,45 +68,45 @@ public:
     bool supportsObjectSharing() const;
 
     QCLBuffer createGLBuffer
-        (GLuint bufobj, QCLMemoryObject::MemoryFlags access);
+        (GLuint bufobj, QCLMemoryObject::Access access);
 #if QT_VERSION >= 0x040700 || defined(Q_QDOC)
     QCLBuffer createGLBuffer
-        (QGLBuffer *bufobj, QCLMemoryObject::MemoryFlags access);
+        (QGLBuffer *bufobj, QCLMemoryObject::Access access);
 #endif
 
     QCLImage2D createTexture2D
         (GLenum type, GLuint texture, GLint mipmapLevel,
-         QCLMemoryObject::MemoryFlags access);
+         QCLMemoryObject::Access access);
     QCLImage2D createTexture2D
-        (GLuint texture, QCLMemoryObject::MemoryFlags access);
+        (GLuint texture, QCLMemoryObject::Access access);
 
     QCLImage3D createTexture3D
         (GLenum type, GLuint texture, GLint mipmapLevel,
-         QCLMemoryObject::MemoryFlags access);
+         QCLMemoryObject::Access access);
     QCLImage3D createTexture3D
-        (GLuint texture, QCLMemoryObject::MemoryFlags access);
+        (GLuint texture, QCLMemoryObject::Access access);
 
     QCLImage2D createRenderbuffer
-        (GLuint renderbuffer, QCLMemoryObject::MemoryFlags access);
+        (GLuint renderbuffer, QCLMemoryObject::Access access);
 
 #ifdef Q_MAC_COMPAT_GL_FUNCTIONS
     QCLBuffer createGLBuffer
-        (QMacCompatGLuint bufobj, QCLMemoryObject::MemoryFlags access);
+        (QMacCompatGLuint bufobj, QCLMemoryObject::Access access);
 
     QCLImage2D createTexture2D
         (QMacCompatGLenum type, QMacCompatGLuint texture,
-         QMacCompatGLint mipmapLevel, QCLMemoryObject::MemoryFlags access);
+         QMacCompatGLint mipmapLevel, QCLMemoryObject::Access access);
     QCLImage2D createTexture2D
-        (QMacCompatGLuint texture, QCLMemoryObject::MemoryFlags access);
+        (QMacCompatGLuint texture, QCLMemoryObject::Access access);
 
     QCLImage3D createTexture3D
         (QMacCompatGLenum type, QMacCompatGLuint texture,
-         QMacCompatGLint mipmapLevel, QCLMemoryObject::MemoryFlags access);
+         QMacCompatGLint mipmapLevel, QCLMemoryObject::Access access);
     QCLImage3D createTexture3D
-        (QMacCompatGLuint texture, QCLMemoryObject::MemoryFlags access);
+        (QMacCompatGLuint texture, QCLMemoryObject::Access access);
 
     QCLImage2D createRenderbuffer
-        (QMacCompatGLuint renderbuffer, QCLMemoryObject::MemoryFlags access);
+        (QMacCompatGLuint renderbuffer, QCLMemoryObject::Access access);
 #endif
 
 private:

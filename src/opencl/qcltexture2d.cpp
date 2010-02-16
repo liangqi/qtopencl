@@ -223,7 +223,7 @@ void QCLTexture2D::releaseGL()
     context()->commandQueue().marker().wait();
 
     // Upload the contents of the OpenCL buffer into the texture.
-    void *ptr = map(QRect(QPoint(0, 0), d->size), MapReadOnly);
+    void *ptr = map(QRect(QPoint(0, 0), d->size), QCLImage2D::ReadOnly);
     glBindTexture(GL_TEXTURE_2D, d->guard.id());
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                     d->size.width(), d->size.height(),

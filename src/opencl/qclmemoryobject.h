@@ -62,22 +62,11 @@ protected:
 public:
     virtual ~QCLMemoryObject();
 
-    enum MemoryFlag
+    enum Access
     {
         ReadWrite           = 0x0001,
         WriteOnly           = 0x0002,
-        ReadOnly            = 0x0004,
-        UseHostPointer      = 0x0008,
-        AllocateHostPointer = 0x0010,
-        CopyHostPointer     = 0x0020
-    };
-    Q_DECLARE_FLAGS(MemoryFlags, MemoryFlag)
-
-    enum MapAccess
-    {
-        MapReadOnly         = 0x0001,
-        MapWriteOnly        = 0x0002,
-        MapReadWrite        = 0x0003
+        ReadOnly            = 0x0004
     };
 
     bool isNull() const { return m_id == 0; }
@@ -85,7 +74,8 @@ public:
     cl_mem id() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
-    QCLMemoryObject::MemoryFlags flags() const;
+    QCLMemoryObject::Access access() const;
+    cl_mem_flags flags() const;
     void *hostPointer() const;
     size_t size() const;
 
@@ -108,8 +98,6 @@ private:
 
     Q_DISABLE_COPY(QCLMemoryObject)
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QCLMemoryObject::MemoryFlags)
 
 QT_END_NAMESPACE
 

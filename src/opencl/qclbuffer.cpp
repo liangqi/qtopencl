@@ -401,6 +401,19 @@ QCLEvent QCLBuffer::copyToAsync
         return QCLEvent();
 }
 
+// We use a single enum in the public API for both memory objects
+// and memory mapping, but the values are slightly different in
+// the OpenCL C API.  This function corrects for the difference.
+cl_map_flags qt_cl_map_flags(QCLMemoryObject::Access access)
+{
+    if (access == QCLMemoryObject::ReadOnly)
+        return CL_MAP_READ;
+    else if (access == QCLMemoryObject::WriteOnly)
+        return CL_MAP_WRITE;
+    else
+        return CL_MAP_READ | CL_MAP_WRITE;
+}
+
 /*!
     Maps the \a size bytes starting at \a offset in this buffer
     into host memory for the specified \a access mode.  Returns a
@@ -412,12 +425,12 @@ QCLEvent QCLBuffer::copyToAsync
     \sa mapAsync(), unmap()
 */
 void *QCLBuffer::map
-    (size_t offset, size_t size, QCLMemoryObject::MapAccess access)
+    (size_t offset, size_t size, QCLMemoryObject::Access access)
 {
     cl_int error;
     void *data = clEnqueueMapBuffer
         (context()->activeQueue(), id(), CL_TRUE,
-         cl_map_flags(access), offset, size, 0, 0, 0, &error);
+         qt_cl_map_flags(access), offset, size, 0, 0, 0, &error);
     context()->reportError("QCLBuffer::map:", error);
     return data;
 }
@@ -440,13 +453,13 @@ void *QCLBuffer::map
 */
 QCLEvent QCLBuffer::mapAsync
     (void **ptr, size_t offset, size_t size,
-     QCLMemoryObject::MapAccess access, const QVector<QCLEvent>& after)
+     QCLMemoryObject::Access access, const QVector<QCLEvent>& after)
 {
     cl_int error;
     cl_event event;
     *ptr = clEnqueueMapBuffer
         (context()->activeQueue(), id(), CL_FALSE,
-         cl_map_flags(access), offset, size, after.size(),
+         qt_cl_map_flags(access), offset, size, after.size(),
          (after.isEmpty() ? 0 :
             reinterpret_cast<const cl_event *>(after.constData())),
          &event, &error);
