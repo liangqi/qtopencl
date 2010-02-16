@@ -156,6 +156,7 @@ bool QCLContextGL::create()
     QStringList extensions = gpu.extensions();
     bool hasSharing = false;
 #if defined(__APPLE__) || defined(__MACOSX)
+#if 0   // CGL not fully supported yet
     bool appleSharing = extensions.contains
         (QLatin1String("cl_apple_gl_sharing"), Qt::CaseInsensitive);
     if (appleSharing) {
@@ -165,6 +166,7 @@ bool QCLContextGL::create()
         properties.append(cl_context_properties(cglShareGroup));
         hasSharing = true;
     }
+#endif
 #else
     bool khrSharing = extensions.contains
         (QLatin1String("cl_khr_gl_sharing"), Qt::CaseInsensitive);
