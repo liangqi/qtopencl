@@ -1,6 +1,18 @@
 INCLUDEPATH += $$PWD
-macx: {
+macx {
     LIBS += -lQtOpenCL -framework OpenCL
+} else {
+    LIBS += -lQtOpenCL
+    !isEmpty(QMAKE_INCDIR_OPENCL) {
+        QMAKE_CXXFLAGS += -I$$QMAKE_INCDIR_OPENCL
+    }
+    !isEmpty(QMAKE_LIBDIR_OPENCL) {
+        LIBS += -L$$QMAKE_LIBDIR_OPENCL
+    }
+    !isEmpty(QMAKE_LIBS_OPENCL) {
+        LIBS += $$QMAKE_LIBS_OPENCL
+    } else {
+        LIBS += -lOpenCL
+    }
 }
-else: LIBS += -lQtOpenCL -lOpenCL
 QT += opengl

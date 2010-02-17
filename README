@@ -1,0 +1,32 @@
+
+This directory contains a Qt-style wrapper library for OpenCL
+plus several examples, benchmarks, and unit tests that exercise
+the library in various ways.
+
+It is recommended that you build Qt 4.7 from sources and use that to build
+the library, rather than use the SDK version of Qt.  This is because
+the library needs access to private header files from the Qt sources
+which are not part of the SDK.
+
+There are a number of variables that can be provided to qmake:
+
+QMAKE_INCDIR_OPENCL
+    Directory that contains the includes <CL/cl.h>, <CL/cl_gl.h>, etc.
+QMAKE_LIBDIR_OPENCL
+    Directory that contains the libOpenCL.so library.
+QMAKE_LIBS_OPENCL
+    Libraries to add to the link line.  e.g. "-lOpenCL -lGLESv2".  The
+    default value is "-lOpenCL".
+
+For example:
+    qmake QMAKE_INCDIR_OPENCL=abc QMAKE_LIBDIR_OPENCL=def
+
+Note: you should use the full pathname to the "qmake" binary in the
+version of Qt you built from sources.  For example, if you built Qt 4.7
+in $HOME/build/qt-47, then you would run qmake as follows:
+
+    $HOME/build/qt-47/bin/qmake QMAKE_INCDIR_OPENCL=abc QMAKE_LIBDIR_OPENCL=def
+
+For the N900, it is recommended that QMAKE_LIBS_OPENCL be set to
+"-lOCL -lGLESv2".  Also, you may need to modify your <CL/cl_gl.h> file
+to change "#include <GL/gl.h>" to "#include <GLES2/gl2.h>".

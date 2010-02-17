@@ -11,7 +11,20 @@ else:DESTDIR = ../../lib
 
 macx {
     LIBS += -framework OpenCL
+} else {
+    !isEmpty(QMAKE_INCDIR_OPENCL) {
+        QMAKE_CXXFLAGS += -I$$QMAKE_INCDIR_OPENCL
+    }
+    !isEmpty(QMAKE_LIBDIR_OPENCL) {
+        LIBS += -L$$QMAKE_LIBDIR_OPENCL
+    }
+    !isEmpty(QMAKE_LIBS_OPENCL) {
+        LIBS += $$QMAKE_LIBS_OPENCL
+    } else {
+        LIBS += -lOpenCL
+    }
 }
+
 HEADERS += \
     qclbuffer.h \
     qclcommandqueue.h \
