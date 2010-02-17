@@ -195,6 +195,27 @@ bool QCLImage2D::read(void *data, const QRect& rect, int bytesPerLine)
 }
 
 /*!
+    \overload
+
+    Reads the contents of \a rect from within this 2D OpenCL image
+    into \a image.  Returns true if the read was successful; false otherwise.
+    If \a rect is null, then the entire image is read.
+
+    This function will block until the request completes.
+    The request is executed on the active command queue for context().
+*/
+bool QCLImage2D::read(QImage *image, const QRect& rect)
+{
+    if (rect.isNull()) {
+        return read(image->bits(),
+                    QRect(0, 0, image->width(), image->height()),
+                    image->bytesPerLine());
+    } else {
+        return read(image->bits(), rect, image->bytesPerLine());
+    }
+}
+
+/*!
     Reads the contents of \a rect from within this image into \a data.
     Returns true if the read was successful; false otherwise.
     If \a bytesPerLine is not zero, it indicates the number of bytes
@@ -249,6 +270,27 @@ bool QCLImage2D::write(const void *data, const QRect& rect, int bytesPerLine)
          origin, region, bytesPerLine, 0, data, 0, 0, 0);
     context()->reportError("QCLImage2D::write:", error);
     return error == CL_SUCCESS;
+}
+
+/*!
+    \overload
+
+    Writes the contents of \a image to \a rect within this 2D OpenCL image.
+    Returns true if the write was successful; false otherwise.
+    If \a rect is null, then the entire image is read.
+
+    This function will block until the request completes.
+    The request is executed on the active command queue for context().
+*/
+bool QCLImage2D::write(const QImage& image, const QRect& rect)
+{
+    if (rect.isNull()) {
+        return write(image.bits(),
+                     QRect(0, 0, image.width(), image.height()),
+                     image.bytesPerLine());
+    } else {
+        return write(image.bits(), rect, image.bytesPerLine());
+    }
 }
 
 /*!
