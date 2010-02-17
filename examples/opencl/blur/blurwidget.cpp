@@ -63,6 +63,8 @@ BlurWidget::BlurWidget(QWidget *parent)
     srcImageBuffer = context.createImage2DCopy(img, QCLImage2D::ReadOnly);
 
     dstImage = QImage(img.width(), img.height(), QImage::Format_ARGB32);
+    dstImageBuffer = context.createImage2DDevice
+        (dstImage.format(), dstImage.size(), QCLImage2D::WriteOnly);
 
     kernelBuffer = context.createBufferDevice
         (sizeof(float) * 33 * 33, QCLBuffer::ReadOnly);
@@ -117,15 +119,11 @@ void BlurWidget::paintConvolve()
     // Upload the convolution kernel into the OpenCL buffer.
     kernelBuffer.write(arr.constData(), sizeof(float) * arr.size());
 
-    // Create a temporary host buffer for the destination image.
-    QCLImage2D dstImageBuffer = context.createImage2DHost
-        (&dstImage, QCLImage2D::WriteOnly);
-
     // Execute the convolution kernel.
-    convolve(srcImageBuffer, dstImageBuffer, kernelBuffer, dim, dim).wait();
+    convolve(srcImageBuffer, dstImageBuffer, kernelBuffer, dim, dim);
 
-    // Release the host buffer which will force a flush on the contents.
-    dstImageBuffer = QCLImage2D();
+    // Read back the destination image into host memory.
+    dstImageBuffer.read(&dstImage);
 
     // Draw the destination image.
     QPainter painter(this);
@@ -175,18 +173,14 @@ void BlurWidget::paintGaussian()
     offsetsBuffer.write(offsets.constData(), sizeof(float) * offsets.size());
     weightsBuffer.write(weights.constData(), sizeof(float) * weights.size());
 
-    // Create a temporary host buffer for the destination image.
-    QCLImage2D dstImageBuffer = context.createImage2DHost
-        (&dstImage, QCLImage2D::WriteOnly);
-
     // Execute the horizontal and vertical Gaussian kernels.
     hgaussian(srcImageBuffer, tmpImageBuffer, weightsBuffer,
               offsetsBuffer, weights.size());
     vgaussian(tmpImageBuffer, dstImageBuffer, weightsBuffer,
-              offsetsBuffer, weights.size()).wait();
+              offsetsBuffer, weights.size());
 
-    // Release the host buffer which will force a flush on the contents.
-    dstImageBuffer = QCLImage2D();
+    // Read back the destination image into host memory.
+    dstImageBuffer.read(&dstImage);
 
     // Draw the destination image.
     QPainter painter(this);

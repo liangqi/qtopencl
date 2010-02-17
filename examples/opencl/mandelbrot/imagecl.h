@@ -61,6 +61,7 @@ public:
 protected:
     int wid, ht;
     QCLBuffer data;
+    QCLImage2D imageBuffer;
     QCLTexture2D textureBuffer;
     bool initialized;
 

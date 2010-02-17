@@ -72,6 +72,7 @@ private:
     QCLKernel vgaussian;
     QImage dstImage;
     QCLImage2D srcImageBuffer;
+    QCLImage2D dstImageBuffer;
     QCLImage2D tmpImageBuffer;
     QCLBuffer kernelBuffer;
     QCLBuffer weightsBuffer;

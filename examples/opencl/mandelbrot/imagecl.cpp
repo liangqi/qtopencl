@@ -179,19 +179,19 @@ void ImageCL::generateImage
                       maxIterations * sizeof(float) * 4);
 
     if (!textureBuffer.textureId()) {
-        // Map the image so that both the device and the host can access it.
-        QCLImage2D imageBuffer = ctx->context->createImage2DHost
-            (image, QCLBuffer::WriteOnly);
+        // Create a buffer for the image in the OpenCL device.
+        if (imageBuffer.isNull()) {
+            imageBuffer = ctx->context->createImage2DDevice
+                (QImage::Format_ARGB32, QSize(wid, ht), QCLBuffer::WriteOnly);
+        }
 
         // Execute the "colorize" kernel.
         colorize.setGlobalWorkSize(QCLWorkSize(wid, ht));
         QCLEvent event = colorize
             (data, imageBuffer, colorBuffer, wid, maxIterations);
-        event.wait();
 
-        // Synchronize the image buffer to make sure the contents
-        // are copied back to host memory.
-        imageBuffer.sync();
+        // Copy the OpenCL image buffer into the host image.
+        imageBuffer.read(image);
     } else {
         // Finish previous GL operations on the texture.
         glFinish();
