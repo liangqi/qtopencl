@@ -52,12 +52,6 @@ public:
     BlurWidget(QWidget *parent = 0);
     ~BlurWidget();
 
-    enum BlurType
-    {
-        Convolution,
-        Gaussian
-    };
-
 protected:
     void paintEvent(QPaintEvent *);
 
@@ -67,22 +61,16 @@ private slots:
 private:
     QCLContext context;
     QCLProgram program;
-    QCLKernel convolve;
     QCLKernel hgaussian;
     QCLKernel vgaussian;
     QImage dstImage;
     QCLImage2D srcImageBuffer;
     QCLImage2D dstImageBuffer;
     QCLImage2D tmpImageBuffer;
-    QCLBuffer kernelBuffer;
     QCLBuffer weightsBuffer;
     QCLBuffer offsetsBuffer;
     int radius;
     int step;
-    BlurType type;
-
-    void paintConvolve();
-    void paintGaussian();
 };
 
 #endif

@@ -42,26 +42,6 @@
 const sampler_t samp = CLK_ADDRESS_CLAMP_TO_EDGE |
                        CLK_FILTER_LINEAR;
 
-__kernel void convolve(__read_only image2d_t srcImage,
-                       __write_only image2d_t dstImage,
-                       __global __read_only float *convKernel,
-                       const int kernelWidth, const int kernelHeight)
-{
-    int2 pos = (int2)(get_global_id(0), get_global_id(1));
-    int2 shiftpos = pos - (int2)(kernelWidth / 2, kernelHeight / 2);
-    float4 pixel = (float4)(0, 0, 0, 0);
-    int xpos, ypos;
-    for (ypos = 0; ypos < kernelHeight; ++ypos) {
-        for (xpos = 0; xpos < kernelWidth; ++xpos) {
-            pixel += read_imagef(srcImage, samp,
-                                 shiftpos + (int2)(xpos, ypos)) *
-                     convKernel[xpos + ypos * kernelWidth];
-        }
-    }
-    write_imagef(dstImage, pos, clamp(pixel, 0.0f, 1.0f));
-}
-
-
 __kernel void hgaussian(__read_only image2d_t srcImage,
                         __write_only image2d_t dstImage,
                         __global __read_only float *weights,

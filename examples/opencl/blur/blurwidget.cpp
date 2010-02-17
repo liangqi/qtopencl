@@ -51,8 +51,6 @@ BlurWidget::BlurWidget(QWidget *parent)
     : QWidget(parent)
     , radius(1)
     , step(1)
-    //, type(Convolution)
-    , type(Gaussian)
 {
     if (!context.create())
         qFatal("Could not create OpenCL context");
@@ -65,12 +63,6 @@ BlurWidget::BlurWidget(QWidget *parent)
     dstImage = QImage(img.width(), img.height(), QImage::Format_ARGB32);
     dstImageBuffer = context.createImage2DDevice
         (dstImage.format(), dstImage.size(), QCLImage2D::WriteOnly);
-
-    kernelBuffer = context.createBufferDevice
-        (sizeof(float) * 33 * 33, QCLBuffer::ReadOnly);
-
-    convolve = program.createKernel("convolve");
-    convolve.setGlobalWorkSize(img.size());
 
     hgaussian = program.createKernel("hgaussian");
     hgaussian.setGlobalWorkSize(img.size());
@@ -95,42 +87,6 @@ BlurWidget::~BlurWidget()
 {
 }
 
-void BlurWidget::paintEvent(QPaintEvent *)
-{
-    if (type == Convolution)
-        paintConvolve();
-    else if (type == Gaussian)
-        paintGaussian();
-}
-
-void BlurWidget::paintConvolve()
-{
-    // Calculate the convolution kernel
-    int dim = 2 * radius + 1;
-    QVarLengthArray<float> arr(dim * dim);
-    float f = 1.0f / float(dim * dim);
-    for (int i = 0; i < dim * dim; ++i)
-        arr[i] = f;
-
-    QTime time;
-    time.start();
-
-    // Upload the convolution kernel into the OpenCL buffer.
-    kernelBuffer.write(arr.constData(), sizeof(float) * arr.size());
-
-    // Execute the convolution kernel.
-    convolve(srcImageBuffer, dstImageBuffer, kernelBuffer, dim, dim);
-
-    // Read back the destination image into host memory.
-    dstImageBuffer.read(&dstImage);
-
-    // Draw the destination image.
-    QPainter painter(this);
-    painter.drawImage(0, 0, dstImage);
-
-    qWarning("Time to blur with radius %d: %d ms", radius, time.elapsed());
-}
-
 static const qreal Q_2PI = qreal(6.28318530717958647693); // 2*pi
 
 static inline qreal gaussian(qreal dx, qreal sigma)
@@ -138,7 +94,7 @@ static inline qreal gaussian(qreal dx, qreal sigma)
     return exp(-dx * dx / (2 * sigma * sigma)) / (Q_2PI * sigma * sigma);
 }
 
-void BlurWidget::paintGaussian()
+void BlurWidget::paintEvent(QPaintEvent *)
 {
     // Calculate the Gaussian blur weights and offsets.
     QVarLengthArray<qreal> components;
