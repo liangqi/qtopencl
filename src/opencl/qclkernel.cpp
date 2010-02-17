@@ -53,6 +53,69 @@ QT_BEGIN_NAMESPACE
     \since 4.7
     \ingroup opencl
 
+    QCLKernel corresponds to an instance of an OpenCL kernel, decorated
+    with a specific globalWorkSize() and localWorkSize().  It is possible
+    to use the same OpenCL kernel with different work sizes by altering
+    the size for each execution request:
+
+    \code
+    QCLKernel kernel = program.createKernel("foo");
+
+    kernel.setGlobalWorkSize(100, 100);
+    kernel.setArg(0, a1);
+    kernel.setArg(1, b1);
+    kernel.execute();
+
+    kernel.setGlobalWorkSize(200, 200);
+    kernel.setArg(0, a2);
+    kernel.setArg(1, b2);
+    kernel.execute();
+    \endcode
+
+    Alternatively, operator()() can be used to avoid the setArg() calls:
+
+    \code
+    QCLKernel kernel = program.createKernel("foo");
+
+    kernel.setGlobalWorkSize(100, 100);
+    kernel(a1, b1);
+
+    kernel.setGlobalWorkSize(200, 200);
+    kernel(a2, b2);
+    \endcode
+
+    Up to 10 arguments can be provided to operator()().  Use explicit
+    setArg() and execute() calls with kernels that have more than
+    10 arguments.
+
+    Note that both execute() and operator()() return immediately;
+    they will not block until execution is complete.  Both functions
+    return a QCLEvent object that can be used to wait for the
+    request to complete:
+
+    \code
+    kernel.setGlobalWorkSize(100, 100);
+    QCLEvent event = kernel(a1, b1);
+    event.wait();
+    \endcode
+
+    Usually it isn't necessary for an explicit QCLEvent wait
+    because the next OpenCL request will implicitly block until
+    the kernel completes execution:
+
+    \code
+    QCLBuffer buffer = ...;
+
+    kernel.setGlobalWorkSize(100, 100);
+    kernel(buffer);
+
+    buffer.read(...);
+    \endcode
+
+    With the default in-order command execution policy, OpenCL will ensure
+    that the QCLBuffer::read() request will not begin execution until the
+    kernel execution completes.
+
     \sa QCLProgram
 */
 
@@ -70,7 +133,6 @@ public:
         , id(other->id)
         , globalWorkSize(other->globalWorkSize)
         , localWorkSize(other->localWorkSize)
-        , dependentEvents(other->dependentEvents)
     {
         if (id)
             clRetainKernel(id);
@@ -86,7 +148,6 @@ public:
         context = other->context;
         globalWorkSize = other->globalWorkSize;
         localWorkSize = other->localWorkSize;
-        dependentEvents = other->dependentEvents;
         if (id != other->id) {
             if (id)
                 clReleaseKernel(id);
@@ -100,7 +161,6 @@ public:
     cl_kernel id;
     QCLWorkSize globalWorkSize;
     QCLWorkSize localWorkSize;
-    QVector<QCLEvent> dependentEvents;
 };
 
 /*!
@@ -344,31 +404,6 @@ void QCLKernel::setLocalWorkSize(const QCLWorkSize& size)
 }
 
 /*!
-    Returns the list of events that must be completed before this
-    instance of the kernel can be executed.  The default is an
-    empty list.
-
-    \sa setDependentEvents()
-*/
-QVector<QCLEvent> QCLKernel::dependentEvents() const
-{
-    Q_D(const QCLKernel);
-    return d->dependentEvents;
-}
-
-/*!
-    Sets the list of events that must be completed before this
-    instance of the kernel can be executed to \a events.
-
-    \sa dependentEvents()
-*/
-void QCLKernel::setDependentEvents(const QVector<QCLEvent>& events)
-{
-    Q_D(QCLKernel);
-    d->dependentEvents = events;
-}
-
-/*!
     Sets argument \a index for this kernel to \a value.
 */
 void QCLKernel::setArg(int index, cl_int value)
@@ -446,13 +481,11 @@ void QCLKernel::setArg(int index, const void *data, size_t size)
     Requests that this kernel instance be executed on globalWorkSize() items,
     optionally subdivided into work groups of localWorkSize() items.
 
-    If dependentEvents() is not an empty list, it indicates the
-    events that must be signalled as complete before this kernel
-    instance can begin executing.
-
     Returns an event object that can be use to wait for the kernel
     to finish execution.  The request is executed on the active
     command queue for context().
+
+    \sa operator()()
 */
 QCLEvent QCLKernel::execute()
 {
@@ -462,9 +495,38 @@ QCLEvent QCLKernel::execute()
         (d->context->activeQueue(), d->id, d->globalWorkSize.dimensions(),
          0, d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
-         d->dependentEvents.size(),
-         (d->dependentEvents.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(d->dependentEvents.constData())),
+         0, 0, &event);
+    context()->reportError("QCLKernel::execute:", error);
+    if (error != CL_SUCCESS)
+        return QCLEvent();
+    else
+        return QCLEvent(event);
+}
+
+/*!
+    \overload
+
+    Requests that this kernel instance be executed on globalWorkSize() items,
+    optionally subdivided into work groups of localWorkSize() items.
+
+    If \a after is not an empty list, it indicates the events that must
+    be signalled as complete before this kernel instance can begin executing.
+
+    Returns an event object that can be use to wait for the kernel
+    to finish execution.  The request is executed on the active
+    command queue for context().
+*/
+QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
+{
+    Q_D(const QCLKernel);
+    cl_event event;
+    cl_int error = clEnqueueNDRangeKernel
+        (d->context->activeQueue(), d->id, d->globalWorkSize.dimensions(),
+         0, d->globalWorkSize.sizes(),
+         (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
+         after.size(),
+         (after.isEmpty() ? 0 :
+            reinterpret_cast<const cl_event *>(after.constData())),
          &event);
     context()->reportError("QCLKernel::execute:", error);
     if (error != CL_SUCCESS)

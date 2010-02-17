@@ -94,9 +94,6 @@ public:
     void setLocalWorkSize(size_t width, size_t height);
     void setLocalWorkSize(size_t width, size_t height, size_t depth);
 
-    QVector<QCLEvent> dependentEvents() const;
-    void setDependentEvents(const QVector<QCLEvent>& events);
-
     void setArg(int index, cl_int value);
     void setArg(int index, cl_uint value);
     void setArg(int index, cl_long value);
@@ -107,6 +104,7 @@ public:
     void setArg(int index, const void *data, size_t size);
 
     QCLEvent execute();
+    QCLEvent execute(const QVector<QCLEvent>& after);
 
     inline QCLEvent operator()() { return execute(); }
 
