@@ -1,0 +1,120 @@
+/****************************************************************************
+**
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** This file is part of the Qt3D module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** No Commercial Usage
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**
+**
+**
+**
+**
+**
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \example blur
+    \title Gaussian Blur Example
+
+    The Guassian Blur example shows how to blur QImage objects using OpenCL.
+    The example animates blurring a 128x128 image from radius 1 to 16
+    and back again.
+
+    \image blur-screenshot.png
+
+    We start by initializing a QCLContext and then building the Gaussian
+    blur program from the contents of the \c{blur.cl} resource file:
+
+    \snippet blur/blurwidget.cpp 1
+
+    Next, we load the Qt logo image and upload it into the GPU
+    as \c srcImageBuffer:
+
+    \snippet blur/blurwidget.cpp 2
+
+    QCLContext::createImage2DCopy() creates a QCLImage2D object
+    that represents the image in the GPU.  Here we have used
+    QCLBuffer::ReadOnly to indicate that the GPU (not the CPU)
+    will be reading from the image.  The access modes are
+    always with respect to what the GPU will be doing with them.
+
+    We will be performing the blur in two passes: the first pass
+    processes the image horizontally and writes out a temporary
+    image into \c tmpImageBuffer, and then the second pass processes
+    the temporary image vertically and writes out the final
+    image into \c dstImageBuffer:
+
+    \snippet blur/blurwidget.cpp 3
+
+    This time we have used QCLContext::createImage2DDevice() to
+    allocate memory in the GPU device.  This memory is not directly
+    accessible to the host CPU, which means that the GPU can allocate
+    it within the most efficient memory area it can find.  If we wanted
+    the host to be able to directly access the memory, we would
+    use QCLContext::createImage2DHost() instead.
+
+    The temporary image buffer has an access mode of QCLBuffer::ReadWrite
+    because it will be written by the horizontal pass and then read
+    by the vertical pass.  The destination image buffer has an access
+    mode of QCLBuffer::WriteOnly because it is only written, never read,
+    by the GPU.
+
+    We need two more buffers to hold the Gaussian weights and offsets
+    for the specific blur radius:
+
+    \snippet blur/blurwidget.cpp 4
+
+    The last step of the initialization phase is to create the two
+    kernels for the horizontal and vertical passes and set the OpenCL
+    global work sizes to the size of the images:
+
+    \snippet blur/blurwidget.cpp 5
+
+    When the program receives a paint event, we calculate the Gaussian
+    weights and offsets for the blur radius and upload them to the GPU:
+
+    \snippet blur/blurwidget.cpp 6
+
+    Now we run the actual OpenCL kernel programs for the horizontal
+    and vertical passes, passing the above OpenCL buffers as arguments:
+
+    \snippet blur/blurwidget.cpp 7
+
+    Both functions have the following prototype:
+
+    \snippet blur/blur.cl 1
+
+    Once the kernels have been executed, we read the destination image
+    out of the GPU and draw it as follows:
+
+    \snippet blur/blurwidget.cpp 8
+
+    \l{qtopencl-examples.html}{Return to Examples},
+*/

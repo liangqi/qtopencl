@@ -52,31 +52,37 @@ BlurWidget::BlurWidget(QWidget *parent)
     , radius(1)
     , step(1)
 {
+//! [1]
     if (!context.create())
         qFatal("Could not create OpenCL context");
 
     program = context.buildProgramFromSourceFile(QLatin1String(":/blur.cl"));
+//! [1]
 
+//! [2]
     QImage img(QLatin1String(":/qtlogo.png"));
     srcImageBuffer = context.createImage2DCopy(img, QCLImage2D::ReadOnly);
+//! [2]
 
-    dstImage = QImage(img.width(), img.height(), QImage::Format_ARGB32);
-    dstImageBuffer = context.createImage2DDevice
-        (dstImage.format(), dstImage.size(), QCLImage2D::WriteOnly);
+//! [3]
+    tmpImageBuffer = context.createImage2DDevice(QImage::Format_ARGB32, img.size(), QCLImage2D::ReadWrite);
 
+    dstImage = QImage(img.size(), QImage::Format_ARGB32);
+    dstImageBuffer = context.createImage2DDevice(dstImage.format(), dstImage.size(), QCLImage2D::WriteOnly);
+//! [3]
+
+//! [4]
+    weightsBuffer = context.createBufferDevice(sizeof(float) * 100, QCLBuffer::ReadOnly);
+    offsetsBuffer = context.createBufferDevice(sizeof(float) * 100, QCLBuffer::ReadOnly);
+//! [4]
+
+//! [5]
     hgaussian = program.createKernel("hgaussian");
     hgaussian.setGlobalWorkSize(img.size());
 
     vgaussian = program.createKernel("vgaussian");
     vgaussian.setGlobalWorkSize(img.size());
-
-    tmpImageBuffer = context.createImage2DDevice
-        (QImage::Format_ARGB32, img.size(), QCLImage2D::ReadWrite);
-
-    weightsBuffer = context.createBufferDevice
-        (sizeof(float) * 100, QCLBuffer::ReadOnly);
-    offsetsBuffer = context.createBufferDevice
-        (sizeof(float) * 100, QCLBuffer::ReadOnly);
+//! [5]
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
@@ -125,21 +131,23 @@ void BlurWidget::paintEvent(QPaintEvent *)
     time.start();
 
     // Upload the weights and offsets into OpenCL.
+//! [6]
     offsetsBuffer.write(offsets.constData(), sizeof(float) * offsets.size());
     weightsBuffer.write(weights.constData(), sizeof(float) * weights.size());
+//! [6]
 
     // Execute the horizontal and vertical Gaussian kernels.
-    hgaussian(srcImageBuffer, tmpImageBuffer, weightsBuffer,
-              offsetsBuffer, weights.size());
-    vgaussian(tmpImageBuffer, dstImageBuffer, weightsBuffer,
-              offsetsBuffer, weights.size());
+//! [7]
+    hgaussian(srcImageBuffer, tmpImageBuffer, weightsBuffer, offsetsBuffer, weights.size());
+    vgaussian(tmpImageBuffer, dstImageBuffer, weightsBuffer, offsetsBuffer, weights.size());
+//! [7]
 
-    // Read back the destination image into host memory.
+    // Read back the destination image into host memory and draw it.
+//! [8]
     dstImageBuffer.read(&dstImage);
-
-    // Draw the destination image.
     QPainter painter(this);
     painter.drawImage(0, 0, dstImage);
+//! [8]
 
     qWarning("Time to blur with radius %d: %d ms", radius, time.elapsed());
 }

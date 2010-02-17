@@ -46,6 +46,7 @@
 
     \list
     \o \l{vectoradd}{Vector Addition}
+    \o \l{blur}{Gaussian Blur}
     \endlist
 
     \l{index.html}{Return to the main QtOpenCL page}.
