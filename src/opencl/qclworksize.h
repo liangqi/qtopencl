@@ -43,6 +43,7 @@
 #define QCLWORKSIZE_H
 
 #include "qclglobal.h"
+#include <QtCore/qsize.h>
 
 QT_BEGIN_HEADER
 
@@ -59,6 +60,8 @@ public:
         : m_dim(1) { m_sizes[0] = size; m_sizes[1] = 0; m_sizes[2] = 0; }
     QCLWorkSize(size_t width, size_t height)
         : m_dim(2) { m_sizes[0] = width; m_sizes[1] = height; m_sizes[2] = 0; }
+    QCLWorkSize(const QSize& size)
+        : m_dim(2) { m_sizes[0] = size.width(); m_sizes[1] = size.height(); m_sizes[2] = 0; }
     QCLWorkSize(size_t width, size_t height, size_t depth)
         : m_dim(3)
         { m_sizes[0] = width; m_sizes[1] = height; m_sizes[2] = depth; }

@@ -86,9 +86,13 @@ public:
 
     QCLWorkSize globalWorkSize() const;
     void setGlobalWorkSize(const QCLWorkSize& size);
+    void setGlobalWorkSize(size_t width, size_t height);
+    void setGlobalWorkSize(size_t width, size_t height, size_t depth);
 
     QCLWorkSize localWorkSize() const;
     void setLocalWorkSize(const QCLWorkSize& size);
+    void setLocalWorkSize(size_t width, size_t height);
+    void setLocalWorkSize(size_t width, size_t height, size_t depth);
 
     QVector<QCLEvent> dependentEvents() const;
     void setDependentEvents(const QVector<QCLEvent>& events);
@@ -250,6 +254,26 @@ private:
 
     Q_DECLARE_PRIVATE(QCLKernel)
 };
+
+inline void QCLKernel::setGlobalWorkSize(size_t width, size_t height)
+{
+    setGlobalWorkSize(QCLWorkSize(width, height));
+}
+
+inline void QCLKernel::setGlobalWorkSize(size_t width, size_t height, size_t depth)
+{
+    setGlobalWorkSize(QCLWorkSize(width, height, depth));
+}
+
+inline void QCLKernel::setLocalWorkSize(size_t width, size_t height)
+{
+    setLocalWorkSize(QCLWorkSize(width, height));
+}
+
+inline void QCLKernel::setLocalWorkSize(size_t width, size_t height, size_t depth)
+{
+    setLocalWorkSize(QCLWorkSize(width, height, depth));
+}
 
 QT_END_NAMESPACE
 

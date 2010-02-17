@@ -288,6 +288,38 @@ void QCLKernel::setGlobalWorkSize(const QCLWorkSize& size)
 }
 
 /*!
+    \fn void QCLKernel::setGlobalWorkSize(size_t width, size_t height)
+    \overload
+
+    Sets the global work size for this instance of the kernel to
+    \a width x \a height.
+*/
+
+/*!
+    \fn void QCLKernel::setGlobalWorkSize(size_t width, size_t height, size_t depth)
+    \overload
+
+    Sets the global work size for this instance of the kernel to
+    \a width x \a height x \a depth.
+*/
+
+/*!
+    \fn void QCLKernel::setLocalWorkSize(size_t width, size_t height)
+    \overload
+
+    Sets the local work size for this instance of the kernel to
+    \a width x \a height.
+*/
+
+/*!
+    \fn void QCLKernel::setLocalWorkSize(size_t width, size_t height, size_t depth)
+    \overload
+
+    Sets the local work size for this instance of the kernel to
+    \a width x \a height x \a depth.
+*/
+
+/*!
     Returns the local work size for this instance of the kernel.
     The default value is (0, 0, 0), which indicates that the local
     work size is not used.

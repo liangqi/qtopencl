@@ -70,17 +70,16 @@ BlurWidget::BlurWidget(QWidget *parent)
         (sizeof(float) * 33 * 33, QCLBuffer::ReadOnly);
 
     convolve = program.createKernel("convolve");
-    convolve.setGlobalWorkSize(QCLWorkSize(img.width(), img.height()));
+    convolve.setGlobalWorkSize(img.size());
 
     hgaussian = program.createKernel("hgaussian");
-    hgaussian.setGlobalWorkSize(QCLWorkSize(img.width(), img.height()));
+    hgaussian.setGlobalWorkSize(img.size());
 
     vgaussian = program.createKernel("vgaussian");
-    vgaussian.setGlobalWorkSize(QCLWorkSize(img.width(), img.height()));
+    vgaussian.setGlobalWorkSize(img.size());
 
     tmpImageBuffer = context.createImage2DDevice
-        (QImage::Format_ARGB32, QSize(img.width(), img.height()),
-         QCLImage2D::ReadWrite);
+        (QImage::Format_ARGB32, img.size(), QCLImage2D::ReadWrite);
 
     weightsBuffer = context.createBufferDevice
         (sizeof(float) * 100, QCLBuffer::ReadOnly);

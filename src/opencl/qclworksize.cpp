@@ -72,6 +72,12 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
+    \fn QCLWorkSize::QCLWorkSize(const QSize& size)
+
+    Constructs a two-dimensional work size set to \a size.
+*/
+
+/*!
     \fn QCLWorkSize::QCLWorkSize(size_t width, size_t height, size_t depth)
 
     Constructs a three-dimensional work size of \a width x \a height x

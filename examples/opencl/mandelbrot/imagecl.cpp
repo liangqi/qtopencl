@@ -150,7 +150,7 @@ void ImageCL::generateIterationData
     ImageCLContext *ctx = image_context();
     QCLKernel mandelbrot = ctx->mandelbrot;
 
-    mandelbrot.setGlobalWorkSize(QCLWorkSize(wid, ht));
+    mandelbrot.setGlobalWorkSize(wid, ht);
     QCLEvent event = mandelbrot
         (data, float(region.x()), float(region.y()),
          float(region.width()), float(region.height()),
@@ -186,7 +186,7 @@ void ImageCL::generateImage
         }
 
         // Execute the "colorize" kernel.
-        colorize.setGlobalWorkSize(QCLWorkSize(wid, ht));
+        colorize.setGlobalWorkSize(wid, ht);
         QCLEvent event = colorize
             (data, imageBuffer, colorBuffer, wid, maxIterations);
 
@@ -200,7 +200,7 @@ void ImageCL::generateImage
         textureBuffer.acquireGL();
 
         // Execute the "colorize" kernel.
-        colorize.setGlobalWorkSize(QCLWorkSize(wid, ht));
+        colorize.setGlobalWorkSize(wid, ht);
         colorize(data, textureBuffer, colorBuffer, wid, maxIterations);
 
         // Release the GL texture object and wait for it complete.
