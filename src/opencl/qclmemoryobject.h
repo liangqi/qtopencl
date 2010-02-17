@@ -89,6 +89,8 @@ public:
     QCLEvent releaseGL();
     QCLEvent releaseGL(const QVector<QCLEvent>& after);
 
+    void sync();
+
 protected:
     void setId(QCLContext *context, cl_mem id);
 

@@ -188,6 +188,10 @@ void ImageCL::generateImage
         QCLEvent event = colorize
             (data, imageBuffer, colorBuffer, wid, maxIterations);
         event.wait();
+
+        // Synchronize the image buffer to make sure the contents
+        // are copied back to host memory.
+        imageBuffer.sync();
     } else {
         // Finish previous GL operations on the texture.
         glFinish();

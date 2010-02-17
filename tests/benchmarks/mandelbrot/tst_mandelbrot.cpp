@@ -228,6 +228,7 @@ void tst_Mandelbrot::openclPerPixelHost()
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations);
         event.wait();
+        data.sync();    // Force a copy-back to host memory.
     }
 }
 
