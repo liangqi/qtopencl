@@ -42,61 +42,73 @@
 #include <stdio.h>
 #include "qclcontext.h"
 
-#define VECTOR_SIZE 2048
-
-static const char vectorAddSource[] =
-    "__kernel void vectorAdd(__global int *input1, __global int *input2, __global int *output)\n"
-    "{\n"
-    "    unsigned int index = get_global_id(0);\n"
-    "    output[index] = input1[index] + input2[index];\n"
-    "}\n"
-;
-
-int input1[VECTOR_SIZE];
-int input2[VECTOR_SIZE];
-int output[VECTOR_SIZE];
+int input1[2048];
+int input2[2048];
+int output[2048];
 
 int main(int, char **)
 {
     // Create the OpenCL context for the default GPU device.
+//! [1]
     QCLContext context;
     if (!context.create()) {
         fprintf(stderr, "Could not create OpenCL context for the GPU\n");
         return 1;
     }
+//! [1]
 
     // Construct the input vectors to pass to the kernel.
-    for (int index = 0; index < VECTOR_SIZE; ++index) {
+//! [2]
+    for (int index = 0; index < 2048; ++index) {
         input1[index] = index;
-        input2[index] = VECTOR_SIZE - index;
+        input2[index] = 2048 - index;
     }
+//! [2]
 
     // Create OpenCL buffer objects for the input and output vectors.
-    QCLBuffer buffer1 = context.createBufferCopy
-        (input1, sizeof(input1), QCLMemoryObject::ReadOnly);
-    QCLBuffer buffer2 = context.createBufferCopy
-        (input2, sizeof(input2), QCLMemoryObject::ReadOnly);
-    QCLBuffer buffer3 = context.createBufferDevice
-        (sizeof(output), QCLMemoryObject::WriteOnly);
+//! [3]
+    QCLBuffer buffer1 = context.createBufferCopy(input1, sizeof(input1), QCLBuffer::ReadOnly);
+    QCLBuffer buffer2 = context.createBufferCopy(input2, sizeof(input2), QCLBuffer::ReadOnly);
+//! [3]
+//! [4]
+    QCLBuffer buffer3 = context.createBufferDevice(sizeof(output), QCLMemoryObject::WriteOnly);
+//! [4]
 
     // Build the program and locate the entry point kernel.
+//! [5]
+    static const char vectorAddSource[] =
+        "__kernel void vectorAdd(__global __read_only int *input1,\n"
+        "                        __global __read_only int *input2,\n"
+        "                        __global __write_only int *output)\n"
+        "{\n"
+        "    unsigned int index = get_global_id(0);\n"
+        "    output[index] = input1[index] + input2[index];\n"
+        "}\n"
+    ;
     QCLProgram program = context.buildProgramFromSourceCode(vectorAddSource);
     QCLKernel kernel = program.createKernel("vectorAdd");
-    kernel.setGlobalWorkSize(VECTOR_SIZE);
+//! [5]
 
     // Execute the kernel and then read back the results.
+//! [6]
+    kernel.setGlobalWorkSize(2048);
+//! [6]
+//! [7]
     kernel(buffer1, buffer2, buffer3);
+//! [7]
+//! [8]
     buffer3.read(output, sizeof(output));
+//! [8]
 
     // Check the answer.
-    for (int index = 0; index < VECTOR_SIZE; ++index) {
-        if (output[index] != VECTOR_SIZE) {
+    for (int index = 0; index < 2048; ++index) {
+        if (output[index] != 2048) {
             fprintf(stderr, "Answer at index %d is %d, should be %d\n",
-                    index, output[index], VECTOR_SIZE);
+                    index, output[index], 2048);
             return 1;
         }
     }
-    printf("Answer is correct: %d\n", VECTOR_SIZE);
+    printf("Answer is correct: %d\n", 2048);
 
     return 0;
 }

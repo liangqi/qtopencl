@@ -45,7 +45,7 @@
     \keyword QtOpenCL Examples
 
     \list
-    \o TBD
+    \o \l{vectoradd}{Vector Addition}
     \endlist
 
     \l{index.html}{Return to the main QtOpenCL page}.

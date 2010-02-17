@@ -1,0 +1,142 @@
+/****************************************************************************
+**
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** This file is part of the Qt3D module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** No Commercial Usage
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**
+**
+**
+**
+**
+**
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \example vectoradd
+    \title Vector Addition Example
+
+    The Vector Addition example shows how to use Qt to add two vectors
+    using OpenCL.
+
+    We start by creating a QCLContext object and initializing it for
+    the GPU device:
+
+    \snippet vectoradd/vectoradd.cpp 1
+
+    Next we need some input data.  We are going to add two 2048-element
+    vectors of integers together.  The first vector will hold the
+    numbers 0..2047 and the second vector will hold the numbers
+    2048..1.  The following code initializes our vectors:
+
+    \snippet vectoradd/vectoradd.cpp 2
+
+    At this point, the data is still in the CPU's address space.
+    We need to create two OpenCL buffer objects in the GPU device
+    and copy the vectors into it:
+
+    \snippet vectoradd/vectoradd.cpp 3
+
+    QCLContext::createBufferCopy() creates a QCLBuffer object
+    that represents the memory in the GPU.  Here we have used
+    QCLBuffer::ReadOnly to indicate that the GPU (not the CPU)
+    will be reading from these buffers.  The access modes are
+    always with respect to what the GPU will be doing with them.
+
+    Now we need somewhere for the GPU to store the results:
+
+    \snippet vectoradd/vectoradd.cpp 4
+
+    This time we have used QCLContext::createBufferDevice() to
+    allocate memory in the GPU device.  This memory is not directly
+    accessible to the host CPU, which means that the GPU can allocate
+    it within the most efficient memory area it can find.  If we wanted
+    the host to be able to directly access the memory, we would
+    use QCLContext::createBufferHost() instead.
+
+    Next, we build the program and locate the \c vectorAdd entry point,
+    or "kernel" in OpenCL terminology:
+
+    \snippet vectoradd/vectoradd.cpp 5
+
+    The OpenCL source code for our program has been supplied as a constant
+    character array directly in the C++ code.  We could have also
+    used QCLContext::buildProgramFromSourceFile() to load the OpenCL
+    source code from an external file or Qt resource.  Before we
+    continue with the C++ code, let's have a look at the OpenCL source code:
+
+    \code
+    __kernel void vectorAdd(__global __read_only int *input1,
+                            __global __read_only int *input2,
+                            __global __write_only int *output)
+    {
+        unsigned int index = get_global_id(0);
+        output[index] = input1[index] + input2[index];
+    }
+    \endcode
+
+    The function \c vectorAdd has two arguments for the input vectors
+    and a third argument for the output vector.  The body of the function
+    may look a little strange at first glance for a vector addition.
+    It fetches an array index and then sets that output location to
+    the sum of the two input locations.  It isn't looping over the
+    whole vector as would normally be expected in C++ code.
+
+    The magic happens with \c{get_global_id()}, which fetches the index
+    value from an outer loop that is provided for us by the OpenCL
+    environment.  Most OpenCL functions look like this: they fetch the
+    identifiers for the current "work item", and then process just
+    that item.  Back in our C++ code, we specify the number of
+    work items with QCLKernel::setGlobalWorkSize():
+
+    \snippet vectoradd/vectoradd.cpp 6
+
+    This tells the OpenCL implementation how many times it should iterate
+    over the inputs, passing a different global identifier to each instance.
+    These iterations are executed in parallel to speed up the calculations.
+    In C++, we execute the kernel, passing it the three buffers, as follows:
+
+    \snippet vectoradd/vectoradd.cpp 7
+
+    Finally, we read back the results from the output buffer with
+    QCLBuffer::read(), which will block until the GPU finishes
+    executing all of our work items:
+
+    \snippet vectoradd/vectoradd.cpp 8
+
+    The rest of the example code checks the results.  If all goes well,
+    the following should be printed by the program:
+
+    \code
+    Answer is correct: 2048
+    \endcode
+
+    \l{qtopencl-examples.html}{Return to Examples},
+*/

@@ -121,6 +121,13 @@ QT_BEGIN_NAMESPACE
     that the QCLBuffer::read() request will not begin execution until the
     kernel execution completes.
 
+    The following types are handled specially via setArg() and operator()():
+    \c cl_int, \c cl_uint, \c cl_long, \c cl_ulong, \c float,
+    QVector2D, QVector3D, QVector4D, QPointF, QPoint, QMatrix4x4,
+    QCLBuffer, QCLImage2D, QCLImage3D, and QCLSampler.
+    Other argument types must be set explicitly by calling the
+    setArg() override that takes a buffer and size.
+
     \sa QCLProgram
 */
 
@@ -609,7 +616,7 @@ void QCLKernel::setArg(int index, const void *data, size_t size)
     Requests that this kernel instance be executed on globalWorkSize() items,
     optionally subdivided into work groups of localWorkSize() items.
 
-    Returns an event object that can be use to wait for the kernel
+    Returns an event object that can be used to wait for the kernel
     to finish execution.  The request is executed on the active
     command queue for context().
 
@@ -640,7 +647,7 @@ QCLEvent QCLKernel::execute()
     If \a after is not an empty list, it indicates the events that must
     be signalled as complete before this kernel instance can begin executing.
 
-    Returns an event object that can be use to wait for the kernel
+    Returns an event object that can be used to wait for the kernel
     to finish execution.  The request is executed on the active
     command queue for context().
 */
