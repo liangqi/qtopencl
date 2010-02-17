@@ -43,7 +43,6 @@
 #define QCLCOMMANDQUEUE_H
 
 #include "qclglobal.h"
-#include "qclevent.h"
 
 QT_BEGIN_HEADER
 
@@ -71,15 +70,6 @@ public:
 
     cl_command_queue id() const { return m_id; }
     QCLContext *context() const { return m_context; }
-
-    void flush();
-    void finish();
-
-    QCLEvent marker();
-
-    void barrier();
-    void barrier(const QCLEvent& event);
-    void barrier(const QVector<QCLEvent>& events);
 
 private:
     QCLContext *m_context;

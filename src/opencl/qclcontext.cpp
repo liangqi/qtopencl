@@ -1163,6 +1163,99 @@ QList<QCLImageFormat> QCLContext::supportedImage3DFormats
 }
 
 /*!
+    Flushes all previously queued commands to the device associated
+    with the active command queue.  The commands are delivered to
+    the device, but no guarantees are given that they will be executed.
+
+    \sa finish()
+*/
+void QCLContext::flush()
+{
+    clFlush(activeQueue());
+}
+
+/*!
+    Blocks until all previously queued commands on the active
+    command queue have finished execution.
+
+    \sa flush()
+*/
+void QCLContext::finish()
+{
+    clFinish(activeQueue());
+}
+
+/*!
+    Returns a marker event for the active command queue.  The event
+    will be signalled when all commands that were queued before this
+    point have completed.
+
+    \sa barrier(), sync()
+*/
+QCLEvent QCLContext::marker()
+{
+    cl_event evid;
+    cl_int error = clEnqueueMarker(activeQueue(), &evid);
+    reportError("QCLContext::marker:", error);
+    if (error != CL_SUCCESS)
+        return QCLEvent();
+    else
+        return QCLEvent(evid);
+}
+
+/*!
+    Synchronizes the host against the active command queue.
+    This function will block until all currently queued commands
+    have finished execution.
+*/
+void QCLContext::sync()
+{
+    cl_event event;
+    cl_int error = clEnqueueMarker(activeQueue(), &event);
+    reportError("QCLContext::sync:", error);
+    if (error == CL_SUCCESS) {
+        clWaitForEvents(1, &event);
+        clReleaseEvent(event);
+    }
+}
+
+/*!
+    Adds a barrier to the active command queue.  All commands that
+    were queued before this point must complete before any further
+    commands added after this point are executed.
+
+    This function will return immediately and will not block waiting
+    for the commands to complete.  Use sync() to block until all queued
+    commands complete.
+
+    \sa marker(), sync()
+*/
+void QCLContext::barrier()
+{
+    cl_int error = clEnqueueBarrier(activeQueue());
+    reportError("QCLContext::barrier:", error);
+}
+
+/*!
+    \overload
+
+    Adds a barrier to the active command queue that will prevent future
+    commands from being executed until after all members of \a events
+    have been signalled.
+
+    \sa marker()
+*/
+void QCLContext::barrier(const QVector<QCLEvent>& events)
+{
+    if (events.isEmpty())
+        return;
+    cl_int error = clEnqueueWaitForEvents
+        (activeQueue(), events.size(),
+         reinterpret_cast<const cl_event *>(events.constData()));
+    reportError("QCLContext::barrier(QVector<QCLEvent>):", error);
+}
+
+/*!
     \internal
 */
 void QCLContext::reportError(const char *name, cl_int error)

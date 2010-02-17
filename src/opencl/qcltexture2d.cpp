@@ -220,7 +220,7 @@ void QCLTexture2D::releaseGL()
     }
 
     // Wait for the current OpenCL commands to finish.
-    context()->commandQueue().marker().wait();
+    context()->marker().wait();
 
     // Upload the contents of the OpenCL buffer into the texture.
     void *ptr = map(QRect(QPoint(0, 0), d->size), QCLImage2D::ReadOnly);

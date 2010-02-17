@@ -50,6 +50,13 @@ QT_BEGIN_NAMESPACE
     \brief The QCLCommandQueue class represents an OpenCL command queue on a QCLContext.
     \since 4.7
     \ingroup opencl
+
+    QCLCommandQueue is just a handle to a command queue.  Commands
+    are added to the queue by calling methods on QCLContext,
+    QCLBuffer, QCLImage2D, QCLKernel, etc.  These methods use
+    QCLContext::commandQueue() as the command destination.
+    QCLContext::setCommandQueue() can be used to alter the
+    destination queue.
 */
 
 /*!
@@ -150,96 +157,5 @@ void QCLCommandQueue::setOutOfOrder(bool enable)
 
     Returns the OpenCL context that created this queue object.
 */
-
-/*!
-    Flushes all previously queued commands to the device associated
-    with this command queue.  The commands are delivered to the device,
-    but no guarantees are given that they will be executed.
-
-    \sa finish()
-*/
-void QCLCommandQueue::flush()
-{
-    if (m_id)
-        clFlush(m_id);
-}
-
-/*!
-    Blocks until all previously queued commands have finished execution.
-
-    \sa flush()
-*/
-void QCLCommandQueue::finish()
-{
-    if (m_id)
-        clFinish(m_id);
-}
-
-/*!
-    Returns a marker event for this command queue.  The event will
-    be signalled when all commands that were queued before this
-    point have been completed.
-
-    \sa barrier()
-*/
-QCLEvent QCLCommandQueue::marker()
-{
-    cl_event evid;
-    if (!m_id)
-        return QCLEvent();
-    cl_int error = clEnqueueMarker(m_id, &evid);
-    context()->reportError("QCLCommandQueue::marker:", error);
-    if (error != CL_SUCCESS)
-        return QCLEvent();
-    else
-        return QCLEvent(evid);
-}
-
-/*!
-    Adds a barrier to this command queue.  All commands that were
-    queued before this point must complete before any further
-    commands added after this point are executed.
-
-    \sa marker()
-*/
-void QCLCommandQueue::barrier()
-{
-    if (!m_id)
-        return;
-    cl_int error = clEnqueueBarrier(m_id);
-    context()->reportError("QCLCommandQueue::barrier:", error);
-}
-
-/*!
-    Adds a barrier to this command queue that will prevent future
-    commands from being executed until after \a event is signalled.
-
-    \sa marker()
-*/
-void QCLCommandQueue::barrier(const QCLEvent& event)
-{
-    cl_event evtid = event.id();
-    if (!m_id || !evtid)
-        return;
-    cl_int error = clEnqueueWaitForEvents(m_id, 1, &evtid);
-    context()->reportError("QCLCommandQueue::barrier(QCLEvent):", error);
-}
-
-/*!
-    Adds a barrier to this command queue that will prevent future
-    commands from being executed until after all members of \a events
-    have been signalled.
-
-    \sa marker()
-*/
-void QCLCommandQueue::barrier(const QVector<QCLEvent>& events)
-{
-    if (!m_id || events.isEmpty())
-        return;
-    cl_int error = clEnqueueWaitForEvents
-        (m_id, events.size(),
-         reinterpret_cast<const cl_event *>(events.constData()));
-    context()->reportError("QCLCommandQueue::barrier(QVector<QCLEvent>):", error);
-}
 
 QT_END_NAMESPACE

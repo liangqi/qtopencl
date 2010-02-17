@@ -145,6 +145,16 @@ public:
     QList<QCLImageFormat> supportedImage2DFormats(cl_mem_flags flags) const;
     QList<QCLImageFormat> supportedImage3DFormats(cl_mem_flags flags) const;
 
+    void flush();
+    void finish();
+
+    QCLEvent marker();
+
+    void sync();
+
+    void barrier();
+    void barrier(const QVector<QCLEvent>& events);
+
 private:
     QScopedPointer<QCLContextPrivate> d_ptr;
 
