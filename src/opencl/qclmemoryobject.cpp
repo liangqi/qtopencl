@@ -402,9 +402,11 @@ void QCLMemoryObject::sync()
                                sizeof(size_t), region + 2, 0) != CL_SUCCESS)
                 return;
         }
+        size_t rowPitch, slicePitch;
         data = clEnqueueMapImage
             (context()->activeQueue(), id(), CL_TRUE,
-             map_flags, origin, region, 0, 0, 0, 0, 0, &error);
+             map_flags, origin, region,
+             &rowPitch, &slicePitch, 0, 0, 0, &error);
         context()->reportError("QCLMemoryObject::sync(map-image):", error);
         if (data)
             unmap(data);
