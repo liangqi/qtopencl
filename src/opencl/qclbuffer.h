@@ -100,6 +100,7 @@ public:
          const QVector<QCLEvent>& after = QVector<QCLEvent>());
 
     void *map(size_t offset, size_t size, QCLMemoryObject::Access access);
+    void *map(QCLMemoryObject::Access access);
     QCLEvent mapAsync(void **ptr, size_t offset, size_t size,
                       QCLMemoryObject::Access access,
                       const QVector<QCLEvent>& after = QVector<QCLEvent>());

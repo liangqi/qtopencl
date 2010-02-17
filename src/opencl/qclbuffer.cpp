@@ -436,6 +436,18 @@ void *QCLBuffer::map
 }
 
 /*!
+    \overload
+
+    Maps the entire contents of this buffer into host memory for
+    the specified \a access mode.  Returns a pointer to the
+    mapped region.
+*/
+void *QCLBuffer::map(QCLMemoryObject::Access access)
+{
+    return map(0, size(), access);
+}
+
+/*!
     Maps the \a size bytes starting at \a offset in this buffer
     into host memory for the specified \a access mode.  Returns a
     pointer to the mapped region in \a ptr, which will be valid
