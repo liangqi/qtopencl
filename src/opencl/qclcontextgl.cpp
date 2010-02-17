@@ -318,6 +318,10 @@ QCLImage2D QCLContextGL::createTexture2D
     return createTexture2D(GL_TEXTURE_2D, texture, 0, access);
 }
 
+#ifndef GL_TEXTURE_3D
+#define GL_TEXTURE_3D 0x806F
+#endif
+
 /*!
     Creates a 3D OpenCL image object from the specified \a mipmapLevel,
     OpenGL \a texture object, and \a access mode.
@@ -441,7 +445,7 @@ QCLImage3D QCLContextGL::createTexture3D
 QCLImage3D QCLContextGL::createTexture3D
     (QMacCompatGLuint texture, QCLMemoryObject::Access access)
 {
-    return createTexture3D(GLenum(GL_TEXTURE_2D), GLuint(texture),
+    return createTexture3D(GLenum(GL_TEXTURE_3D), GLuint(texture),
                            GLint(0), access);
 }
 
