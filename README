@@ -17,6 +17,10 @@ QMAKE_LIBDIR_OPENCL
 QMAKE_LIBS_OPENCL
     Libraries to add to the link line.  e.g. "-lOpenCL -lGLESv2".  The
     default value is "-lOpenCL".
+CONFIG+=no_cl_gl
+    The OpenCL library does not have any of the functions that
+    are needed to perform OpenGL integration.  This will cause the
+    sharing functionality of QCLContextGL to be disabled.
 
 For example:
     qmake QMAKE_INCDIR_OPENCL=abc QMAKE_LIBDIR_OPENCL=def
@@ -28,5 +32,12 @@ in $HOME/build/qt-47, then you would run qmake as follows:
     $HOME/build/qt-47/bin/qmake QMAKE_INCDIR_OPENCL=abc QMAKE_LIBDIR_OPENCL=def
 
 For the N900, it is recommended that QMAKE_LIBS_OPENCL be set to
-"-lOCL -lGLESv2".  Also, you may need to modify your <CL/cl_gl.h> file
-to change "#include <GL/gl.h>" to "#include <GLES2/gl2.h>".
+"-lOCL" and that "CONFIG+=no_cl_gl" be supplied to qmake; e.g.
+
+    qmake QMAKE_INCDIR_OPENCL=$HOME/libocl/usr/include \
+          QMAKE_LIBDIR_OPENCL=$HOME/libocl/usr/lib \
+          QMAKE_LIBS_OPENCL="-lOCL" \
+          CONFIG+=no_cl_gl
+
+Where the N900's libocl package has been unpacked into $HOME/libocl
+on the build machine.

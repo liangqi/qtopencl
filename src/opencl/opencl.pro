@@ -25,6 +25,10 @@ macx {
     }
 }
 
+no_cl_gl {
+    DEFINES += QT_NO_CL_OPENGL
+}
+
 HEADERS += \
     qclbuffer.h \
     qclcommandqueue.h \

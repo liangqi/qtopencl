@@ -42,6 +42,8 @@
 #ifndef QCL_GL_P_H
 #define QCL_GL_P_H
 
+#if !defined(QT_NO_CL_OPENGL)
+
 // TODO: remove the dependency on <QtOpenGL/qgl.h>
 #include <QtOpenGL/qgl.h>
 #if defined(__APPLE__) || defined(__MACOSX)
@@ -50,6 +52,8 @@
 #else
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
+#endif
+
 #endif
 
 #endif

@@ -83,6 +83,7 @@ void ViewGL::initializeGL()
 
 void ViewGL::paintGL()
 {
+#if !defined(QT_OPENGL_ES_2) // TODO: OpenGL/ES 2.0 support
     glBindTexture(GL_TEXTURE_2D, textureId);
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -113,6 +114,7 @@ void ViewGL::paintGL()
 
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
+#endif
 }
 
 void ViewGL::animate()

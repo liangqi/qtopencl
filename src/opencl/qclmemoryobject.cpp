@@ -234,6 +234,7 @@ QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QVector<QCLEvent>& after)
 */
 QCLEvent QCLMemoryObject::acquireGL()
 {
+#ifndef QT_NO_CL_OPENGL
     cl_event event;
     cl_int error = clEnqueueAcquireGLObjects
         (context()->activeQueue(), 1, &m_id, 0, 0, &event);
@@ -242,6 +243,9 @@ QCLEvent QCLMemoryObject::acquireGL()
         return QCLEvent(event);
     else
         return QCLEvent();
+#else
+    return QCLEvent();
+#endif
 }
 
 /*!
@@ -262,6 +266,7 @@ QCLEvent QCLMemoryObject::acquireGL()
 */
 QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent>& after)
 {
+#ifndef QT_NO_CL_OPENGL
     cl_event event;
     cl_int error = clEnqueueAcquireGLObjects
         (context()->activeQueue(), 1, &m_id, after.size(),
@@ -272,6 +277,10 @@ QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent>& after)
         return QCLEvent(event);
     else
         return QCLEvent();
+#else
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
 }
 
 /*!
@@ -288,6 +297,7 @@ QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent>& after)
 */
 QCLEvent QCLMemoryObject::releaseGL()
 {
+#ifndef QT_NO_CL_OPENGL
     cl_event event;
     cl_int error = clEnqueueReleaseGLObjects
         (context()->activeQueue(), 1, &m_id, 0, 0, &event);
@@ -296,6 +306,9 @@ QCLEvent QCLMemoryObject::releaseGL()
         return QCLEvent(event);
     else
         return QCLEvent();
+#else
+    return QCLEvent();
+#endif
 }
 
 /*!
@@ -317,6 +330,7 @@ QCLEvent QCLMemoryObject::releaseGL()
 */
 QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent>& after)
 {
+#ifndef QT_NO_CL_OPENGL
     cl_event event;
     cl_int error = clEnqueueReleaseGLObjects
         (context()->activeQueue(), 1, &m_id, after.size(),
@@ -327,6 +341,10 @@ QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent>& after)
         return QCLEvent(event);
     else
         return QCLEvent();
+#else
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
 }
 
 /*!

@@ -44,12 +44,14 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qvarlengtharray.h>
 
+#if !defined(QT_NO_CL_OPENGL)
 #if defined(QT_OPENGL_ES_2)
 #include <EGL/egl.h>
 #elif defined(QT_OPENGL_ES)
 #include <GLES/egl.h>
 #elif defined(Q_WS_X11)
 #include <GL/glx.h>
+#endif
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -88,6 +90,8 @@ QCLContextGL::~QCLContextGL()
 {
 }
 
+#ifndef QT_NO_CL_OPENGL
+
 extern "C" {
 
 static void qt_clgl_context_notify(const char *errinfo,
@@ -102,6 +106,8 @@ static void qt_clgl_context_notify(const char *errinfo,
 }
 
 };
+
+#endif
 
 #define CL_GL_CONTEXT_KHR           0x2008
 #define CL_EGL_DISPLAY_KHR          0x2009
@@ -118,6 +124,7 @@ static void qt_clgl_context_notify(const char *errinfo,
 */
 bool QCLContextGL::create()
 {
+#ifndef QT_NO_CL_OPENGL
     Q_D(QCLContextGL);
 
     // Bail out if the context already exists.
@@ -217,6 +224,11 @@ bool QCLContextGL::create()
         clReleaseContext(id);   // setId() adds an extra reference.
     }
     return id != 0;
+#else
+    // OpenCL-OpenGL sharing is not supported, so just open
+    // the OpenCL device normally with no sharing.
+    return QCLContext::create();
+#endif
 }
 
 /*!
@@ -241,6 +253,7 @@ bool QCLContextGL::supportsObjectSharing() const
 QCLBuffer QCLContextGL::createGLBuffer
     (GLuint bufobj, QCLMemoryObject::Access access)
 {
+#ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLBuffer
@@ -250,6 +263,12 @@ QCLBuffer QCLContextGL::createGLBuffer
         return QCLBuffer(this, mem);
     else
         return QCLBuffer();
+#else
+    Q_UNUSED(bufobj);
+    Q_UNUSED(access);
+    reportError("QCLContextGL::createGLBuffer:", CL_INVALID_VALUE);
+    return QCLBuffer();
+#endif
 }
 
 #if QT_VERSION >= 0x040700 || defined(Q_QDOC)
@@ -291,6 +310,7 @@ QCLImage2D QCLContextGL::createTexture2D
     (GLenum type, GLuint texture, GLint mipmapLevel,
      QCLMemoryObject::Access access)
 {
+#ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLTexture2D
@@ -300,6 +320,14 @@ QCLImage2D QCLContextGL::createTexture2D
         return QCLImage2D(this, mem);
     else
         return QCLImage2D();
+#else
+    Q_UNUSED(type);
+    Q_UNUSED(texture);
+    Q_UNUSED(mipmapLevel);
+    Q_UNUSED(access);
+    reportError("QCLContextGL::createGLTexture2D:", CL_INVALID_VALUE);
+    return QCLImage2D();
+#endif
 }
 
 /*!
@@ -337,6 +365,7 @@ QCLImage3D QCLContextGL::createTexture3D
     (GLenum type, GLuint texture, GLint mipmapLevel,
      QCLMemoryObject::Access access)
 {
+#ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLTexture3D
@@ -346,6 +375,14 @@ QCLImage3D QCLContextGL::createTexture3D
         return QCLImage3D(this, mem);
     else
         return QCLImage3D();
+#else
+    Q_UNUSED(type);
+    Q_UNUSED(texture);
+    Q_UNUSED(mipmapLevel);
+    Q_UNUSED(access);
+    reportError("QCLContextGL::createGLTexture3D:", CL_INVALID_VALUE);
+    return QCLImage3D();
+#endif
 }
 
 /*!
@@ -375,6 +412,7 @@ QCLImage3D QCLContextGL::createTexture3D
 QCLImage2D QCLContextGL::createRenderbuffer
     (GLuint renderbuffer, QCLMemoryObject::Access access)
 {
+#ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLRenderbuffer
@@ -384,6 +422,12 @@ QCLImage2D QCLContextGL::createRenderbuffer
         return QCLImage2D(this, mem);
     else
         return QCLImage2D();
+#else
+    Q_UNUSED(renderbuffer);
+    Q_UNUSED(access);
+    reportError("QCLContextGL::createRenderbuffer:", CL_INVALID_VALUE);
+    return QCLImage2D();
+#endif
 }
 
 /*!

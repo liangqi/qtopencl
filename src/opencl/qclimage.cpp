@@ -152,10 +152,14 @@ int QCLImage2D::bytesPerLine() const
 */
 bool QCLImage2D::isTexture2D() const
 {
+#ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
     if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_TEXTURE2D;
+#else
+    return false;
+#endif
 }
 
 /*!
@@ -166,10 +170,14 @@ bool QCLImage2D::isTexture2D() const
 */
 bool QCLImage2D::isRenderbuffer() const
 {
+#ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
     if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_RENDERBUFFER;
+#else
+    return false;
+#endif
 }
 
 /*!
@@ -717,10 +725,14 @@ int QCLImage3D::bytesPerSlice() const
 */
 bool QCLImage3D::isTexture3D() const
 {
+#ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
     if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_TEXTURE3D;
+#else
+    return false;
+#endif
 }
 
 /*!

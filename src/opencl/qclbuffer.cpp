@@ -86,10 +86,14 @@ QT_BEGIN_NAMESPACE
 */
 bool QCLBuffer::isGLBuffer() const
 {
+#ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
     if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_BUFFER;
+#else
+    return false;
+#endif
 }
 
 /*!
