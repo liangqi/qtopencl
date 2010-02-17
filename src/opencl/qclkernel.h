@@ -59,6 +59,12 @@ class QCLProgram;
 class QCLMemoryObject;
 class QCLSampler;
 class QCLDevice;
+class QVector2D;
+class QVector3D;
+class QVector4D;
+class QMatrix4x4;
+class QPoint;
+class QPointF;
 
 class QCLKernelPrivate;
 
@@ -99,6 +105,12 @@ public:
     void setArg(int index, cl_long value);
     void setArg(int index, cl_ulong value);
     void setArg(int index, float value);
+    void setArg(int index, const QVector2D& value);
+    void setArg(int index, const QVector3D& value);
+    void setArg(int index, const QVector4D& value);
+    void setArg(int index, const QPoint& value);
+    void setArg(int index, const QPointF& value);
+    void setArg(int index, const QMatrix4x4& value);
     void setArg(int index, const QCLMemoryObject& value);
     void setArg(int index, const QCLSampler& value);
     void setArg(int index, const void *data, size_t size);

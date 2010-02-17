@@ -44,6 +44,11 @@
 #include "qclbuffer.h"
 #include "qclcontext.h"
 #include <QtCore/qvarlengtharray.h>
+#include <QtCore/qpoint.h>
+#include <QtGui/qvector2d.h>
+#include <QtGui/qvector3d.h>
+#include <QtGui/qvector4d.h>
+#include <QtGui/qmatrix4x4.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -125,8 +130,8 @@ public:
     QCLKernelPrivate(QCLContext *ctx, cl_kernel kid)
         : context(ctx)
         , id(kid)
-        , globalWorkSize(1, 0, 0)
-        , localWorkSize(0, 0, 0)
+        , globalWorkSize(1)
+        , localWorkSize(0)
     {}
     QCLKernelPrivate(const QCLKernelPrivate *other)
         : context(other->context)
@@ -326,7 +331,7 @@ QCLWorkSize QCLKernel::declaredWorkGroupSize(const QCLDevice& device) const
 
 /*!
     Returns the global work size for this instance of the kernel.
-    The default value is (1, 0, 0).
+    The default value is 1.
 
     \sa setGlobalWorkSize(), localWorkSize()
 */
@@ -381,7 +386,7 @@ void QCLKernel::setGlobalWorkSize(const QCLWorkSize& size)
 
 /*!
     Returns the local work size for this instance of the kernel.
-    The default value is (0, 0, 0), which indicates that the local
+    The default value is 0, which indicates that the local
     work size is not used.
 
     \sa setLocalWorkSize(), globalWorkSize()
@@ -405,6 +410,9 @@ void QCLKernel::setLocalWorkSize(const QCLWorkSize& size)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c int.
 */
 void QCLKernel::setArg(int index, cl_int value)
 {
@@ -414,6 +422,9 @@ void QCLKernel::setArg(int index, cl_int value)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c uint.
 */
 void QCLKernel::setArg(int index, cl_uint value)
 {
@@ -423,6 +434,9 @@ void QCLKernel::setArg(int index, cl_uint value)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c long.
 */
 void QCLKernel::setArg(int index, cl_long value)
 {
@@ -432,6 +446,9 @@ void QCLKernel::setArg(int index, cl_long value)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c ulong.
 */
 void QCLKernel::setArg(int index, cl_ulong value)
 {
@@ -441,6 +458,9 @@ void QCLKernel::setArg(int index, cl_ulong value)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float.
 */
 void QCLKernel::setArg(int index, float value)
 {
@@ -450,6 +470,111 @@ void QCLKernel::setArg(int index, float value)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float2.
+*/
+void QCLKernel::setArg(int index, const QVector2D& value)
+{
+    Q_D(const QCLKernel);
+    if (sizeof(value) == (sizeof(float) * 2)) {
+        clSetKernelArg(d->id, index, sizeof(value), &value);
+    } else {
+        float values[2] = {value.x(), value.y()};
+        clSetKernelArg(d->id, index, sizeof(values), values);
+    }
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float4 (OpenCL does not have a \c float3 type).
+    The value will be passed to the kernel as (x, y, z, 1).
+*/
+void QCLKernel::setArg(int index, const QVector3D& value)
+{
+    Q_D(const QCLKernel);
+    float values[4] = {value.x(), value.y(), value.z(), 1.0f};
+    clSetKernelArg(d->id, index, sizeof(values), values);
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float4.
+*/
+void QCLKernel::setArg(int index, const QVector4D& value)
+{
+    Q_D(const QCLKernel);
+    if (sizeof(value) == (sizeof(float) * 4)) {
+        clSetKernelArg(d->id, index, sizeof(value), &value);
+    } else {
+        float values[4] = {value.x(), value.y(), value.z(), value.w()};
+        clSetKernelArg(d->id, index, sizeof(values), values);
+    }
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c int2.
+*/
+void QCLKernel::setArg(int index, const QPoint& value)
+{
+    Q_D(const QCLKernel);
+    if (sizeof(value) == (sizeof(cl_int) * 2)) {
+        clSetKernelArg(d->id, index, sizeof(value), &value);
+    } else {
+        cl_int values[2] = {value.x(), value.y()};
+        clSetKernelArg(d->id, index, sizeof(values), values);
+    }
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float2.
+*/
+void QCLKernel::setArg(int index, const QPointF& value)
+{
+    Q_D(const QCLKernel);
+    if (sizeof(value) == (sizeof(float) * 2)) {
+        clSetKernelArg(d->id, index, sizeof(value), &value);
+    } else {
+        float values[2] = {value.x(), value.y()};
+        clSetKernelArg(d->id, index, sizeof(values), values);
+    }
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float16.
+*/
+void QCLKernel::setArg(int index, const QMatrix4x4& value)
+{
+    Q_D(const QCLKernel);
+    if (sizeof(qreal) == sizeof(float)) {
+        clSetKernelArg(d->id, index, sizeof(float) * 16, value.constData());
+    } else {
+        float values[16];
+        for (int posn = 0; posn < 16; ++posn)
+            values[posn] = float(value.constData()[posn]);
+        clSetKernelArg(d->id, index, sizeof(values), values);
+    }
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c image2d_t, \c image3d_t, or be a pointer to a buffer,
+    according to the type of memory object represented by \a value.
 */
 void QCLKernel::setArg(int index, const QCLMemoryObject& value)
 {
@@ -460,6 +585,9 @@ void QCLKernel::setArg(int index, const QCLMemoryObject& value)
 
 /*!
     Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c sampler_t.
 */
 void QCLKernel::setArg(int index, const QCLSampler& value)
 {
