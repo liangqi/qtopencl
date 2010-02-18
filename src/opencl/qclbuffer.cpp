@@ -51,6 +51,8 @@ QT_BEGIN_NAMESPACE
     \brief The QCLBuffer class represents an OpenCL buffer object.
     \since 4.7
     \ingroup opencl
+
+    \sa QCLVector
 */
 
 /*!

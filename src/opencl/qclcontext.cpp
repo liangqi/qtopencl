@@ -621,7 +621,7 @@ QCLCommandQueue QCLContext::createCommandQueue
     Returns the new OpenCL memory buffer object, or a null object
     if the buffer could not be created.
 
-    \sa createBufferHost(), createBufferCopy()
+    \sa createBufferHost(), createBufferCopy(), createVector()
 */
 QCLBuffer QCLContext::createBufferDevice
     (size_t size, QCLMemoryObject::Access access)
@@ -648,7 +648,7 @@ QCLBuffer QCLContext::createBufferDevice
     Returns the new OpenCL memory buffer object, or a null object
     if the buffer could not be created.
 
-    \sa createBufferDevice(), createBufferCopy()
+    \sa createBufferDevice(), createBufferCopy(), createVector()
 */
 QCLBuffer QCLContext::createBufferHost
     (void *data, size_t size, QCLMemoryObject::Access access)
@@ -679,7 +679,7 @@ QCLBuffer QCLContext::createBufferHost
     Returns the new OpenCL memory buffer object, or a null object
     if the buffer could not be created.
 
-    \sa createBufferDevice(), createBufferHost()
+    \sa createBufferDevice(), createBufferHost(), createVector()
 */
 QCLBuffer QCLContext::createBufferCopy
     (const void *data, size_t size, QCLMemoryObject::Access access)
@@ -697,6 +697,20 @@ QCLBuffer QCLContext::createBufferCopy
     else
         return QCLBuffer();
 }
+
+/*!
+    \fn QCLVector<T> QCLContext::createVector(int size, QCLMemoryObject::Access access)
+
+    Creates a host-accessible vector of \a size elements of type T
+    on this context and returns it.  The elements will be initially in
+    an undefined state.
+
+    Note that the \a access mode indicates how the OpenCL device (e.g. GPU)
+    will access the vector.  When the host maps the vector, it will always
+    be mapped as ReadWrite.
+
+    \sa createBufferHost()
+*/
 
 /*!
     Creates a 2D OpenCL image object with the specified \a format,

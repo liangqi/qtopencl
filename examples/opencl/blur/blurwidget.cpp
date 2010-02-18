@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include "blurwidget.h"
-#include <QtCore/qvarlengtharray.h>
+#include <QtCore/qvector.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qdatetime.h>
@@ -72,8 +72,8 @@ BlurWidget::BlurWidget(QWidget *parent)
 //! [3]
 
 //! [4]
-    weightsBuffer = context.createBufferDevice(sizeof(float) * 100, QCLBuffer::ReadOnly);
-    offsetsBuffer = context.createBufferDevice(sizeof(float) * 100, QCLBuffer::ReadOnly);
+    weightsBuffer = context.createVector<float>(100);
+    offsetsBuffer = context.createVector<float>(100);
 //! [4]
 
 //! [5]
@@ -103,9 +103,11 @@ static inline qreal gaussian(qreal dx, qreal sigma)
 void BlurWidget::paintEvent(QPaintEvent *)
 {
     // Calculate the Gaussian blur weights and offsets.
-    QVarLengthArray<qreal> components;
-    QVarLengthArray<float> offsets;
-    QVarLengthArray<float> weights;
+    QVector<qreal> components;
+//! [6a]
+    QVector<float> offsets;
+    QVector<float> weights;
+//! [6a]
     qreal sigma = radius / 1.65;
     qreal sum = 0;
     for (int i = -radius; i <= radius; ++i) {
@@ -131,10 +133,10 @@ void BlurWidget::paintEvent(QPaintEvent *)
     time.start();
 
     // Upload the weights and offsets into OpenCL.
-//! [6]
-    offsetsBuffer.write(offsets.constData(), sizeof(float) * offsets.size());
-    weightsBuffer.write(weights.constData(), sizeof(float) * weights.size());
-//! [6]
+//! [6b]
+    offsetsBuffer.write(offsets);
+    weightsBuffer.write(weights);
+//! [6b]
 
     // Execute the horizontal and vertical Gaussian kernels.
 //! [7]

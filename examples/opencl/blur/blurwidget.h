@@ -67,8 +67,8 @@ private:
     QCLImage2D srcImageBuffer;
     QCLImage2D dstImageBuffer;
     QCLImage2D tmpImageBuffer;
-    QCLBuffer weightsBuffer;
-    QCLBuffer offsetsBuffer;
+    QCLVector<float> weightsBuffer;
+    QCLVector<float> offsetsBuffer;
     int radius;
     int step;
 };

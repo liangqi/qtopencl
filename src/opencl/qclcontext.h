@@ -45,6 +45,7 @@
 #include "qcldevice.h"
 #include "qclcommandqueue.h"
 #include "qclbuffer.h"
+#include "qclvector.h"
 #include "qclimage.h"
 #include "qclsampler.h"
 #include "qclprogram.h"
@@ -61,6 +62,7 @@ QT_MODULE(CL)
 
 class QCLContextPrivate;
 class QCLKernel;
+class QCLVectorBase;
 
 class Q_CL_EXPORT QCLContext
 {
@@ -101,6 +103,9 @@ public:
         (void *data, size_t size, QCLMemoryObject::Access access);
     QCLBuffer createBufferCopy
         (const void *data, size_t size, QCLMemoryObject::Access access);
+
+    template <typename T>
+    QCLVector<T> createVector(int size, QCLMemoryObject::Access access = QCLMemoryObject::ReadWrite);
 
     QCLImage2D createImage2DDevice
         (const QCLImageFormat& format, const QSize& size,
@@ -170,9 +175,18 @@ private:
     friend class QCLKernel;
     friend class QCLCommandQueue;
     friend class QCLProgram;
+    friend class QCLVectorBase;
 
     void reportError(const char *name, cl_int error);
 };
+
+template <typename T>
+Q_INLINE_TEMPLATE QCLVector<T> QCLContext::createVector
+    (int size, QCLMemoryObject::Access access)
+{
+    Q_ASSERT(size >= 1);
+    return QCLVector<T>(this, size, access);
+}
 
 QT_END_NAMESPACE
 

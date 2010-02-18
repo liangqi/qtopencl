@@ -57,6 +57,7 @@ QT_MODULE(CL)
 class QCLContext;
 class QCLProgram;
 class QCLMemoryObject;
+class QCLVectorBase;
 class QCLSampler;
 class QCLDevice;
 class QVector2D;
@@ -112,6 +113,7 @@ public:
     void setArg(int index, const QPointF& value);
     void setArg(int index, const QMatrix4x4& value);
     void setArg(int index, const QCLMemoryObject& value);
+    void setArg(int index, const QCLVectorBase& value);
     void setArg(int index, const QCLSampler& value);
     void setArg(int index, const void *data, size_t size);
 

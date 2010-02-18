@@ -39,53 +39,12 @@
 **
 ****************************************************************************/
 
-#include <stdio.h>
-#include "qclcontext.h"
-
-int main(int, char **)
-{
 //! [1]
-    QCLContext context;
-    if (!context.create()) {
-        fprintf(stderr, "Could not create OpenCL context for the GPU\n");
-        return 1;
+    __kernel void vectorAdd(__global __read_only int *input1,
+                            __global __read_only int *input2,
+                            __global __write_only int *output)
+    {
+        unsigned int index = get_global_id(0);
+        output[index] = input1[index] + input2[index];
     }
 //! [1]
-
-//! [2]
-    QCLVector<int> input1 = context.createVector<int>(2048);
-    QCLVector<int> input2 = context.createVector<int>(2048);
-    for (int index = 0; index < 2048; ++index) {
-        input1[index] = index;
-        input2[index] = 2048 - index;
-    }
-//! [2]
-//! [3]
-    QCLVector<int> output = context.createVector<int>(2048);
-//! [3]
-
-//! [4]
-    QCLProgram program = context.buildProgramFromSourceFile(":/vectoradd.cl");
-    QCLKernel kernel = program.createKernel("vectorAdd");
-//! [4]
-
-//! [5]
-    kernel.setGlobalWorkSize(2048);
-//! [5]
-//! [6]
-    kernel(input1, input2, output);
-//! [6]
-
-//! [7]
-    for (int index = 0; index < 2048; ++index) {
-        if (output[index] != 2048) {
-            fprintf(stderr, "Answer at index %d is %d, should be %d\n",
-                    index, output[index], 2048);
-            return 1;
-        }
-    }
-    printf("Answer is correct: %d\n", 2048);
-//! [7]
-
-    return 0;
-}

@@ -593,6 +593,19 @@ void QCLKernel::setArg(int index, const QCLMemoryObject& value)
 /*!
     Sets argument \a index for this kernel to \a value.
 
+    The argument is assumed to have been declared as a pointer
+    to a buffer.
+*/
+void QCLKernel::setArg(int index, const QCLVectorBase& value)
+{
+    Q_D(const QCLKernel);
+    cl_mem id = value.kernelArg();
+    clSetKernelArg(d->id, index, sizeof(id), &id);
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
     The argument is assumed to have been declared with the
     type \c sampler_t.
 */

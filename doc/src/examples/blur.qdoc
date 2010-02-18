@@ -100,7 +100,9 @@
     When the program receives a paint event, we calculate the Gaussian
     weights and offsets for the blur radius and upload them to the GPU:
 
-    \snippet blur/blurwidget.cpp 6
+    \snippet blur/blurwidget.cpp 6a
+    \dots
+    \snippet blur/blurwidget.cpp 6b
 
     Now we run the actual OpenCL kernel programs for the horizontal
     and vertical passes, passing the above OpenCL buffers as arguments:

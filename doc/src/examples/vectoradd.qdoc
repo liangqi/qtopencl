@@ -54,53 +54,27 @@
     Next we need some input data.  We are going to add two 2048-element
     vectors of integers together.  The first vector will hold the
     numbers 0..2047 and the second vector will hold the numbers
-    2048..1.  The following code initializes our vectors:
+    2048..1.  The following code creates and initializes our vectors:
 
     \snippet vectoradd/vectoradd.cpp 2
 
-    At this point, the data is still in the CPU's address space.
-    We need to create two OpenCL buffer objects in the GPU device
-    and copy the vectors into it:
+    At this point, the data is still in the CPU's address space,
+    but by creating the vectors as QCLVector instances, they will be
+    automatically transferred to the GPU when we execute the OpenCL
+    program later.  We also need somewhere for the GPU to store the results:
 
     \snippet vectoradd/vectoradd.cpp 3
-
-    QCLContext::createBufferCopy() creates a QCLBuffer object
-    that represents the memory in the GPU.  Here we have used
-    QCLBuffer::ReadOnly to indicate that the GPU (not the CPU)
-    will be reading from these buffers.  The access modes are
-    always with respect to what the GPU will be doing with them.
-
-    Now we need somewhere for the GPU to store the results:
-
-    \snippet vectoradd/vectoradd.cpp 4
-
-    This time we have used QCLContext::createBufferDevice() to
-    allocate memory in the GPU device.  This memory is not directly
-    accessible to the host CPU, which means that the GPU can allocate
-    it within the most efficient memory area it can find.  If we wanted
-    the host to be able to directly access the memory, we would
-    use QCLContext::createBufferHost() instead.
 
     Next, we build the program and locate the \c vectorAdd entry point,
     or "kernel" in OpenCL terminology:
 
-    \snippet vectoradd/vectoradd.cpp 5
+    \snippet vectoradd/vectoradd.cpp 4
 
-    The OpenCL source code for our program has been supplied as a constant
-    character array directly in the C++ code.  We could have also
-    used QCLContext::buildProgramFromSourceFile() to load the OpenCL
-    source code from an external file or Qt resource.  Before we
-    continue with the C++ code, let's have a look at the OpenCL source code:
+    The OpenCL source code for our program has been supplied as a
+    Qt resource file called \c{vectoradd.cl}.  Before we continue
+    with the C++ code, let's have a look at the OpenCL source code:
 
-    \code
-    __kernel void vectorAdd(__global __read_only int *input1,
-                            __global __read_only int *input2,
-                            __global __write_only int *output)
-    {
-        unsigned int index = get_global_id(0);
-        output[index] = input1[index] + input2[index];
-    }
-    \endcode
+    \snippet vectoradd/vectoradd.cl 1
 
     The function \c vectorAdd has two arguments for the input vectors
     and a third argument for the output vector.  The body of the function
@@ -116,23 +90,28 @@
     that item.  Back in our C++ code, we specify the number of
     work items with QCLKernel::setGlobalWorkSize():
 
-    \snippet vectoradd/vectoradd.cpp 6
+    \snippet vectoradd/vectoradd.cpp 5
 
     This tells the OpenCL implementation how many times it should iterate
     over the inputs, passing a different global identifier to each instance.
     These iterations are executed in parallel to speed up the calculations.
-    In C++, we execute the kernel, passing it the three buffers, as follows:
+    In C++, we execute the kernel, passing it the three vectors, as follows:
+
+    \snippet vectoradd/vectoradd.cpp 6
+
+    Behind the scenes, QCLKernel will make sure that the contents of
+    our input vectors are transferred to the GPU before the kernel
+    begins execution.
+
+    Finally, we read back the results from the output buffer and check
+    that the answer is what we expected:
 
     \snippet vectoradd/vectoradd.cpp 7
 
-    Finally, we read back the results from the output buffer with
-    QCLBuffer::read(), which will block until the GPU finishes
-    executing all of our work items:
+    The first time that the host refers to the contents of the output
+    vector, the data is automatically transferred from the GPU to the host.
 
-    \snippet vectoradd/vectoradd.cpp 8
-
-    The rest of the example code checks the results.  If all goes well,
-    the following should be printed by the program:
+    If all goes well, the following should be printed by the program:
 
     \code
     Answer is correct: 2048
