@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of the QtOpenCL module of the Qt Toolkit.
+** This file is part of the Qt3D module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -40,23 +40,14 @@
 ****************************************************************************/
 
 /*!
-    \page index.html
-    \title QtOpenCL Reference Documentation
-    \keyword QtOpenCL Reference Documentation
+    \example mandelbrot
+    \title Mandelbrot Viewer
 
-    QtOpenCL is a set of extension classes for the QtCore and QtOpenGL
-    modules to enable the use of OpenCL in Qt 4.7 and higher.
+    The Mandelbrot Viewer demonstrates how to use OpenCL to calculate
+    and color images from the
+    \l{http://en.wikipedia.org/wiki/Mandelbrot_set}{Mandelbrot set}.
 
-    \list
-    \o \l{opencl}{Class Reference}
-    \o Examples
-        \list
-        \o \l{vectoradd}{Vector Addition}
-        \o \l{blur}{Gaussian Blur}
-        \endlist
-    \o Demos
-        \list
-        \o \l{mandelbrot}{Mandelbrot Viewer}
-        \endlist
-    \endlist
+    \image mandelbrot-screenshot.png
+
+    \l{index.html}{Return to Home}
 */

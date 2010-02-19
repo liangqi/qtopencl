@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = vectoradd mandelbrot blur
+SUBDIRS = vectoradd blur
