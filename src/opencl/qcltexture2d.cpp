@@ -41,6 +41,7 @@
 
 #include "qcltexture2d.h"
 #include "qclcontextgl.h"
+#include "qcl_glproxy_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -60,21 +61,6 @@ QT_BEGIN_NAMESPACE
     kernels without needing to implement special handling for
     OpenCL implementations that lack sharing.
 */
-
-// Copied from <QtOpenGL/private/qgl_p.h>.  Hopefully won't be
-// necessary in future versions of Qt.
-class Q_OPENGL_EXPORT QGLSignalProxy : public QObject
-{
-    Q_OBJECT
-public:
-    QGLSignalProxy() : QObject() {}
-    void emitAboutToDestroyContext(const QGLContext *context) {
-        emit aboutToDestroyContext(context);
-    }
-    static QGLSignalProxy *instance();
-Q_SIGNALS:
-    void aboutToDestroyContext(const QGLContext *context);
-};
 
 class QCLTexture2DPrivate : public QObject
 {
