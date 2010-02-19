@@ -44,33 +44,15 @@
     \title QtOpenCL Reference Documentation
     \keyword QtOpenCL Reference Documentation
 
-    QtOpenCL is a set of extension classes for the Qt Core and OpenGL
+    QtOpenCL is a set of extension classes for the QtCore and QtOpenGL
     modules to enable the use of OpenCL in Qt 4.7 and higher.
 
-    \raw HTML
-        <table cellpadding="2" cellspacing="1" border="0" width="100%" bgcolor="#e5e5e5">
-        <tr>
-        <th bgcolor="#66b036" width="33%">
-        Getting Started
-        </th>
-        <th bgcolor="#66b036" width="33%">
-        API Reference
-        </th>
-        </tr>
-        <tr>
-        <td valign="top">
-        <ul>
-        <li><a href="qtopencl-examples.html">Examples</a></li>
-        </ul>
-        </td>
-        <td valign="top">
-        <ul>
-        <li><a href="qtopencl-all-classes.html">All Classes</a></li>
-        <li><a href="opencl.html">QtOpenCL Module</a></li>
-        <li><a href="qcl.html">QCL Namespace</a></li>
-        </ul>
-        </td>
-        </tr>
-        </table>
-    \endraw
+    \list
+    \o \l{opencl}{Class Reference}
+    \o Examples
+        \list
+        \o \l{vectoradd}{Vector Addition}
+        \o \l{blur}{Gaussian Blur}
+        \endlist
+    \endlist
 */
