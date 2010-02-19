@@ -1,3 +1,16 @@
 doc/html
 *.swp
+*.o
 *~
+Makefile
+moc_*.cpp
+qrc_*.cpp
+*.moc
+*.exe
+demos/mandelbrot/mandelbrot
+examples/opencl/blur/blur
+examples/opencl/vectoradd/vectoradd
+lib/
+tests/auto/qcl/tst_qcl
+tests/benchmarks/mandelbrot/mandelbrot
+util/clinfo/clinfo
