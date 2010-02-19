@@ -1,0 +1,118 @@
+/****************************************************************************
+**
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** This file is part of the QtOpenCL module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** No Commercial Usage
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**
+**
+**
+**
+**
+**
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page building.html
+    \title Building QtOpenCL
+
+    \section1 Required Qt version
+
+    It is recommended that you use Qt 4.7, but the library will build
+    with Qt 4.6.2.  The main missing feature is support for
+    QGLBuffer in the QCLContextGL class.  QGLBuffer implements VBO
+    support for QtOpenGL and is in Qt 4.7, but not 4.6.2.
+
+    \section1 Building for Linux
+
+    The simplest way to configure and build the library is as follows:
+
+    \code
+    qmake opencl.pro
+    make
+    \endcode
+
+    Be sure to use the qmake binary from the right version of Qt,
+    especially if you are cross-compiling for a device.
+
+    By default, the build system assumes that the OpenCL headers
+    are found in the normal system location for header files
+    (usually \c{/usr/include}), and that the library to link against
+    is called \c{libOpenCL.so}.  These defaults can be overridden
+    with the following qmake variables:
+
+    \list
+    \o \c{QMAKE_INCDIR_OPENCL} - Directory that contains the
+    includes \c{<CL/cl.h>}, \c{<CL/cl_gl.h>}, etc.
+    \o \c{QMAKE_LIBDIR_OPENCL} - Directory that contains the
+    \c{libOpenCL.so} library.
+    \o \c{QMAKE_LIBS_OPENCL} - Libraries to add to the link line.
+    e.g. "\c{-lOpenCL -lGLESv2}".  The default value is "\c{-lOpenCL}".
+    \o \c{CONFIG+=no_cl_gl} - The OpenCL library does not have any of
+    the functions that are needed to perform OpenGL interoperation.
+    This will cause the sharing functionality of QCLContextGL
+    to be disabled.  Applications can still use QCLContextGL,
+    but they will have reduced functionality.
+    \endlist
+
+    For example, if your OpenCL library is called \c{libOCL.so}
+    installed under \c{/opt/ocl/include} and \c{/opt/ocl/lib},
+    and it does not support GL interoperation, you would
+    configure as follows:
+
+    \code
+    qmake QMAKE_INCDIR_OPENCL=/opt/ocl/include \
+          QMAKE_LIBDIR_OPENCL=/opt/ocl/lib \
+          QMAKE_LIBS_OPENCL="-lOCL" CONFIG+=no_cl_gl
+    \endcode
+
+    \section1 Building for MacOSX
+
+    The instructions are similar to Linux:
+
+    \code
+    qmake opencl.pro
+    make
+    \endcode
+
+    It is assumed that the "\c{OpenCL}" framework has been installed
+    to provide the OpenCL headers and libraries.
+
+    \section1 Building for Windows
+
+    The instructions are again:
+
+    \code
+    qmake opencl.pro
+    make
+    \endcode
+
+    \l{index.html}{Return to Home}
+*/

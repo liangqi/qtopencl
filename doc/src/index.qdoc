@@ -45,9 +45,10 @@
     \keyword QtOpenCL Reference Documentation
 
     QtOpenCL is a set of extension classes for the QtCore and QtOpenGL
-    modules to enable the use of OpenCL in Qt 4.7 and higher.
+    modules to enable the use of OpenCL in Qt 4.6.2 and Qt 4.7.
 
     \list
+    \o \l{Building QtOpenCL}{Building}
     \o \l{opencl}{Class Reference}
     \o Examples
         \list

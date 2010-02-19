@@ -1,42 +1,9 @@
 
+QtOpenCL
+--------
+
 This directory contains a Qt-style wrapper library for OpenCL
 plus several examples, benchmarks, and unit tests that exercise
 the library in various ways.
 
-It is recommended that you use Qt 4.7, but the library will build
-with Qt 4.6.  The main missing feature is support for QGLBuffer
-in the QCLContextGL class - that class is in Qt 4.7, but not 4.6.
-
-There are a number of variables that can be provided to qmake:
-
-QMAKE_INCDIR_OPENCL
-    Directory that contains the includes <CL/cl.h>, <CL/cl_gl.h>, etc.
-QMAKE_LIBDIR_OPENCL
-    Directory that contains the libOpenCL.so library.
-QMAKE_LIBS_OPENCL
-    Libraries to add to the link line.  e.g. "-lOpenCL -lGLESv2".  The
-    default value is "-lOpenCL".
-CONFIG+=no_cl_gl
-    The OpenCL library does not have any of the functions that
-    are needed to perform OpenGL integration.  This will cause the
-    sharing functionality of QCLContextGL to be disabled.
-
-For example:
-    qmake QMAKE_INCDIR_OPENCL=abc QMAKE_LIBDIR_OPENCL=def
-
-Note: you should use the full pathname to the "qmake" binary in the
-version of Qt you built from sources.  For example, if you built Qt 4.7
-in $HOME/build/qt-47, then you would run qmake as follows:
-
-    $HOME/build/qt-47/bin/qmake QMAKE_INCDIR_OPENCL=abc QMAKE_LIBDIR_OPENCL=def
-
-For the N900, it is recommended that QMAKE_LIBS_OPENCL be set to
-"-lOCL" and that "CONFIG+=no_cl_gl" be supplied to qmake; e.g.
-
-    qmake QMAKE_INCDIR_OPENCL=$HOME/libocl/usr/include \
-          QMAKE_LIBDIR_OPENCL=$HOME/libocl/usr/lib \
-          QMAKE_LIBS_OPENCL="-lOCL" \
-          CONFIG+=no_cl_gl
-
-Where the N900's libocl package has been unpacked into $HOME/libocl
-on the build machine.
+See "doc/src/building.qdoc" for build instructions.
