@@ -49,6 +49,31 @@ QT_BEGIN_NAMESPACE
     \since 4.7
     \ingroup opencl
 
+    OpenCL work sizes may be single-dimensional, two-dimensional,
+    or three-dimensional:
+
+    \code
+    QCLWorkSize oned(128);
+    QCLWorkSize twod(16, 16);
+    QCLWorkSize threed(32, 32, 16);
+    ...
+    QCLKernel kernel = ...;
+    kernel.setGlobalWorkSize(oned);
+    kernel.setGlobalWorkSize(twod);
+    kernel.setGlobalWorkSize(threed);
+    \endcode
+
+    For convenience, QCLKernel::setGlobalWorkSize() and
+    QCLKernel::setLocalWorkSize() can be specified by a QCLWorkSize
+    object or direct numeric arguments:
+
+    \code
+    QCLKernel kernel = ...;
+    kernel.setGlobalWorkSize(128);
+    kernel.setGlobalWorkSize(16, 16);
+    kernel.setGlobalWorkSize(32, 32, 16);
+    \endcode
+
     \sa QCLKernel
 */
 

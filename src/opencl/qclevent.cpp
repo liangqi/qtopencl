@@ -51,6 +51,58 @@ QT_BEGIN_NAMESPACE
     \brief The QCLEvent class represents an OpenCL event object.
     \since 4.7
     \ingroup opencl
+
+    QCLEvent objects are used to track the current status of an
+    asynchronous command that was executed against a QCLContext.
+    Events progress through a number of states:
+
+    \table
+    \row \o isQueued() \o The command has been enqueued on the
+    command queue for the QCLContext but has not yet been submitted
+    to the OpenCL device for execution.
+    \row \o isSubmitted() \o The command has been submitted to
+    the OpenCL device for execution, but has not started executing.
+    \row \o isRunning() \o The command is running on the OpenCL device,
+    but has not yet completed.
+    \row \o isComplete() \o The command has completed execution and
+    the results, if any, are now available for use in further commands.
+    \endtable
+
+    Host applications can wait for the event (and thus, the command
+    that created it) to complete by calling wait() or waitForEvents():
+
+    \code
+    QCLBuffer buffer = ...;
+    QCLEvent event = buffer.readAsync(offset, data, size);
+    ...
+    event.wait();
+    \endcode
+
+    Applications can also pass a QVector list of QCLEvent objects to
+    another command to tell it to start executing only once all events
+    in the list have completed:
+
+    \code
+    QCLBuffer buffer = ...;
+    QCLEvent event1 = buffer.readAsync(offset1, data1, size1);
+    QCLEvent event2 = buffer.readAsync(offset2, data2, size2);
+
+    QVector<QCLEvent> after;
+    after << event1 << event2;
+    QCLEvent event3 = buffer.readAsync(offset3, data3, size3, after);
+    ...
+    event3.wait();
+    \endcode
+
+    Normally it isn't necessary to wait for previous requests to
+    complete because the command queue's natural order will enforce
+    the conditions.  If however QCLCommandQueue::isOutOfOrder() is set,
+    it is possible for the second and third QCLBuffer::readAsync()
+    commands above to start before the first command has finished.
+    Event lists can be used to order commands when out-of-order
+    command execution is in use.
+
+    \sa QCLCommandQueue::isOutOfOrder()
 */
 
 /*!
