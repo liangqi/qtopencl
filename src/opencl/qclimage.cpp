@@ -513,7 +513,7 @@ QCLEvent QCLImage2D::copyToAsync
 }
 
 // Defined in qclbuffer.cpp.
-extern cl_map_flags qt_cl_map_flags(QCLMemoryObject::Access access);
+extern cl_map_flags qt_cl_map_flags(QCL::Access access);
 
 /*!
     Maps the image region \a rect into host memory for the
@@ -528,7 +528,7 @@ extern cl_map_flags qt_cl_map_flags(QCLMemoryObject::Access access);
     \sa mapAsync(), unmap()
 */
 void *QCLImage2D::map
-    (const QRect& rect, QCLMemoryObject::Access access, int *bytesPerLine)
+    (const QRect& rect, QCL::Access access, int *bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -563,7 +563,7 @@ void *QCLImage2D::map
     \sa map(), unmapAsync()
 */
 QCLEvent QCLImage2D::mapAsync
-    (void **ptr, const QRect& rect, QCLMemoryObject::Access access,
+    (void **ptr, const QRect& rect, QCL::Access access,
      const QVector<QCLEvent>& after, int *bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
@@ -1058,7 +1058,7 @@ QCLEvent QCLImage3D::copyToAsync
 */
 void *QCLImage3D::map
     (const size_t origin[3], const size_t size[3],
-     QCLMemoryObject::Access access, int *bytesPerLine, int *bytesPerSlice)
+     QCL::Access access, int *bytesPerLine, int *bytesPerSlice)
 {
     cl_int error;
     size_t rowPitch, slicePitch;
@@ -1096,7 +1096,7 @@ void *QCLImage3D::map
 */
 QCLEvent QCLImage3D::mapAsync
     (void **ptr, const size_t origin[3], const size_t size[3],
-     QCLMemoryObject::Access access, const QVector<QCLEvent>& after,
+     QCL::Access access, const QVector<QCLEvent>& after,
      int *bytesPerLine, int *bytesPerSlice)
 {
     cl_int error;

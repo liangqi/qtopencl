@@ -39,11 +39,10 @@
 **
 ****************************************************************************/
 
-#ifndef QCLMEMORYOBJECT_H
-#define QCLMEMORYOBJECT_H
+#ifndef QCLNAMESPACE_H
+#define QCLNAMESPACE_H
 
-#include "qclnamespace.h"
-#include "qclevent.h"
+#include "qclglobal.h"
 
 QT_BEGIN_HEADER
 
@@ -51,46 +50,14 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
-class QCLContext;
-
-class Q_CL_EXPORT QCLMemoryObject
+namespace QCL
 {
-protected:
-    QCLMemoryObject(QCLContext *context = 0) : m_context(context), m_id(0) {}
-    QCLMemoryObject(QCLContext *context, cl_mem id)
-        : m_context(context), m_id(id) {}
-
-public:
-    virtual ~QCLMemoryObject();
-
-    bool isNull() const { return m_id == 0; }
-
-    cl_mem id() const { return m_id; }
-    QCLContext *context() const { return m_context; }
-
-    QCL::Access access() const;
-    cl_mem_flags flags() const;
-    void *hostPointer() const;
-    size_t size() const;
-
-    void unmap(void *ptr);
-    QCLEvent unmapAsync
-        (void *ptr, const QVector<QCLEvent>& after = QVector<QCLEvent>());
-
-    QCLEvent acquireGL();
-    QCLEvent acquireGL(const QVector<QCLEvent>& after);
-
-    QCLEvent releaseGL();
-    QCLEvent releaseGL(const QVector<QCLEvent>& after);
-
-protected:
-    void setId(QCLContext *context, cl_mem id);
-
-private:
-    QCLContext *m_context;
-    cl_mem m_id;
-
-    Q_DISABLE_COPY(QCLMemoryObject)
+    enum Access
+    {
+        ReadWrite           = 0x0001,
+        WriteOnly           = 0x0002,
+        ReadOnly            = 0x0004
+    };
 };
 
 QT_END_NAMESPACE

@@ -61,14 +61,14 @@ BlurWidget::BlurWidget(QWidget *parent)
 
 //! [2]
     QImage img(QLatin1String(":/qtlogo.png"));
-    srcImageBuffer = context.createImage2DCopy(img, QCLImage2D::ReadOnly);
+    srcImageBuffer = context.createImage2DCopy(img, QCL::ReadOnly);
 //! [2]
 
 //! [3]
-    tmpImageBuffer = context.createImage2DDevice(QImage::Format_ARGB32, img.size(), QCLImage2D::ReadWrite);
+    tmpImageBuffer = context.createImage2DDevice(QImage::Format_ARGB32, img.size(), QCL::ReadWrite);
 
     dstImage = QImage(img.size(), QImage::Format_ARGB32);
-    dstImageBuffer = context.createImage2DDevice(dstImage.format(), dstImage.size(), QCLImage2D::WriteOnly);
+    dstImageBuffer = context.createImage2DDevice(dstImage.format(), dstImage.size(), QCL::WriteOnly);
 //! [3]
 
 //! [4]

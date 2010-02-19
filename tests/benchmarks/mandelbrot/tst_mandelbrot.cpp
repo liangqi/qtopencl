@@ -181,12 +181,12 @@ void tst_Mandelbrot::openclPerPixel()
                   diameter, diameter);
 
     QCLBuffer data = context.createBufferDevice
-        (Test_Width * Test_Height * sizeof(int), QCLBuffer::WriteOnly);
+        (Test_Width * Test_Height * sizeof(int), QCL::WriteOnly);
     perPixelKernel.setGlobalWorkSize(Test_Width, Test_Height);
 
     QCLBuffer colors = context.createBufferCopy
         (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
-         QCLBuffer::ReadOnly);
+         QCL::ReadOnly);
 
     QBENCHMARK {
         QCLEvent event = perPixelKernel
@@ -215,12 +215,12 @@ void tst_Mandelbrot::openclPerPixelHost()
                   diameter, diameter);
 
     QCLBuffer data = context.createBufferHost
-        (0, Test_Width * Test_Height * sizeof(int), QCLBuffer::WriteOnly);
+        (0, Test_Width * Test_Height * sizeof(int), QCL::WriteOnly);
     perPixelKernel.setGlobalWorkSize(Test_Width, Test_Height);
 
     QCLBuffer colors = context.createBufferCopy
         (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
-         QCLBuffer::ReadOnly);
+         QCL::ReadOnly);
 
     QBENCHMARK {
         QCLEvent event = perPixelKernel
@@ -230,7 +230,7 @@ void tst_Mandelbrot::openclPerPixelHost()
         event.wait();
 
         // Force a copy-back to host memory by mapping it.
-        void *ptr = data.map(QCLBuffer::WriteOnly);
+        void *ptr = data.map(QCL::WriteOnly);
         data.unmap(ptr);
     }
 }
@@ -253,12 +253,12 @@ void tst_Mandelbrot::openclPerGroup()
                   diameter, diameter);
 
     QCLBuffer data = context.createBufferDevice
-        (Test_Width * Test_Height * sizeof(int), QCLBuffer::WriteOnly);
+        (Test_Width * Test_Height * sizeof(int), QCL::WriteOnly);
     perGroupKernel.setGlobalWorkSize(Test_Width / 16, Test_Height / 16);
 
     QCLBuffer colors = context.createBufferCopy
         (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
-         QCLBuffer::ReadOnly);
+         QCL::ReadOnly);
 
     QBENCHMARK {
         QCLEvent event = perGroupKernel
@@ -290,12 +290,12 @@ void tst_Mandelbrot::openclImage()
     QCLImageFormat format(QCLImageFormat::Order_RGBA,
                           QCLImageFormat::Type_Normalized_UInt8);
     QCLImage2D data = context.createImage2DDevice
-        (format, QSize(Test_Width, Test_Height), QCLImage2D::WriteOnly);
+        (format, QSize(Test_Width, Test_Height), QCL::WriteOnly);
     imageKernel.setGlobalWorkSize(Test_Width, Test_Height);
 
     QCLBuffer colorBuffer = context.createBufferCopy
         (floatColors.constData(), sizeof(float) * 4 * Test_MaxIterations,
-         QCLBuffer::ReadOnly);
+         QCL::ReadOnly);
 
     QBENCHMARK {
         QCLEvent event = imageKernel

@@ -150,7 +150,7 @@ void QCLVectorBase::assign(const QCLVectorBase& other)
 }
 
 void QCLVectorBase::create
-    (QCLContext *context, int size, QCLMemoryObject::Access access)
+    (QCLContext *context, int size, QCL::Access access)
 {
     release();
     d_ptr = new QCLVectorBasePrivate();

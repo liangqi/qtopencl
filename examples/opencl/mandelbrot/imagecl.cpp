@@ -112,7 +112,7 @@ void ImageCL::init(bool useGL)
     // The buffer lives on the OpenCL device and does not need to
     // be accessed by the host.
     data = ctx->context->createBufferDevice
-        (wid * ht * sizeof(uint), QCLBuffer::ReadWrite);
+        (wid * ht * sizeof(uint), QCL::ReadWrite);
 }
 
 QMetaType::Type ImageCL::precision() const
@@ -166,7 +166,7 @@ void ImageCL::generateImage
 
     // Upload the color table into a buffer in the device.
     QCLBuffer colorBuffer = ctx->context->createBufferDevice
-        (maxIterations * sizeof(float) * 4, QCLBuffer::ReadOnly);
+        (maxIterations * sizeof(float) * 4, QCL::ReadOnly);
     QVarLengthArray<float> floatColors;
     for (int index = 0; index < maxIterations; ++index) {
         QColor color(colors[index]);
@@ -182,7 +182,7 @@ void ImageCL::generateImage
         // Create a buffer for the image in the OpenCL device.
         if (imageBuffer.isNull()) {
             imageBuffer = ctx->context->createImage2DDevice
-                (QImage::Format_ARGB32, QSize(wid, ht), QCLBuffer::WriteOnly);
+                (QImage::Format_ARGB32, QSize(wid, ht), QCL::WriteOnly);
         }
 
         // Execute the "colorize" kernel.

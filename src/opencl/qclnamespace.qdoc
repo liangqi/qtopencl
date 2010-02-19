@@ -39,62 +39,21 @@
 **
 ****************************************************************************/
 
-#ifndef QCLMEMORYOBJECT_H
-#define QCLMEMORYOBJECT_H
+/*!
+    \namespace QCL
 
-#include "qclnamespace.h"
-#include "qclevent.h"
+    \brief The QCL namespace contains miscellaneous enumerations
+    and identifiers used throughout the QtOpenCL module.
+*/
 
-QT_BEGIN_HEADER
+/*!
+    \enum QCL::Access
+    This enum defines the access mode to use when creating OpenCL
+    memory objects.
 
-QT_BEGIN_NAMESPACE
-
-QT_MODULE(CL)
-
-class QCLContext;
-
-class Q_CL_EXPORT QCLMemoryObject
-{
-protected:
-    QCLMemoryObject(QCLContext *context = 0) : m_context(context), m_id(0) {}
-    QCLMemoryObject(QCLContext *context, cl_mem id)
-        : m_context(context), m_id(id) {}
-
-public:
-    virtual ~QCLMemoryObject();
-
-    bool isNull() const { return m_id == 0; }
-
-    cl_mem id() const { return m_id; }
-    QCLContext *context() const { return m_context; }
-
-    QCL::Access access() const;
-    cl_mem_flags flags() const;
-    void *hostPointer() const;
-    size_t size() const;
-
-    void unmap(void *ptr);
-    QCLEvent unmapAsync
-        (void *ptr, const QVector<QCLEvent>& after = QVector<QCLEvent>());
-
-    QCLEvent acquireGL();
-    QCLEvent acquireGL(const QVector<QCLEvent>& after);
-
-    QCLEvent releaseGL();
-    QCLEvent releaseGL(const QVector<QCLEvent>& after);
-
-protected:
-    void setId(QCLContext *context, cl_mem id);
-
-private:
-    QCLContext *m_context;
-    cl_mem m_id;
-
-    Q_DISABLE_COPY(QCLMemoryObject)
-};
-
-QT_END_NAMESPACE
-
-QT_END_HEADER
-
-#endif
+    \value ReadWrite The memory object will be read and written by a kernel.
+    \value WriteOnly The memory object will be written, but not read,
+           by a kernel.
+    \value ReadOnly The memory object will be read, but not written,
+           by a kernel.
+*/

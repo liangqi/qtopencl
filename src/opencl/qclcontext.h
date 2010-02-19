@@ -98,41 +98,37 @@ public:
         (const QCLDevice& device, cl_command_queue_properties properties);
 
     QCLBuffer createBufferDevice
-        (size_t size, QCLMemoryObject::Access access);
+        (size_t size, QCL::Access access);
     QCLBuffer createBufferHost
-        (void *data, size_t size, QCLMemoryObject::Access access);
+        (void *data, size_t size, QCL::Access access);
     QCLBuffer createBufferCopy
-        (const void *data, size_t size, QCLMemoryObject::Access access);
+        (const void *data, size_t size, QCL::Access access);
 
     template <typename T>
-    QCLVector<T> createVector(int size, QCLMemoryObject::Access access = QCLMemoryObject::ReadWrite);
+    QCLVector<T> createVector(int size, QCL::Access access = QCL::ReadWrite);
 
     QCLImage2D createImage2DDevice
-        (const QCLImageFormat& format, const QSize& size,
-         QCLMemoryObject::Access access);
+        (const QCLImageFormat& format, const QSize& size, QCL::Access access);
     QCLImage2D createImage2DHost
         (const QCLImageFormat& format, void *data, const QSize& size,
-         QCLMemoryObject::Access access, int bytesPerLine = 0);
-    QCLImage2D createImage2DHost
-        (QImage *image, QCLMemoryObject::Access access);
+         QCL::Access access, int bytesPerLine = 0);
+    QCLImage2D createImage2DHost(QImage *image, QCL::Access access);
     QCLImage2D createImage2DCopy
         (const QCLImageFormat& format, const void *data, const QSize& size,
-         QCLMemoryObject::Access access, int bytesPerLine = 0);
+         QCL::Access access, int bytesPerLine = 0);
     QCLImage2D createImage2DCopy
-        (const QImage& image, QCLMemoryObject::Access access);
+        (const QImage& image, QCL::Access access);
 
     QCLImage3D createImage3DDevice
         (const QCLImageFormat& format, int width, int height, int depth,
-         QCLMemoryObject::Access access);
+         QCL::Access access);
     QCLImage3D createImage3DHost
         (const QCLImageFormat& format, void *data,
-         int width, int height, int depth,
-         QCLMemoryObject::Access access,
+         int width, int height, int depth, QCL::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
     QCLImage3D createImage3DCopy
         (const QCLImageFormat& format, const void *data,
-         int width, int height, int depth,
-         QCLMemoryObject::Access access,
+         int width, int height, int depth, QCL::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
     QCLSampler createSampler
@@ -182,7 +178,7 @@ private:
 
 template <typename T>
 Q_INLINE_TEMPLATE QCLVector<T> QCLContext::createVector
-    (int size, QCLMemoryObject::Access access)
+    (int size, QCL::Access access)
 {
     Q_ASSERT(size >= 1);
     return QCLVector<T>(this, size, access);

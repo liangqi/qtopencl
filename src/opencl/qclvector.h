@@ -70,7 +70,7 @@ protected:
 
     void assign(const QCLVectorBase& other);
 
-    void create(QCLContext *context, int size, QCLMemoryObject::Access access);
+    void create(QCLContext *context, int size, QCL::Access access);
     void release();
 
     void map();
@@ -124,7 +124,7 @@ public:
     QCLBuffer toBuffer() const;
 
 private:
-    QCLVector(QCLContext *context, int size, QCLMemoryObject::Access access);
+    QCLVector(QCLContext *context, int size, QCL::Access access);
 
     friend class QCLContext;
 };
@@ -135,7 +135,7 @@ Q_INLINE_TEMPLATE QCLVector<T>::QCLVector()
 
 template <typename T>
 Q_INLINE_TEMPLATE QCLVector<T>::QCLVector
-        (QCLContext *context, int size, QCLMemoryObject::Access access)
+        (QCLContext *context, int size, QCL::Access access)
     : QCLVectorBase(sizeof(T))
 {
     QCLVectorBase::create(context, size, access);

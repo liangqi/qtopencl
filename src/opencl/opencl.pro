@@ -41,6 +41,7 @@ HEADERS += \
     qclimageformat.h \
     qclkernel.h \
     qclmemoryobject.h \
+    qclnamespace.h \
     qclplatform.h \
     qclprogram.h \
     qclsampler.h \

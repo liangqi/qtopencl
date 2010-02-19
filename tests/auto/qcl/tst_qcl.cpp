@@ -139,7 +139,7 @@ void tst_QCL::argumentPassing()
     QVERIFY(!program.isNull());
 
     QCLBuffer buffer = context.createBufferDevice
-        (sizeof(float) * 16, QCLBuffer::WriteOnly);
+        (sizeof(float) * 16, QCL::WriteOnly);
     float buf[16];
     cl_int bufi[2];
     cl_uint bufui;

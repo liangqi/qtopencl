@@ -53,18 +53,6 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \enum QCLMemoryObject::Access
-    This enum defines the access mode to use when creating OpenCL
-    memory objects.
-
-    \value ReadWrite The memory object will be read and written by a kernel.
-    \value WriteOnly The memory object will be written, but not read,
-           by a kernel.
-    \value ReadOnly The memory object will be read, but not written,
-           by a kernel.
-*/
-
-/*!
     \fn QCLMemoryObject::QCLMemoryObject(QCLContext *context)
 
     Constructs a null OpenCL memory object and associates it with \a context.
@@ -115,14 +103,14 @@ QCLMemoryObject::~QCLMemoryObject()
 
     \sa flags()
 */
-QCLMemoryObject::Access QCLMemoryObject::access() const
+QCL::Access QCLMemoryObject::access() const
 {
     cl_mem_flags flags;
     if (clGetMemObjectInfo(m_id, CL_MEM_FLAGS,
                            sizeof(flags), &flags, 0) != CL_SUCCESS)
-        return QCLMemoryObject::ReadWrite; // Have to return something.
+        return QCL::ReadWrite; // Have to return something.
     else
-        return QCLMemoryObject::Access(flags & QCL_MEM_ACCESS_FLAGS);
+        return QCL::Access(flags & QCL_MEM_ACCESS_FLAGS);
 }
 
 /*!

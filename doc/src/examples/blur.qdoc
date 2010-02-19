@@ -61,7 +61,7 @@
 
     QCLContext::createImage2DCopy() creates a QCLImage2D object
     that represents the image in the GPU.  Here we have used
-    QCLBuffer::ReadOnly to indicate that the GPU (not the CPU)
+    QCL::ReadOnly to indicate that the GPU (not the CPU)
     will be reading from the image.  The access modes are
     always with respect to what the GPU will be doing with them.
 
@@ -80,10 +80,10 @@
     the host to be able to directly access the memory, we would
     use QCLContext::createImage2DHost() instead.
 
-    The temporary image buffer has an access mode of QCLBuffer::ReadWrite
+    The temporary image buffer has an access mode of QCL::ReadWrite
     because it will be written by the horizontal pass and then read
     by the vertical pass.  The destination image buffer has an access
-    mode of QCLBuffer::WriteOnly because it is only written, never read,
+    mode of QCL::WriteOnly because it is only written, never read,
     by the GPU.
 
     We need two more buffers to hold the Gaussian weights and offsets
