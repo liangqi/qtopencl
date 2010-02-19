@@ -111,7 +111,7 @@
 
     \code
     qmake opencl.pro
-    make
+    nmake
     \endcode
 
     \l{index.html}{Return to Home}
