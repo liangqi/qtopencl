@@ -72,7 +72,9 @@ QT_BEGIN_NAMESPACE
     used as the type T, but types such as QString cannot.
 */
 
+#if defined(__APPLE__) || defined(__MACOSX)
 #define QT_CL_COPY_VECTOR 1
+#endif
 
 enum QCLVectorState
 {
