@@ -41,7 +41,6 @@
 
 #include "qcltexture2d.h"
 #include "qclcontextgl.h"
-#include <QtOpenGL/private/qgl_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -62,11 +61,28 @@ QT_BEGIN_NAMESPACE
     OpenCL implementations that lack sharing.
 */
 
-class QCLTexture2DPrivate
+// Copied from <QtOpenGL/private/qgl_p.h>.  Hopefully won't be
+// necessary in future versions of Qt.
+class Q_OPENGL_EXPORT QGLSignalProxy : public QObject
 {
+    Q_OBJECT
+public:
+    QGLSignalProxy() : QObject() {}
+    void emitAboutToDestroyContext(const QGLContext *context) {
+        emit aboutToDestroyContext(context);
+    }
+    static QGLSignalProxy *instance();
+Q_SIGNALS:
+    void aboutToDestroyContext(const QGLContext *context);
+};
+
+class QCLTexture2DPrivate : public QObject
+{
+    Q_OBJECT
 public:
     QCLTexture2DPrivate()
-        : guard(0)
+        : context(0)
+        , textureId(0)
         , directRender(false)
     {
     }
@@ -74,10 +90,34 @@ public:
     {
     }
 
-    QGLSharedResourceGuard guard;
+    const QGLContext *context;
+    GLuint textureId;
     QSize size;
     bool directRender;
+
+    void setContextAndId(const QGLContext *ctx, GLuint id);
+
+private slots:
+    void aboutToDestroyContext(const QGLContext *ctx);
 };
+
+void QCLTexture2DPrivate::aboutToDestroyContext(const QGLContext *ctx)
+{
+    if (context == ctx) {
+        context = 0;
+        textureId = 0;
+    }
+}
+
+void QCLTexture2DPrivate::setContextAndId(const QGLContext *ctx, GLuint id)
+{
+    context = ctx;
+    textureId = id;
+    connect(QGLSignalProxy::instance(),
+            SIGNAL(aboutToDestroyContext(const QGLContext *)),
+            this,
+            SLOT(aboutToDestroyContext(const QGLContext *)));
+}
 
 /*!
     Constructs an uninitialized OpenCL texture object.
@@ -132,8 +172,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize& size)
             glDeleteTextures(1, &textureId);
             return false;
         }
-        d->guard.setContext(QGLContext::currentContext());
-        d->guard.setId(textureId);
+        d->setContextAndId(QGLContext::currentContext(), textureId);
         setId(image.context(), image.id());
         d->size = size;
         d->directRender = true;
@@ -150,8 +189,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize& size)
         glDeleteTextures(1, &textureId);
         return false;
     }
-    d->guard.setContext(QGLContext::currentContext());
-    d->guard.setId(textureId);
+    d->setContextAndId(QGLContext::currentContext(), textureId);
     setId(image.context(), image.id());
     d->size = size;
     d->directRender = false;
@@ -175,13 +213,22 @@ void QCLTexture2D::destroy()
 {
     Q_D(QCLTexture2D);
     setId(0, 0);
-    GLuint textureId = d->guard.id();
+    GLuint textureId = d->textureId;
     if (textureId) {
-        QGLShareContextScope scope(d->guard.context());
+        QGLContext *oldContext;
+        QGLContext *currentContext = const_cast<QGLContext *>(QGLContext::currentContext());
+        if (currentContext != d->context && !QGLContext::areSharing(d->context, currentContext)) {
+            oldContext = currentContext;
+            const_cast<QGLContext *>(d->context)->makeCurrent();
+        } else {
+            oldContext = 0;
+        }
         glDeleteTextures(1, &textureId);
+        if (oldContext)
+            oldContext->makeCurrent();
     }
-    d->guard.setContext(0);
-    d->guard.setId(0);
+    d->context = 0;
+    d->textureId = 0;
     d->size = QSize();
     d->directRender = false;
 }
@@ -209,13 +256,13 @@ void QCLTexture2D::acquireGL()
 void QCLTexture2D::releaseGL()
 {
     Q_D(QCLTexture2D);
-    if (!d->guard.id())
+    if (!d->textureId)
         return;
 
     // If we are doing direct rendering, then just release the OpenCL object.
     if (d->directRender) {
         QCLImage2D::releaseGL().wait();
-        glBindTexture(GL_TEXTURE_2D, d->guard.id());
+        glBindTexture(GL_TEXTURE_2D, d->textureId);
         return;
     }
 
@@ -224,7 +271,7 @@ void QCLTexture2D::releaseGL()
 
     // Upload the contents of the OpenCL buffer into the texture.
     void *ptr = map(QRect(QPoint(0, 0), d->size), QCL::ReadOnly);
-    glBindTexture(GL_TEXTURE_2D, d->guard.id());
+    glBindTexture(GL_TEXTURE_2D, d->textureId);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                     d->size.width(), d->size.height(),
                     GL_RGBA, GL_UNSIGNED_BYTE, ptr);
@@ -237,7 +284,9 @@ void QCLTexture2D::releaseGL()
 GLuint QCLTexture2D::textureId() const
 {
     Q_D(const QCLTexture2D);
-    return d->guard.id();
+    return d->textureId;
 }
 
 QT_END_NAMESPACE
+
+#include "qcltexture2d.moc"

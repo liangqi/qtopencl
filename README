@@ -3,10 +3,9 @@ This directory contains a Qt-style wrapper library for OpenCL
 plus several examples, benchmarks, and unit tests that exercise
 the library in various ways.
 
-It is recommended that you build Qt 4.7 from sources and use that to build
-the library, rather than use the SDK version of Qt.  This is because
-the library needs access to private header files from the Qt sources
-which are not part of the SDK.
+It is recommended that you use Qt 4.7, but the library will build
+with Qt 4.6.  The main missing feature is support for QGLBuffer
+in the QCLContextGL class - that class is in Qt 4.7, but not 4.6.
 
 There are a number of variables that can be provided to qmake:
 
