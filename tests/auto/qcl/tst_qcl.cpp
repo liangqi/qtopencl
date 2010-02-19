@@ -56,10 +56,12 @@ public:
 
 private slots:
     void initTestCase();
+    void buildProgram();
     void argumentPassing();
 
 private:
     QCLContext context;
+    QCLProgram program;
 };
 
 void tst_QCL::initTestCase()
@@ -67,77 +69,17 @@ void tst_QCL::initTestCase()
     QVERIFY(context.create());
 }
 
-static char const argumentPassingCode[] =
-"__kernel void storeFloat(__global __write_only float *output, float input)\n"
-"{\n"
-"    output[0] = input;\n"
-"}\n"
-
-"__kernel void storeInt(__global __write_only int *output, int input)\n"
-"{\n"
-"    output[0] = input;\n"
-"}\n"
-
-"__kernel void storeUInt(__global __write_only uint *output, uint input)\n"
-"{\n"
-"    output[0] = input;\n"
-"}\n"
-
-"__kernel void storeLong(__global __write_only long *output, long input)\n"
-"{\n"
-"    output[0] = input;\n"
-"}\n"
-
-"__kernel void storeULong(__global __write_only ulong *output, ulong input)\n"
-"{\n"
-"    output[0] = input;\n"
-"}\n"
-
-"__kernel void storeVec2(__global __write_only float *output, float2 input)\n"
-"{\n"
-"    output[0] = input.x;\n"
-"    output[1] = input.y;\n"
-"}\n"
-
-"__kernel void storeVec2i(__global __write_only int *output, int2 input)\n"
-"{\n"
-"    output[0] = input.x;\n"
-"    output[1] = input.y;\n"
-"}\n"
-
-"__kernel void storeVec3(__global __write_only float *output, float4 input)\n"
-"{\n"
-"    output[0] = input.x;\n"
-"    output[1] = input.y;\n"
-"    output[2] = input.z;\n"
-"    output[3] = input.w;\n"
-"}\n"
-
-"__kernel void storeVec4(__global __write_only float *output, float4 input)\n"
-"{\n"
-"    output[0] = input.x;\n"
-"    output[1] = input.y;\n"
-"    output[2] = input.z;\n"
-"    output[3] = input.w;\n"
-"}\n"
-
-"__kernel void storeMat4(__global __write_only float4 *output, float16 input)\n"
-"{\n"
-"    output[0] = input.lo.lo;\n"
-"    output[1] = input.lo.hi;\n"
-"    output[2] = input.hi.lo;\n"
-"    output[3] = input.hi.hi;\n"
-"}\n"
-;
+// Build the OpenCL program code we will be using for the rest of the tests.
+void tst_QCL::buildProgram()
+{
+    program = context.buildProgramFromSourceFile(QLatin1String(":/tst_qcl.cl"));
+    QVERIFY(!program.isNull());
+}
 
 // Tests that passing various argument types like int, float, QVector3D,
 // QPointF, QMatrix4x4, etc to an OpenCL kernel does the right thing.
 void tst_QCL::argumentPassing()
 {
-    QCLProgram program;
-    program = context.buildProgramFromSourceCode(argumentPassingCode);
-    QVERIFY(!program.isNull());
-
     QCLBuffer buffer = context.createBufferDevice
         (sizeof(float) * 16, QCL::WriteOnly);
     float buf[16];

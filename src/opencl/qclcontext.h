@@ -135,11 +135,9 @@ public:
         (bool normalizedCoords, cl_addressing_mode addressingMode,
          cl_filter_mode filterMode);
 
-    QCLProgram createProgramFromSourceCode(const char *sourceCode);
     QCLProgram createProgramFromSourceCode(const QByteArray& sourceCode);
     QCLProgram createProgramFromSourceFile(const QString& fileName);
 
-    QCLProgram buildProgramFromSourceCode(const char *sourceCode);
     QCLProgram buildProgramFromSourceCode(const QByteArray& sourceCode);
     QCLProgram buildProgramFromSourceFile(const QString& fileName);
 

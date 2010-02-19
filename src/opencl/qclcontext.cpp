@@ -1022,27 +1022,6 @@ QCLSampler QCLContext::createSampler
 
     \sa createProgramFromSourceFile(), buildProgramFromSourceCode()
 */
-QCLProgram QCLContext::createProgramFromSourceCode(const char *sourceCode)
-{
-    Q_D(QCLContext);
-    Q_ASSERT(sourceCode);
-    cl_int error = CL_INVALID_CONTEXT;
-    cl_program prog = clCreateProgramWithSource
-        (d->id, 1, &sourceCode, 0, &error);
-    reportError("QCLContext::createProgramFromSourceCode:", error);
-    if (prog)
-        return QCLProgram(this, prog);
-    else
-        return QCLProgram();
-}
-
-/*!
-    \overload
-
-    Creates an OpenCL program object from the supplied \a sourceCode.
-
-    \sa createProgramFromSourceFile(), buildProgramFromSourceCode()
-*/
 QCLProgram QCLContext::createProgramFromSourceCode(const QByteArray& sourceCode)
 {
     Q_D(QCLContext);
@@ -1077,23 +1056,6 @@ QCLProgram QCLContext::createProgramFromSourceFile(const QString& fileName)
 }
 
 /*!
-    Creates an OpenCL program object from the supplied \a sourceCode
-    and then builds it.  Returns a null QCLProgram if the program
-    could not be built.
-
-    \sa createProgramFromSourceCode(), buildProgramFromSourceFile()
-*/
-QCLProgram QCLContext::buildProgramFromSourceCode(const char *sourceCode)
-{
-    QCLProgram program = createProgramFromSourceCode(sourceCode);
-    if (program.isNull() || program.build())
-        return program;
-    return QCLProgram();
-}
-
-/*!
-    \overload
-
     Creates an OpenCL program object from the supplied \a sourceCode
     and then builds it.  Returns a null QCLProgram if the program
     could not be built.
