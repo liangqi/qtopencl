@@ -40,27 +40,50 @@
 ****************************************************************************/
 
 /*!
-    \page index.html
-    \title QtOpenCL Reference Documentation
-    \keyword QtOpenCL Reference Documentation
+    \page clinfo.html
+    \title OpenCL Information Utility
 
-    QtOpenCL is a set of extension classes for the QtCore and QtOpenGL
-    modules to enable the use of OpenCL in Qt 4.7 and higher.
+    The \c{clinfo} program can be used to dump out information about
+    the platform's OpenCL implementation.  The following is a sample
+    of the output that it produces:
 
-    \list
-    \o \l{opencl}{Class Reference}
-    \o Examples
-        \list
-        \o \l{vectoradd}{Vector Addition}
-        \o \l{blur}{Gaussian Blur}
-        \endlist
-    \o Demos
-        \list
-        \o \l{mandelbrot}{Mandelbrot Viewer}
-        \endlist
-    \o Utilities
-        \list
-        \o \l{clinfo.html}{clinfo}
-        \endlist
-    \endlist
+    \code
+OpenCL Platforms:
+    Platform ID    : 12289
+    Profile        : FULL_PROFILE
+    Version        : OpenCL 1.0
+    Name           : NVIDIA
+    Vendor         : NVIDIA Corporation
+    Extensions     :
+        cl_khr_byte_addressable_store
+        cl_nv_compiler_options
+        cl_nv_device_attribute_query
+
+OpenCL Devices:
+    Device ID      : 65536
+    Platform ID    : 12289
+    Vendor ID      : 4318
+    Type           : GPU
+    Profile        : FULL_PROFILE
+    Version        : OpenCL 1.0
+    Driver Version : 190.29
+    Name           : GeForce GTX 275
+    Vendor         : NVIDIA Corporation
+    Compute Units  : 30
+    Max Work Size  : 512x512x64
+    Max Items/Group: 512
+    Available      : true
+    Image Support  : true
+    Has Compiler   : true
+    Extensions     :
+        cl_khr_byte_addressable_store
+        cl_nv_compiler_options
+        cl_nv_device_attribute_query
+        cl_khr_global_int32_base_atomics
+        cl_khr_global_int32_extended_atomics
+        cl_khr_local_int32_base_atomics
+        cl_khr_local_int32_extended_atomics
+    \endcode
+
+    \l{index.html}{Return to Home}
 */
