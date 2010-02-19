@@ -43,6 +43,14 @@
     \page building.html
     \title Building QtOpenCL
 
+    \section1 Source Code
+
+    The QtOpenCL source code can be obtained from the internal
+    Qt git server: \l{http://scm.dev.nokia.troll.no/projects/research/repos/opencl}
+
+    See the \l{Contributing to QtOpenCL} page for more information on
+    contributing to this project.
+
     \section1 Required Qt version
 
     It is recommended that you use Qt 4.7, but the library will build
