@@ -196,7 +196,7 @@ QCLKernel::QCLKernel(QCLContext *context, cl_kernel id)
 /*!
     Constructs a copy of \a other.
 */
-QCLKernel::QCLKernel(const QCLKernel& other)
+QCLKernel::QCLKernel(const QCLKernel &other)
     : d_ptr(new QCLKernelPrivate(other.d_ptr.data()))
 {
 }
@@ -212,7 +212,7 @@ QCLKernel::~QCLKernel()
 /*!
     Assigns \a other to this object.
 */
-QCLKernel& QCLKernel::operator=(const QCLKernel& other)
+QCLKernel &QCLKernel::operator=(const QCLKernel &other)
 {
     d_ptr->copy(other.d_ptr.data());
     return *this;
@@ -323,7 +323,7 @@ QCLWorkSize QCLKernel::declaredWorkGroupSize() const
 
     The specified \a device is used to retrieve the work group size.
 */
-QCLWorkSize QCLKernel::declaredWorkGroupSize(const QCLDevice& device) const
+QCLWorkSize QCLKernel::declaredWorkGroupSize(const QCLDevice &device) const
 {
     Q_D(const QCLKernel);
     size_t sizes[3];
@@ -353,7 +353,7 @@ QCLWorkSize QCLKernel::globalWorkSize() const
 
     \sa globalWorkSize(), setLocalWorkSize()
 */
-void QCLKernel::setGlobalWorkSize(const QCLWorkSize& size)
+void QCLKernel::setGlobalWorkSize(const QCLWorkSize &size)
 {
     Q_D(QCLKernel);
     d->globalWorkSize = size;
@@ -409,7 +409,7 @@ QCLWorkSize QCLKernel::localWorkSize() const
 
     \sa localWorkSize(), setGlobalWorkSize()
 */
-void QCLKernel::setLocalWorkSize(const QCLWorkSize& size)
+void QCLKernel::setLocalWorkSize(const QCLWorkSize &size)
 {
     Q_D(QCLKernel);
     d->localWorkSize = size;
@@ -481,7 +481,7 @@ void QCLKernel::setArg(int index, float value)
     The argument is assumed to have been declared with the
     type \c float2.
 */
-void QCLKernel::setArg(int index, const QVector2D& value)
+void QCLKernel::setArg(int index, const QVector2D &value)
 {
     Q_D(const QCLKernel);
     if (sizeof(value) == (sizeof(float) * 2)) {
@@ -499,7 +499,7 @@ void QCLKernel::setArg(int index, const QVector2D& value)
     type \c float4 (OpenCL does not have a \c float3 type).
     The value will be passed to the kernel as (x, y, z, 1).
 */
-void QCLKernel::setArg(int index, const QVector3D& value)
+void QCLKernel::setArg(int index, const QVector3D &value)
 {
     Q_D(const QCLKernel);
     float values[4] = {value.x(), value.y(), value.z(), 1.0f};
@@ -512,7 +512,7 @@ void QCLKernel::setArg(int index, const QVector3D& value)
     The argument is assumed to have been declared with the
     type \c float4.
 */
-void QCLKernel::setArg(int index, const QVector4D& value)
+void QCLKernel::setArg(int index, const QVector4D &value)
 {
     Q_D(const QCLKernel);
     if (sizeof(value) == (sizeof(float) * 4)) {
@@ -529,7 +529,7 @@ void QCLKernel::setArg(int index, const QVector4D& value)
     The argument is assumed to have been declared with the
     type \c int2.
 */
-void QCLKernel::setArg(int index, const QPoint& value)
+void QCLKernel::setArg(int index, const QPoint &value)
 {
     Q_D(const QCLKernel);
     if (sizeof(value) == (sizeof(cl_int) * 2)) {
@@ -546,7 +546,7 @@ void QCLKernel::setArg(int index, const QPoint& value)
     The argument is assumed to have been declared with the
     type \c float2.
 */
-void QCLKernel::setArg(int index, const QPointF& value)
+void QCLKernel::setArg(int index, const QPointF &value)
 {
     Q_D(const QCLKernel);
     if (sizeof(value) == (sizeof(float) * 2)) {
@@ -563,7 +563,7 @@ void QCLKernel::setArg(int index, const QPointF& value)
     The argument is assumed to have been declared with the
     type \c float16.
 */
-void QCLKernel::setArg(int index, const QMatrix4x4& value)
+void QCLKernel::setArg(int index, const QMatrix4x4 &value)
 {
     Q_D(const QCLKernel);
     if (sizeof(qreal) == sizeof(float)) {
@@ -583,7 +583,7 @@ void QCLKernel::setArg(int index, const QMatrix4x4& value)
     type \c image2d_t, \c image3d_t, or be a pointer to a buffer,
     according to the type of memory object represented by \a value.
 */
-void QCLKernel::setArg(int index, const QCLMemoryObject& value)
+void QCLKernel::setArg(int index, const QCLMemoryObject &value)
 {
     Q_D(const QCLKernel);
     cl_mem id = value.id();
@@ -596,7 +596,7 @@ void QCLKernel::setArg(int index, const QCLMemoryObject& value)
     The argument is assumed to have been declared as a pointer
     to a buffer.
 */
-void QCLKernel::setArg(int index, const QCLVectorBase& value)
+void QCLKernel::setArg(int index, const QCLVectorBase &value)
 {
     Q_D(const QCLKernel);
     cl_mem id = value.kernelArg();
@@ -609,7 +609,7 @@ void QCLKernel::setArg(int index, const QCLVectorBase& value)
     The argument is assumed to have been declared with the
     type \c sampler_t.
 */
-void QCLKernel::setArg(int index, const QCLSampler& value)
+void QCLKernel::setArg(int index, const QCLSampler &value)
 {
     Q_D(const QCLKernel);
     cl_sampler id = value.id();
@@ -664,7 +664,7 @@ QCLEvent QCLKernel::execute()
     to finish execution.  The request is executed on the active
     command queue for context().
 */
-QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
+QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 {
     Q_D(const QCLKernel);
     cl_event event;
@@ -692,7 +692,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1)
 
     Executes this kernel instance with the argument \a arg1.
     Returns an event object that can be used to wait for the
@@ -700,7 +700,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2)
 
     Executes this kernel instance with the arguments \a arg1 and \a arg2.
     Returns an event object that can be used to wait for the
@@ -708,7 +708,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     and \a arg3.  Returns an event object that can be used to wait for the
@@ -716,7 +716,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, and \a arg4.  Returns an event object that can be used to
@@ -724,7 +724,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4, const T5& arg5)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, and \a arg5.  Returns an event object that can be
@@ -732,7 +732,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4, const T5& arg5, const T6& arg6)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, and \a arg6.  Returns an event object that
@@ -740,7 +740,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4, const T5& arg5, const T6& arg6, const T7& arg7)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, and \a arg7.  Returns an event
@@ -748,7 +748,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4, const T5& arg5, const T6& arg6, const T7& arg7, const T8& arg8)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, and \a arg8.  Returns
@@ -757,7 +757,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4, const T5& arg5, const T6& arg6, const T7& arg7, const T8& arg8, const T9& arg9)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8, const T9 &arg9)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, \a arg8, and \a arg9.
@@ -766,7 +766,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent>& after)
 */
 
 /*!
-    \fn QCLEvent QCLKernel::operator()(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4, const T5& arg5, const T6& arg6, const T7& arg7, const T8& arg8, const T9& arg9, const T10& arg10)
+    \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8, const T9 &arg9, const T10 &arg10)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, \a arg8, \a arg9,

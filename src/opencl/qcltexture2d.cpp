@@ -127,7 +127,7 @@ QCLTexture2D::~QCLTexture2D()
 
     \sa destroy(), textureId()
 */
-bool QCLTexture2D::create(QCLContextGL *context, const QSize& size)
+bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
 {
     Q_D(QCLTexture2D);
     Q_ASSERT(context && size.width() > 0 && size.height() > 0);

@@ -62,10 +62,10 @@ public:
     QCLImage2D() {}
     QCLImage2D(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
-    QCLImage2D(const QCLImage2D& other)
+    QCLImage2D(const QCLImage2D &other)
         : QCLMemoryObject(other.context(), other.id()) {}
 
-    QCLImage2D& operator=(const QCLImage2D& other)
+    QCLImage2D &operator=(const QCLImage2D &other)
     {
         setId(other.context(), other.id());
         return *this;
@@ -82,40 +82,40 @@ public:
     bool isTexture2D() const;
     bool isRenderbuffer() const;
 
-    bool read(void *data, const QRect& rect, int bytesPerLine = 0);
-    bool read(QImage *image, const QRect& rect = QRect());
-    QCLEvent readAsync(void *data, const QRect& rect,
-                       const QVector<QCLEvent>& after = QVector<QCLEvent>(),
+    bool read(void *data, const QRect &rect, int bytesPerLine = 0);
+    bool read(QImage *image, const QRect &rect = QRect());
+    QCLEvent readAsync(void *data, const QRect &rect,
+                       const QVector<QCLEvent> &after = QVector<QCLEvent>(),
                        int bytesPerLine = 0);
 
-    bool write(const void *data, const QRect& rect, int bytesPerLine = 0);
-    bool write(const QImage& image, const QRect& rect = QRect());
+    bool write(const void *data, const QRect &rect, int bytesPerLine = 0);
+    bool write(const QImage &image, const QRect &rect = QRect());
     QCLEvent writeAsync
-        (const void *data, const QRect& rect,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>(),
+        (const void *data, const QRect &rect,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>(),
          int bytesPerLine = 0);
 
-    bool copyTo(const QRect& rect, const QCLImage2D& dest,
-                const QPoint& destOffset);
-    bool copyTo(const QRect& rect, const QCLImage3D& dest,
+    bool copyTo(const QRect &rect, const QCLImage2D &dest,
+                const QPoint &destOffset);
+    bool copyTo(const QRect &rect, const QCLImage3D &dest,
                 const size_t destOffset[3]);
-    bool copyTo(const QRect& rect, const QCLBuffer& dest,
+    bool copyTo(const QRect &rect, const QCLBuffer &dest,
                 size_t destOffset);
     QCLEvent copyToAsync
-        (const QRect& rect, const QCLImage2D& dest, const QPoint& destOffset,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+        (const QRect &rect, const QCLImage2D &dest, const QPoint &destOffset,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
     QCLEvent copyToAsync
-        (const QRect& rect, const QCLImage3D& dest, const size_t destOffset[3],
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+        (const QRect &rect, const QCLImage3D &dest, const size_t destOffset[3],
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
     QCLEvent copyToAsync
-        (const QRect& rect, const QCLBuffer& dest, size_t destOffset,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+        (const QRect &rect, const QCLBuffer &dest, size_t destOffset,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
 
-    void *map(const QRect& rect, QCL::Access access,
+    void *map(const QRect &rect, QCL::Access access,
               int *bytesPerLine = 0);
-    QCLEvent mapAsync(void **ptr, const QRect& rect,
+    QCLEvent mapAsync(void **ptr, const QRect &rect,
                       QCL::Access access,
-                      const QVector<QCLEvent>& after = QVector<QCLEvent>(),
+                      const QVector<QCLEvent> &after = QVector<QCLEvent>(),
                       int *bytesPerLine = 0);
 
     QImage toQImage();
@@ -127,10 +127,10 @@ public:
     QCLImage3D() {}
     QCLImage3D(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
-    QCLImage3D(const QCLImage3D& other)
+    QCLImage3D(const QCLImage3D &other)
         : QCLMemoryObject(other.context(), other.id()) {}
 
-    QCLImage3D& operator=(const QCLImage3D& other)
+    QCLImage3D &operator=(const QCLImage3D &other)
     {
         setId(other.context(), other.id());
         return *this;
@@ -163,23 +163,23 @@ public:
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
     bool copyTo(const size_t origin[3], const size_t size[3],
-                const QCLImage3D& dest, const size_t destOffset[3]);
-    bool copyTo(const size_t origin[3], const QSize& size,
-                const QCLImage2D& dest, const QPoint& destOffset);
+                const QCLImage3D &dest, const size_t destOffset[3]);
+    bool copyTo(const size_t origin[3], const QSize &size,
+                const QCLImage2D &dest, const QPoint &destOffset);
     bool copyTo(const size_t origin[3], const size_t size[3],
-                const QCLBuffer& dest, size_t destOffset);
+                const QCLBuffer &dest, size_t destOffset);
     QCLEvent copyToAsync
         (const size_t origin[3], const size_t size[3],
-         const QCLImage3D& dest, const size_t destOffset[3],
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+         const QCLImage3D &dest, const size_t destOffset[3],
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
     QCLEvent copyToAsync
-        (const size_t origin[3], const QSize& size,
-         const QCLImage2D& dest, const QPoint& destOffset,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+        (const size_t origin[3], const QSize &size,
+         const QCLImage2D &dest, const QPoint &destOffset,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
     QCLEvent copyToAsync
         (const size_t origin[3], const size_t size[3],
-         const QCLBuffer& dest, size_t destOffset,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+         const QCLBuffer &dest, size_t destOffset,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
 
     void *map(const size_t origin[3], const size_t size[3],
               QCL::Access access,
@@ -187,7 +187,7 @@ public:
     QCLEvent mapAsync
         (void **ptr, const size_t origin[3], const size_t size[3],
          QCL::Access access,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>(),
+         const QVector<QCLEvent> &after = QVector<QCLEvent>(),
          int *bytesPerLine = 0, int *bytesPerSlice = 0);
 };
 

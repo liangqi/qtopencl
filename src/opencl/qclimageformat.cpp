@@ -180,7 +180,7 @@ QCLImageFormat::QCLImageFormat(QImage::Format format)
 */
 
 /*!
-    \fn bool QCLImageFormat::operator==(const QCLImageFormat& other)
+    \fn bool QCLImageFormat::operator==(const QCLImageFormat &other)
 
     Returns true if this image format is the same as \a other;
     false otherwise.
@@ -189,7 +189,7 @@ QCLImageFormat::QCLImageFormat(QImage::Format format)
 */
 
 /*!
-    \fn bool QCLImageFormat::operator!=(const QCLImageFormat& other)
+    \fn bool QCLImageFormat::operator!=(const QCLImageFormat &other)
 
     Returns true if this image format is not the same as \a other;
     false otherwise.

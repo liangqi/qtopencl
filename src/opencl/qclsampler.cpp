@@ -68,7 +68,7 @@ QT_BEGIN_NAMESPACE
     Constructs a copy of \a other.  The \c{clRetainSampler()} function
     will be called to update the reference count on id().
 */
-QCLSampler::QCLSampler(const QCLSampler& other)
+QCLSampler::QCLSampler(const QCLSampler &other)
     : m_id(other.m_id)
 {
     if (m_id)
@@ -89,7 +89,7 @@ QCLSampler::~QCLSampler()
     be released with \c{clReleaseSampler()}, and the new id() will be
     retained with \c{clRetainSampler()}.
 */
-QCLSampler& QCLSampler::operator=(const QCLSampler& other)
+QCLSampler &QCLSampler::operator=(const QCLSampler &other)
 {
     if (m_id != other.m_id) {
         if (m_id)

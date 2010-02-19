@@ -61,24 +61,24 @@ public:
     QCLProgram() : m_context(0), m_id(0) {}
     QCLProgram(QCLContext *context, cl_program id)
         : m_context(context), m_id(id) {}
-    QCLProgram(const QCLProgram& other);
+    QCLProgram(const QCLProgram &other);
     ~QCLProgram();
 
-    QCLProgram& operator=(const QCLProgram& other);
+    QCLProgram &operator=(const QCLProgram &other);
 
     bool isNull() const { return m_id == 0; }
 
     cl_program id() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
-    bool build(const QString& options = QString());
-    bool build(const QList<QCLDevice>& devices, const QString& options = QString());
+    bool build(const QString &options = QString());
+    bool build(const QList<QCLDevice> &devices, const QString &options = QString());
 
     QString log() const;
 
     QCLKernel createKernel(const char *name) const;
-    QCLKernel createKernel(const QByteArray& name) const;
-    QCLKernel createKernel(const QString& name) const;
+    QCLKernel createKernel(const QByteArray &name) const;
+    QCLKernel createKernel(const QString &name) const;
 
     QList<QCLKernel> createKernels() const;
 

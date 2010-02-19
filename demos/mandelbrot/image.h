@@ -65,19 +65,19 @@ public:
     virtual void initialize() {}
 
     QRectF region() const { return rgn; }
-    void setRegion(const QRectF& value)
+    void setRegion(const QRectF &value)
         { rgn = value; regionChanged = true; }
     void setRegion(qreal centerx, qreal centery, qreal diameterx);
 
     void forceUpdate() { regionChanged = true; }
 
-    void generate(int maxIterations, const Palette& palette);
+    void generate(int maxIterations, const Palette &palette);
 
     static Image *createImage(int width, int height);
 
 protected:
     virtual void generateIterationData
-        (int maxIterations, const QRectF& region) = 0;
+        (int maxIterations, const QRectF &region) = 0;
     virtual void generateImage
         (QImage *image, int maxIterations, const QRgb *colors) = 0;
 

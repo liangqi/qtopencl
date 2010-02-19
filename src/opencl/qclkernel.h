@@ -74,10 +74,10 @@ class Q_CL_EXPORT QCLKernel
 public:
     QCLKernel();
     QCLKernel(QCLContext *context, cl_kernel id);
-    QCLKernel(const QCLKernel& other);
+    QCLKernel(const QCLKernel &other);
     ~QCLKernel();
 
-    QCLKernel& operator=(const QCLKernel& other);
+    QCLKernel &operator=(const QCLKernel &other);
 
     bool isNull() const;
 
@@ -89,15 +89,15 @@ public:
     int argCount() const;
 
     QCLWorkSize declaredWorkGroupSize() const;
-    QCLWorkSize declaredWorkGroupSize(const QCLDevice& device) const;
+    QCLWorkSize declaredWorkGroupSize(const QCLDevice &device) const;
 
     QCLWorkSize globalWorkSize() const;
-    void setGlobalWorkSize(const QCLWorkSize& size);
+    void setGlobalWorkSize(const QCLWorkSize &size);
     void setGlobalWorkSize(size_t width, size_t height);
     void setGlobalWorkSize(size_t width, size_t height, size_t depth);
 
     QCLWorkSize localWorkSize() const;
-    void setLocalWorkSize(const QCLWorkSize& size);
+    void setLocalWorkSize(const QCLWorkSize &size);
     void setLocalWorkSize(size_t width, size_t height);
     void setLocalWorkSize(size_t width, size_t height, size_t depth);
 
@@ -106,31 +106,31 @@ public:
     void setArg(int index, cl_long value);
     void setArg(int index, cl_ulong value);
     void setArg(int index, float value);
-    void setArg(int index, const QVector2D& value);
-    void setArg(int index, const QVector3D& value);
-    void setArg(int index, const QVector4D& value);
-    void setArg(int index, const QPoint& value);
-    void setArg(int index, const QPointF& value);
-    void setArg(int index, const QMatrix4x4& value);
-    void setArg(int index, const QCLMemoryObject& value);
-    void setArg(int index, const QCLVectorBase& value);
-    void setArg(int index, const QCLSampler& value);
+    void setArg(int index, const QVector2D &value);
+    void setArg(int index, const QVector3D &value);
+    void setArg(int index, const QVector4D &value);
+    void setArg(int index, const QPoint &value);
+    void setArg(int index, const QPointF &value);
+    void setArg(int index, const QMatrix4x4 &value);
+    void setArg(int index, const QCLMemoryObject &value);
+    void setArg(int index, const QCLVectorBase &value);
+    void setArg(int index, const QCLSampler &value);
     void setArg(int index, const void *data, size_t size);
 
     QCLEvent execute();
-    QCLEvent execute(const QVector<QCLEvent>& after);
+    QCLEvent execute(const QVector<QCLEvent> &after);
 
     inline QCLEvent operator()() { return execute(); }
 
     template <typename T1>
-    inline QCLEvent operator()(const T1& arg1)
+    inline QCLEvent operator()(const T1 &arg1)
     {
         setArg(0, arg1);
         return execute();
     }
 
     template <typename T1, typename T2>
-    inline QCLEvent operator()(const T1& arg1, const T2& arg2)
+    inline QCLEvent operator()(const T1 &arg1, const T2 &arg2)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -139,7 +139,7 @@ public:
 
     template <typename T1, typename T2, typename T3>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -149,7 +149,7 @@ public:
 
     template <typename T1, typename T2, typename T3, typename T4>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -161,8 +161,8 @@ public:
     template <typename T1, typename T2, typename T3, typename T4,
               typename T5>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4,
-         const T5& arg5)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4,
+         const T5 &arg5)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -175,8 +175,8 @@ public:
     template <typename T1, typename T2, typename T3, typename T4,
               typename T5, typename T6>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4,
-         const T5& arg5, const T6& arg6)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4,
+         const T5 &arg5, const T6 &arg6)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -190,8 +190,8 @@ public:
     template <typename T1, typename T2, typename T3, typename T4,
               typename T5, typename T6, typename T7>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4,
-         const T5& arg5, const T6& arg6, const T7& arg7)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4,
+         const T5 &arg5, const T6 &arg6, const T7 &arg7)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -206,8 +206,8 @@ public:
     template <typename T1, typename T2, typename T3, typename T4,
               typename T5, typename T6, typename T7, typename T8>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4,
-         const T5& arg5, const T6& arg6, const T7& arg7, const T8& arg8)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4,
+         const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -224,9 +224,9 @@ public:
               typename T5, typename T6, typename T7, typename T8,
               typename T9>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4,
-         const T5& arg5, const T6& arg6, const T7& arg7, const T8& arg8,
-         const T9& arg9)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4,
+         const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8,
+         const T9 &arg9)
     {
         setArg(0, arg1);
         setArg(1, arg2);
@@ -244,9 +244,9 @@ public:
               typename T5, typename T6, typename T7, typename T8,
               typename T9, typename T10>
     inline QCLEvent operator()
-        (const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4,
-         const T5& arg5, const T6& arg6, const T7& arg7, const T8& arg8,
-         const T9& arg9, const T10& arg10)
+        (const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4,
+         const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8,
+         const T9 &arg9, const T10 &arg10)
     {
         setArg(0, arg1);
         setArg(1, arg2);

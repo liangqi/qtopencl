@@ -56,7 +56,7 @@ protected:
     QImage data;
 
     void generateIterationData
-        (int maxIterations, const QRectF& region);
+        (int maxIterations, const QRectF &region);
     void generateImage
         (QImage *image, int maxIterations, const QRgb *colors);
 };

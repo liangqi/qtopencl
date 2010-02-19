@@ -123,7 +123,7 @@ QT_BEGIN_NAMESPACE
     Constructs a copy of \a other.  The \c{clRetainEvent()} function
     will be called to update the reference count on id().
 */
-QCLEvent::QCLEvent(const QCLEvent& other)
+QCLEvent::QCLEvent(const QCLEvent &other)
     : m_id(other.m_id)
 {
     if (m_id)
@@ -144,7 +144,7 @@ QCLEvent::~QCLEvent()
     be released with \c{clReleaseEvent()}, and the new id() will be
     retained with \c{clRetainEvent()}.
 */
-QCLEvent& QCLEvent::operator=(const QCLEvent& other)
+QCLEvent &QCLEvent::operator=(const QCLEvent &other)
 {
     if (m_id != other.m_id) {
         if (m_id)
@@ -249,7 +249,7 @@ void QCLEvent::wait()
 
     \sa wait(), status()
 */
-void QCLEvent::waitForEvents(const QVector<QCLEvent>& events)
+void QCLEvent::waitForEvents(const QVector<QCLEvent> &events)
 {
     if (events.isEmpty())
         return;

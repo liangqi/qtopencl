@@ -61,10 +61,10 @@ public:
     QCLBuffer() {}
     QCLBuffer(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
-    QCLBuffer(const QCLBuffer& other)
+    QCLBuffer(const QCLBuffer &other)
         : QCLMemoryObject(other.context(), other.id()) {}
 
-    QCLBuffer& operator=(const QCLBuffer& other)
+    QCLBuffer &operator=(const QCLBuffer &other)
     {
         setId(other.context(), other.id());
         return *this;
@@ -75,35 +75,35 @@ public:
     bool read(void *data, size_t size);
     bool read(size_t offset, void *data, size_t size);
     QCLEvent readAsync(size_t offset, void *data, size_t size,
-                       const QVector<QCLEvent>& after = QVector<QCLEvent>());
+                       const QVector<QCLEvent> &after = QVector<QCLEvent>());
 
     bool write(const void *data, size_t size);
     bool write(size_t offset, const void *data, size_t size);
     QCLEvent writeAsync(size_t offset, const void *data, size_t size,
-                        const QVector<QCLEvent>& after = QVector<QCLEvent>());
+                        const QVector<QCLEvent> &after = QVector<QCLEvent>());
 
     bool copyTo(size_t offset, size_t size,
-                const QCLBuffer& dest, size_t destOffset);
-    bool copyTo(size_t offset, const QCLImage2D& dest, const QRect& rect);
-    bool copyTo(size_t offset, const QCLImage3D& dest,
+                const QCLBuffer &dest, size_t destOffset);
+    bool copyTo(size_t offset, const QCLImage2D &dest, const QRect &rect);
+    bool copyTo(size_t offset, const QCLImage3D &dest,
                 const size_t origin[3], const size_t size[3]);
     QCLEvent copyToAsync
         (size_t offset, size_t size,
-         const QCLBuffer& dest, size_t destOffset,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+         const QCLBuffer &dest, size_t destOffset,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
     QCLEvent copyToAsync
-        (size_t offset, const QCLImage2D& dest, const QRect& rect,
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+        (size_t offset, const QCLImage2D &dest, const QRect &rect,
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
     QCLEvent copyToAsync
-        (size_t offset, const QCLImage3D& dest,
+        (size_t offset, const QCLImage3D &dest,
          const size_t origin[3], const size_t size[3],
-         const QVector<QCLEvent>& after = QVector<QCLEvent>());
+         const QVector<QCLEvent> &after = QVector<QCLEvent>());
 
     void *map(size_t offset, size_t size, QCL::Access access);
     void *map(QCL::Access access);
     QCLEvent mapAsync(void **ptr, size_t offset, size_t size,
                       QCL::Access access,
-                      const QVector<QCLEvent>& after = QVector<QCLEvent>());
+                      const QVector<QCLEvent> &after = QVector<QCLEvent>());
 };
 
 QT_END_NAMESPACE

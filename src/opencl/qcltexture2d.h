@@ -62,7 +62,7 @@ public:
     QCLTexture2D();
     ~QCLTexture2D();
 
-    bool create(QCLContextGL *context, const QSize& size);
+    bool create(QCLContextGL *context, const QSize &size);
     bool create(QCLContextGL *context, int width, int height);
     void destroy();
 

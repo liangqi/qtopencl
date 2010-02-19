@@ -67,7 +67,7 @@ protected:
 
     void init(bool useGL = false);
     void generateIterationData
-        (int maxIterations, const QRectF& region);
+        (int maxIterations, const QRectF &region);
     void generateImage
         (QImage *image, int maxIterations, const QRgb *colors);
 };

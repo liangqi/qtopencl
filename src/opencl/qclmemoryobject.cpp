@@ -195,7 +195,7 @@ void QCLMemoryObject::unmap(void *ptr)
 
     \sa unmap(), QCLBuffer::mapAsync()
 */
-QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QVector<QCLEvent>& after)
+QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueUnmapMemObject
@@ -252,7 +252,7 @@ QCLEvent QCLMemoryObject::acquireGL()
 
     \sa releaseGL()
 */
-QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent>& after)
+QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent> &after)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_event event;
@@ -316,7 +316,7 @@ QCLEvent QCLMemoryObject::releaseGL()
 
     \sa acquireGL()
 */
-QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent>& after)
+QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent> &after)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_event event;

@@ -71,13 +71,13 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \fn QCLBuffer::QCLBuffer(const QCLBuffer& other)
+    \fn QCLBuffer::QCLBuffer(const QCLBuffer &other)
 
     Constructs a copy of \a other.
 */
 
 /*!
-    \fn QCLBuffer& QCLBuffer::operator=(const QCLBuffer& other)
+    \fn QCLBuffer &QCLBuffer::operator=(const QCLBuffer &other)
 
     Assigns \a other to this object.
 */
@@ -153,7 +153,7 @@ bool QCLBuffer::read(void *data, size_t size)
     \sa read(), writeAsync()
 */
 QCLEvent QCLBuffer::readAsync(size_t offset, void *data, size_t size,
-                              const QVector<QCLEvent>& after)
+                              const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueReadBuffer
@@ -221,7 +221,7 @@ bool QCLBuffer::write(const void *data, size_t size)
     \sa write(), readAsync()
 */
 QCLEvent QCLBuffer::writeAsync(size_t offset, const void *data, size_t size,
-                               const QVector<QCLEvent>& after)
+                               const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueWriteBuffer
@@ -247,7 +247,7 @@ QCLEvent QCLBuffer::writeAsync(size_t offset, const void *data, size_t size,
     \sa copyToAsync()
 */
 bool QCLBuffer::copyTo
-    (size_t offset, size_t size, const QCLBuffer& dest, size_t destOffset)
+    (size_t offset, size_t size, const QCLBuffer &dest, size_t destOffset)
 {
     cl_event event;
     cl_int error = clEnqueueCopyBuffer
@@ -274,7 +274,7 @@ bool QCLBuffer::copyTo
     \sa copyToAsync()
 */
 bool QCLBuffer::copyTo
-    (size_t offset, const QCLImage2D& dest, const QRect& rect)
+    (size_t offset, const QCLImage2D &dest, const QRect &rect)
 {
     const size_t dst_origin[3] = {rect.x(), rect.y(), 0};
     const size_t region[3] = {rect.width(), rect.height(), 1};
@@ -303,7 +303,7 @@ bool QCLBuffer::copyTo
     \sa copyToAsync()
 */
 bool QCLBuffer::copyTo
-    (size_t offset, const QCLImage3D& dest,
+    (size_t offset, const QCLImage3D &dest,
      const size_t origin[3], const size_t size[3])
 {
     cl_event event;
@@ -332,8 +332,8 @@ bool QCLBuffer::copyTo
     \sa copyTo()
 */
 QCLEvent QCLBuffer::copyToAsync
-    (size_t offset, size_t size, const QCLBuffer& dest, size_t destOffset,
-     const QVector<QCLEvent>& after)
+    (size_t offset, size_t size, const QCLBuffer &dest, size_t destOffset,
+     const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueCopyBuffer
@@ -360,8 +360,8 @@ QCLEvent QCLBuffer::copyToAsync
     \sa copyTo()
 */
 QCLEvent QCLBuffer::copyToAsync
-    (size_t offset, const QCLImage2D& dest, const QRect& rect,
-     const QVector<QCLEvent>& after)
+    (size_t offset, const QCLImage2D &dest, const QRect &rect,
+     const QVector<QCLEvent> &after)
 {
     const size_t dst_origin[3] = {rect.x(), rect.y(), 0};
     const size_t region[3] = {rect.width(), rect.height(), 1};
@@ -390,9 +390,9 @@ QCLEvent QCLBuffer::copyToAsync
     \sa copyTo()
 */
 QCLEvent QCLBuffer::copyToAsync
-    (size_t offset, const QCLImage3D& dest,
+    (size_t offset, const QCLImage3D &dest,
      const size_t origin[3], const size_t size[3],
-     const QVector<QCLEvent>& after)
+     const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
@@ -471,7 +471,7 @@ void *QCLBuffer::map(QCL::Access access)
 */
 QCLEvent QCLBuffer::mapAsync
     (void **ptr, size_t offset, size_t size,
-     QCL::Access access, const QVector<QCLEvent>& after)
+     QCL::Access access, const QVector<QCLEvent> &after)
 {
     cl_int error;
     cl_event event;

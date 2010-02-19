@@ -75,13 +75,13 @@ public:
 
     void unmap(void *ptr);
     QCLEvent unmapAsync
-        (void *ptr, const QVector<QCLEvent>& after = QVector<QCLEvent>());
+        (void *ptr, const QVector<QCLEvent> &after = QVector<QCLEvent>());
 
     QCLEvent acquireGL();
-    QCLEvent acquireGL(const QVector<QCLEvent>& after);
+    QCLEvent acquireGL(const QVector<QCLEvent> &after);
 
     QCLEvent releaseGL();
-    QCLEvent releaseGL(const QVector<QCLEvent>& after);
+    QCLEvent releaseGL(const QVector<QCLEvent> &after);
 
 protected:
     void setId(QCLContext *context, cl_mem id);

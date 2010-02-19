@@ -55,10 +55,10 @@ class Q_CL_EXPORT QCLSampler
 public:
     QCLSampler() : m_id(0) {}
     QCLSampler(cl_sampler id) : m_id(id) {}
-    QCLSampler(const QCLSampler& other);
+    QCLSampler(const QCLSampler &other);
     ~QCLSampler();
 
-    QCLSampler& operator=(const QCLSampler& other);
+    QCLSampler &operator=(const QCLSampler &other);
 
     bool isNull() const { return m_id == 0; }
 

@@ -76,7 +76,7 @@ QT_BEGIN_NAMESPACE
 /*!
     Constructs a copy of \a other.
 */
-QCLCommandQueue::QCLCommandQueue(const QCLCommandQueue& other)
+QCLCommandQueue::QCLCommandQueue(const QCLCommandQueue &other)
     : m_context(other.m_context), m_id(other.m_id)
 {
     if (m_id)
@@ -96,7 +96,7 @@ QCLCommandQueue::~QCLCommandQueue()
 /*!
     Assigns \a other to this object.
 */
-QCLCommandQueue& QCLCommandQueue::operator=(const QCLCommandQueue& other)
+QCLCommandQueue &QCLCommandQueue::operator=(const QCLCommandQueue &other)
 {
     m_context = other.m_context;
     if (m_id == other.m_id)

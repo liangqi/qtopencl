@@ -72,7 +72,7 @@ QMetaType::Type ImageNative::precision() const
 // contain the iteration count, and the bottom 16 bits contains
 // an interpolation value for creating gradients between colors.
 void ImageNative::generateIterationData
-    (int maxIterations, const QRectF& region)
+    (int maxIterations, const QRectF &region)
 {
     int width = data.width();
     int height = data.height();

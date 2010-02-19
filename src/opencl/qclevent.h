@@ -56,10 +56,10 @@ class Q_CL_EXPORT QCLEvent
 public:
     QCLEvent() : m_id(0) {}
     QCLEvent(cl_event id) : m_id(id) {}
-    QCLEvent(const QCLEvent& other);
+    QCLEvent(const QCLEvent &other);
     ~QCLEvent();
 
-    QCLEvent& operator=(const QCLEvent& other);
+    QCLEvent &operator=(const QCLEvent &other);
 
     bool isNull() const { return m_id == 0; }
 
@@ -73,7 +73,7 @@ public:
     bool isComplete() const { return status() == CL_COMPLETE; }
 
     void wait();
-    static void waitForEvents(const QVector<QCLEvent>& events);
+    static void waitForEvents(const QVector<QCLEvent> &events);
 
 private:
     cl_event m_id;

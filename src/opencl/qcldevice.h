@@ -92,9 +92,9 @@ public:
 
     static QList<QCLDevice> devices(QCLDevice::DeviceTypes types = All);
     static QList<QCLDevice> devices
-        (QCLDevice::DeviceTypes types, const QCLPlatform& platform);
+        (QCLDevice::DeviceTypes types, const QCLPlatform &platform);
     static QList<QCLDevice> devices
-        (QCLDevice::DeviceTypes types, const QList<QCLPlatform>& platforms);
+        (QCLDevice::DeviceTypes types, const QList<QCLPlatform> &platforms);
 
 private:
     cl_device_id m_id;

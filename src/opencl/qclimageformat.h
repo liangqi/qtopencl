@@ -99,8 +99,8 @@ public:
     QCLImageFormat::ChannelOrder channelOrder() const;
     QCLImageFormat::ChannelType channelType() const;
 
-    bool operator==(const QCLImageFormat& other);
-    bool operator!=(const QCLImageFormat& other);
+    bool operator==(const QCLImageFormat &other);
+    bool operator!=(const QCLImageFormat &other);
 
     QImage::Format toQImageFormat() const;
 
@@ -139,7 +139,7 @@ inline QCLImageFormat::ChannelType QCLImageFormat::channelType() const
     return QCLImageFormat::ChannelType(m_format.image_channel_data_type);
 }
 
-inline bool QCLImageFormat::operator==(const QCLImageFormat& other)
+inline bool QCLImageFormat::operator==(const QCLImageFormat &other)
 {
     return m_format.image_channel_order ==
                 other.m_format.image_channel_order &&
@@ -147,7 +147,7 @@ inline bool QCLImageFormat::operator==(const QCLImageFormat& other)
                 other.m_format.image_channel_data_type;
 }
 
-inline bool QCLImageFormat::operator!=(const QCLImageFormat& other)
+inline bool QCLImageFormat::operator!=(const QCLImageFormat &other)
 {
     return m_format.image_channel_order !=
                 other.m_format.image_channel_order ||

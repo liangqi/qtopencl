@@ -60,7 +60,7 @@ class Q_CL_EXPORT QCLVectorBase
 {
 protected:
     QCLVectorBase(size_t elemSize);
-    QCLVectorBase(size_t elemSize, const QCLVectorBase& other);
+    QCLVectorBase(size_t elemSize, const QCLVectorBase &other);
     ~QCLVectorBase();
 
     QCLVectorBasePrivate *d_ptr;
@@ -68,7 +68,7 @@ protected:
     size_t m_size;
     mutable void *m_mapped;
 
-    void assign(const QCLVectorBase& other);
+    void assign(const QCLVectorBase &other);
 
     void create(QCLContext *context, int size, QCL::Access access);
     void release();
@@ -92,10 +92,10 @@ class QCLVector : public QCLVectorBase
 {
 public:
     QCLVector();
-    QCLVector(const QCLVector<T>& other);
+    QCLVector(const QCLVector<T> &other);
     ~QCLVector();
 
-    QCLVector<T>& operator=(const QCLVector<T>& other);
+    QCLVector<T> &operator=(const QCLVector<T> &other);
 
     bool isNull() const;
 
@@ -104,9 +104,9 @@ public:
     inline bool isEmpty() const { return m_size == 0; }
     inline int size() const { return m_size; }
 
-    T& operator[](int index);
-    const T& operator[](int index) const;
-    const T& at(int index) const;
+    T &operator[](int index);
+    const T &operator[](int index) const;
+    const T &at(int index) const;
 
     void map();
     void unmap();
@@ -114,7 +114,7 @@ public:
 
     void read(T *data, int count, int offset = 0);
     void write(const T *data, int count, int offset = 0);
-    void write(const QVector<T>& data, int offset = 0);
+    void write(const QVector<T> &data, int offset = 0);
 
     T *data() const;
 
@@ -142,7 +142,7 @@ Q_INLINE_TEMPLATE QCLVector<T>::QCLVector
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE QCLVector<T>::QCLVector(const QCLVector<T>& other)
+Q_INLINE_TEMPLATE QCLVector<T>::QCLVector(const QCLVector<T> &other)
     : QCLVectorBase(sizeof(T), other)
 {
 }
@@ -151,7 +151,7 @@ template <typename T>
 Q_INLINE_TEMPLATE QCLVector<T>::~QCLVector() {}
 
 template <typename T>
-QCLVector<T>& QCLVector<T>::operator=(const QCLVector<T>& other)
+QCLVector<T> &QCLVector<T>::operator=(const QCLVector<T> &other)
 {
     assign(other);
     return *this;
@@ -170,7 +170,7 @@ Q_INLINE_TEMPLATE void QCLVector<T>::release()
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE T& QCLVector<T>::operator[](int index)
+Q_INLINE_TEMPLATE T &QCLVector<T>::operator[](int index)
 {
     Q_ASSERT_X(index >= 0 && index < int(m_size), "QCLVector<T>::operator[]",
                "index out of range");
@@ -180,7 +180,7 @@ Q_INLINE_TEMPLATE T& QCLVector<T>::operator[](int index)
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE const T& QCLVector<T>::operator[](int index) const
+Q_INLINE_TEMPLATE const T &QCLVector<T>::operator[](int index) const
 {
     Q_ASSERT_X(index >= 0 && index < m_size, "QCLVector<T>::operator[]",
                "index out of range");
@@ -190,7 +190,7 @@ Q_INLINE_TEMPLATE const T& QCLVector<T>::operator[](int index) const
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE const T& QCLVector<T>::at(int index) const
+Q_INLINE_TEMPLATE const T &QCLVector<T>::at(int index) const
 {
     Q_ASSERT_X(index >= 0 && index < m_size, "QCLVector<T>::at",
                "index out of range");
@@ -235,7 +235,7 @@ Q_INLINE_TEMPLATE void QCLVector<T>::read
 
 template <typename T>
 Q_INLINE_TEMPLATE void QCLVector<T>::write
-    (const QVector<T>& data, int offset)
+    (const QVector<T> &data, int offset)
 {
     write(data.constData(), data.size(), offset);
 }

@@ -58,10 +58,10 @@ public:
     QCLCommandQueue() : m_id(0) {}
     QCLCommandQueue(QCLContext *context, cl_command_queue id)
         : m_context(context), m_id(id) {}
-    QCLCommandQueue(const QCLCommandQueue& other);
+    QCLCommandQueue(const QCLCommandQueue &other);
     ~QCLCommandQueue();
 
-    QCLCommandQueue& operator=(const QCLCommandQueue& other);
+    QCLCommandQueue &operator=(const QCLCommandQueue &other);
 
     bool isNull() const { return m_id == 0; }
 

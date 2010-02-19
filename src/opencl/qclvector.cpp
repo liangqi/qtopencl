@@ -118,7 +118,7 @@ QCLVectorBase::QCLVectorBase(size_t elemSize)
 {
 }
 
-QCLVectorBase::QCLVectorBase(size_t elemSize, const QCLVectorBase& other)
+QCLVectorBase::QCLVectorBase(size_t elemSize, const QCLVectorBase &other)
     : d_ptr(other.d_ptr)
     , m_elemSize(elemSize)
     , m_size(other.m_size)
@@ -135,7 +135,7 @@ QCLVectorBase::~QCLVectorBase()
     release();
 }
 
-void QCLVectorBase::assign(const QCLVectorBase& other)
+void QCLVectorBase::assign(const QCLVectorBase &other)
 {
     if (d_ptr == other.d_ptr)
         return;
@@ -336,7 +336,7 @@ cl_mem QCLVectorBase::kernelArg() const
 */
 
 /*!
-    \fn QCLVector::QCLVector(const QCLVector<T>& other)
+    \fn QCLVector::QCLVector(const QCLVector<T> &other)
 
     Creates a copy of the \a other vector reference.  The vector's
     contents are not duplicated: modifications to this vector
@@ -353,7 +353,7 @@ cl_mem QCLVectorBase::kernelArg() const
 */
 
 /*!
-    \fn QCLVector<T> QCLVector::operator=(const QCLVector<T>& other)
+    \fn QCLVector<T> QCLVector::operator=(const QCLVector<T> &other)
 
     Assigns the \a other vector reference to this object.
     The vector's contents are not duplicated: modifications to
@@ -387,7 +387,7 @@ cl_mem QCLVectorBase::kernelArg() const
 */
 
 /*!
-    \fn T& QCLVector::operator[](int index)
+    \fn T &QCLVector::operator[](int index)
 
     Returns a reference to the element at \a index in this OpenCL vector.
     The vector will be mapped into host memory if necessary.
@@ -396,14 +396,14 @@ cl_mem QCLVectorBase::kernelArg() const
 */
 
 /*!
-    \fn const T& QCLVector::operator[](int index) const
+    \fn const T &QCLVector::operator[](int index) const
     \overload
 
     Same as at(\a index).
 */
 
 /*!
-    \fn const T& QCLVector::at(int index) const
+    \fn const T &QCLVector::at(int index) const
 
     Returns a const reference to the element at \a index in this
     OpenCL vector.  The vector will be mapped into host memory
@@ -465,7 +465,7 @@ cl_mem QCLVectorBase::kernelArg() const
 */
 
 /*!
-    \fn void QCLVector::write(const QVector<T>& data, int offset)
+    \fn void QCLVector::write(const QVector<T> &data, int offset)
     \overload
 
     Writes the contents of \a data to \a offset in this vector.

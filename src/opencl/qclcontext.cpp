@@ -135,7 +135,7 @@ QCLPlatform QCLContext::platform() const
 
     \sa platform(), create()
 */
-void QCLContext::setPlatform(const QCLPlatform& platform)
+void QCLContext::setPlatform(const QCLPlatform &platform)
 {
     Q_D(QCLContext);
     d->platform = platform;
@@ -201,7 +201,7 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
 
     \sa isCreated(), setId(), release()
 */
-bool QCLContext::create(const QList<QCLDevice>& devices)
+bool QCLContext::create(const QList<QCLDevice> &devices)
 {
     Q_D(QCLContext);
     if (d->isCreated)
@@ -534,7 +534,7 @@ QCLCommandQueue QCLContext::commandQueue()
 
     \sa commandQueue(), defaultCommandQueue()
 */
-void QCLContext::setCommandQueue(const QCLCommandQueue& queue)
+void QCLContext::setCommandQueue(const QCLCommandQueue &queue)
 {
     Q_D(QCLContext);
     d->commandQueue = queue;
@@ -597,7 +597,7 @@ cl_command_queue QCLContext::activeQueue()
     \sa defaultCommandQueue(), lastError()
 */
 QCLCommandQueue QCLContext::createCommandQueue
-    (const QCLDevice& device, cl_command_queue_properties properties)
+    (const QCLDevice &device, cl_command_queue_properties properties)
 {
     Q_D(QCLContext);
     cl_command_queue queue;
@@ -725,7 +725,7 @@ QCLBuffer QCLContext::createBufferCopy
     \sa createImage2DHost(), createImage2DCopy()
 */
 QCLImage2D QCLContext::createImage2DDevice
-    (const QCLImageFormat& format, const QSize& size, QCL::Access access)
+    (const QCLImageFormat &format, const QSize &size, QCL::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -755,7 +755,7 @@ QCLImage2D QCLContext::createImage2DDevice
     \sa createImage2DDevice(), createImage2DCopy()
 */
 QCLImage2D QCLContext::createImage2DHost
-    (const QCLImageFormat& format, void *data, const QSize& size,
+    (const QCLImageFormat &format, void *data, const QSize &size,
      QCL::Access access, int bytesPerLine)
 {
     Q_D(QCLContext);
@@ -833,7 +833,7 @@ QCLImage2D QCLContext::createImage2DHost(QImage *image, QCL::Access access)
     \sa createImage2DDevice(), createImage2DHost()
 */
 QCLImage2D QCLContext::createImage2DCopy
-    (const QCLImageFormat& format, const void *data, const QSize& size,
+    (const QCLImageFormat &format, const void *data, const QSize &size,
      QCL::Access access, int bytesPerLine)
 {
     Q_D(QCLContext);
@@ -865,7 +865,7 @@ QCLImage2D QCLContext::createImage2DCopy
     \sa createImage2DDevice(), createImage2DHost()
 */
 QCLImage2D QCLContext::createImage2DCopy
-    (const QImage& image, QCL::Access access)
+    (const QImage &image, QCL::Access access)
 {
     Q_D(QCLContext);
 
@@ -907,7 +907,7 @@ QCLImage2D QCLContext::createImage2DCopy
     \sa createImage3DHost(), createImage3DCopy()
 */
 QCLImage3D QCLContext::createImage3DDevice
-    (const QCLImageFormat& format, int width, int height, int depth,
+    (const QCLImageFormat &format, int width, int height, int depth,
      QCL::Access access)
 {
     Q_D(QCLContext);
@@ -940,7 +940,7 @@ QCLImage3D QCLContext::createImage3DDevice
     \sa createImage3DDevice(), createImage3DCopy()
 */
 QCLImage3D QCLContext::createImage3DHost
-    (const QCLImageFormat& format, void *data,
+    (const QCLImageFormat &format, void *data,
      int width, int height, int depth, QCL::Access access,
      int bytesPerLine, int bytesPerSlice)
 {
@@ -979,7 +979,7 @@ QCLImage3D QCLContext::createImage3DHost
     \sa createImage3DDevice(), createImage3DHost()
 */
 QCLImage3D QCLContext::createImage3DCopy
-    (const QCLImageFormat& format, const void *data,
+    (const QCLImageFormat &format, const void *data,
      int width, int height, int depth,
      QCL::Access access, int bytesPerLine, int bytesPerSlice)
 {
@@ -1022,7 +1022,7 @@ QCLSampler QCLContext::createSampler
 
     \sa createProgramFromSourceFile(), buildProgramFromSourceCode()
 */
-QCLProgram QCLContext::createProgramFromSourceCode(const QByteArray& sourceCode)
+QCLProgram QCLContext::createProgramFromSourceCode(const QByteArray &sourceCode)
 {
     Q_D(QCLContext);
     Q_ASSERT(!sourceCode.isEmpty());
@@ -1044,7 +1044,7 @@ QCLProgram QCLContext::createProgramFromSourceCode(const QByteArray& sourceCode)
 
     \sa createProgramFromSourceCode(), buildProgramFromSourceFile()
 */
-QCLProgram QCLContext::createProgramFromSourceFile(const QString& fileName)
+QCLProgram QCLContext::createProgramFromSourceFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
@@ -1062,7 +1062,7 @@ QCLProgram QCLContext::createProgramFromSourceFile(const QString& fileName)
 
     \sa createProgramFromSourceCode(), buildProgramFromSourceFile()
 */
-QCLProgram QCLContext::buildProgramFromSourceCode(const QByteArray& sourceCode)
+QCLProgram QCLContext::buildProgramFromSourceCode(const QByteArray &sourceCode)
 {
     QCLProgram program = createProgramFromSourceCode(sourceCode);
     if (program.isNull() || program.build())
@@ -1077,7 +1077,7 @@ QCLProgram QCLContext::buildProgramFromSourceCode(const QByteArray& sourceCode)
 
     \sa createProgramFromSourceFile(), buildProgramFromSourceCode()
 */
-QCLProgram QCLContext::buildProgramFromSourceFile(const QString& fileName)
+QCLProgram QCLContext::buildProgramFromSourceFile(const QString &fileName)
 {
     QCLProgram program = createProgramFromSourceFile(fileName);
     if (program.isNull() || program.build())
@@ -1216,7 +1216,7 @@ void QCLContext::barrier()
 
     \sa marker()
 */
-void QCLContext::barrier(const QVector<QCLEvent>& events)
+void QCLContext::barrier(const QVector<QCLEvent> &events)
 {
     if (events.isEmpty())
         return;

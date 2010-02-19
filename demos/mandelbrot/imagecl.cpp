@@ -143,7 +143,7 @@ bool ImageCL::hasOpenCL()
 }
 
 void ImageCL::generateIterationData
-    (int maxIterations, const QRectF& region)
+    (int maxIterations, const QRectF &region)
 {
     init();
 

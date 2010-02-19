@@ -73,10 +73,10 @@ public:
     bool isCreated() const;
 
     QCLPlatform platform() const;
-    void setPlatform(const QCLPlatform& platform);
+    void setPlatform(const QCLPlatform &platform);
 
     bool create(QCLDevice::DeviceTypes type = QCLDevice::GPU);
-    bool create(const QList<QCLDevice>& devices);
+    bool create(const QList<QCLDevice> &devices);
     void release();
 
     cl_context id() const;
@@ -91,11 +91,11 @@ public:
     static QString errorName(cl_int code);
 
     QCLCommandQueue commandQueue();
-    void setCommandQueue(const QCLCommandQueue& queue);
+    void setCommandQueue(const QCLCommandQueue &queue);
 
     QCLCommandQueue defaultCommandQueue();
     QCLCommandQueue createCommandQueue
-        (const QCLDevice& device, cl_command_queue_properties properties);
+        (const QCLDevice &device, cl_command_queue_properties properties);
 
     QCLBuffer createBufferDevice
         (size_t size, QCL::Access access);
@@ -108,26 +108,26 @@ public:
     QCLVector<T> createVector(int size, QCL::Access access = QCL::ReadWrite);
 
     QCLImage2D createImage2DDevice
-        (const QCLImageFormat& format, const QSize& size, QCL::Access access);
+        (const QCLImageFormat &format, const QSize &size, QCL::Access access);
     QCLImage2D createImage2DHost
-        (const QCLImageFormat& format, void *data, const QSize& size,
+        (const QCLImageFormat &format, void *data, const QSize &size,
          QCL::Access access, int bytesPerLine = 0);
     QCLImage2D createImage2DHost(QImage *image, QCL::Access access);
     QCLImage2D createImage2DCopy
-        (const QCLImageFormat& format, const void *data, const QSize& size,
+        (const QCLImageFormat &format, const void *data, const QSize &size,
          QCL::Access access, int bytesPerLine = 0);
     QCLImage2D createImage2DCopy
-        (const QImage& image, QCL::Access access);
+        (const QImage &image, QCL::Access access);
 
     QCLImage3D createImage3DDevice
-        (const QCLImageFormat& format, int width, int height, int depth,
+        (const QCLImageFormat &format, int width, int height, int depth,
          QCL::Access access);
     QCLImage3D createImage3DHost
-        (const QCLImageFormat& format, void *data,
+        (const QCLImageFormat &format, void *data,
          int width, int height, int depth, QCL::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
     QCLImage3D createImage3DCopy
-        (const QCLImageFormat& format, const void *data,
+        (const QCLImageFormat &format, const void *data,
          int width, int height, int depth, QCL::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
@@ -135,11 +135,11 @@ public:
         (bool normalizedCoords, cl_addressing_mode addressingMode,
          cl_filter_mode filterMode);
 
-    QCLProgram createProgramFromSourceCode(const QByteArray& sourceCode);
-    QCLProgram createProgramFromSourceFile(const QString& fileName);
+    QCLProgram createProgramFromSourceCode(const QByteArray &sourceCode);
+    QCLProgram createProgramFromSourceFile(const QString &fileName);
 
-    QCLProgram buildProgramFromSourceCode(const QByteArray& sourceCode);
-    QCLProgram buildProgramFromSourceFile(const QString& fileName);
+    QCLProgram buildProgramFromSourceCode(const QByteArray &sourceCode);
+    QCLProgram buildProgramFromSourceFile(const QString &fileName);
 
     QList<QCLImageFormat> supportedImage2DFormats(cl_mem_flags flags) const;
     QList<QCLImageFormat> supportedImage3DFormats(cl_mem_flags flags) const;
@@ -152,7 +152,7 @@ public:
     void sync();
 
     void barrier();
-    void barrier(const QVector<QCLEvent>& events);
+    void barrier(const QVector<QCLEvent> &events);
 
 private:
     QScopedPointer<QCLContextPrivate> d_ptr;

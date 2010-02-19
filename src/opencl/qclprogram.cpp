@@ -70,7 +70,7 @@ QT_BEGIN_NAMESPACE
 /*!
     Constructs a copy of \a other.
 */
-QCLProgram::QCLProgram(const QCLProgram& other)
+QCLProgram::QCLProgram(const QCLProgram &other)
     : m_context(other.m_context), m_id(other.m_id)
 {
     if (m_id)
@@ -90,7 +90,7 @@ QCLProgram::~QCLProgram()
 /*!
     Assigns \a other to this object.
 */
-QCLProgram& QCLProgram::operator=(const QCLProgram& other)
+QCLProgram &QCLProgram::operator=(const QCLProgram &other)
 {
     m_context = other.m_context;
     if (m_id == other.m_id)
@@ -129,7 +129,7 @@ QCLProgram& QCLProgram::operator=(const QCLProgram& other)
 
     \sa log(), createKernel()
 */
-bool QCLProgram::build(const QString& options)
+bool QCLProgram::build(const QString &options)
 {
     return build(QList<QCLDevice>(), options);
 }
@@ -148,7 +148,7 @@ bool QCLProgram::build(const QString& options)
 
     \sa log(), createKernel()
 */
-bool QCLProgram::build(const QList<QCLDevice>& devices, const QString& options)
+bool QCLProgram::build(const QList<QCLDevice> &devices, const QString &options)
 {
     QVarLengthArray<cl_device_id> devs;
     foreach (QCLDevice dev, devices) {
@@ -228,7 +228,7 @@ QCLKernel QCLProgram::createKernel(const char *name) const
 /*!
     \overload
 */
-QCLKernel QCLProgram::createKernel(const QByteArray& name) const
+QCLKernel QCLProgram::createKernel(const QByteArray &name) const
 {
     return createKernel(name.constData());
 }
@@ -236,7 +236,7 @@ QCLKernel QCLProgram::createKernel(const QByteArray& name) const
 /*!
     \overload
 */
-QCLKernel QCLProgram::createKernel(const QString& name) const
+QCLKernel QCLProgram::createKernel(const QString &name) const
 {
     return createKernel(name.toLatin1().constData());
 }

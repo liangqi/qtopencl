@@ -69,13 +69,13 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \fn QCLImage2D::QCLImage2D(const QCLImage2D& other)
+    \fn QCLImage2D::QCLImage2D(const QCLImage2D &other)
 
     Constructs a copy of \a other.
 */
 
 /*!
-    \fn QCLImage2D& QCLImage2D::operator=(const QCLImage2D& other)
+    \fn QCLImage2D &QCLImage2D::operator=(const QCLImage2D &other)
 
     Assigns \a other to this object.
 */
@@ -191,7 +191,7 @@ bool QCLImage2D::isRenderbuffer() const
 
     \sa readAsync(), write(), toQImage()
 */
-bool QCLImage2D::read(void *data, const QRect& rect, int bytesPerLine)
+bool QCLImage2D::read(void *data, const QRect &rect, int bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -212,7 +212,7 @@ bool QCLImage2D::read(void *data, const QRect& rect, int bytesPerLine)
     This function will block until the request completes.
     The request is executed on the active command queue for context().
 */
-bool QCLImage2D::read(QImage *image, const QRect& rect)
+bool QCLImage2D::read(QImage *image, const QRect &rect)
 {
     if (rect.isNull()) {
         return read(image->bits(),
@@ -240,8 +240,8 @@ bool QCLImage2D::read(QImage *image, const QRect& rect)
     \sa read(), writeAsync()
 */
 QCLEvent QCLImage2D::readAsync
-    (void *data, const QRect& rect,
-     const QVector<QCLEvent>& after, int bytesPerLine)
+    (void *data, const QRect &rect,
+     const QVector<QCLEvent> &after, int bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -269,7 +269,7 @@ QCLEvent QCLImage2D::readAsync
 
     \sa writeAsync(), read()
 */
-bool QCLImage2D::write(const void *data, const QRect& rect, int bytesPerLine)
+bool QCLImage2D::write(const void *data, const QRect &rect, int bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -290,7 +290,7 @@ bool QCLImage2D::write(const void *data, const QRect& rect, int bytesPerLine)
     This function will block until the request completes.
     The request is executed on the active command queue for context().
 */
-bool QCLImage2D::write(const QImage& image, const QRect& rect)
+bool QCLImage2D::write(const QImage &image, const QRect &rect)
 {
     if (rect.isNull()) {
         return write(image.bits(),
@@ -318,8 +318,8 @@ bool QCLImage2D::write(const QImage& image, const QRect& rect)
     \sa write(), readAsync()
 */
 QCLEvent QCLImage2D::writeAsync
-    (const void *data, const QRect& rect,
-     const QVector<QCLEvent>& after, int bytesPerLine)
+    (const void *data, const QRect &rect,
+     const QVector<QCLEvent> &after, int bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -346,7 +346,7 @@ QCLEvent QCLImage2D::writeAsync
     \sa copyToAsync()
 */
 bool QCLImage2D::copyTo
-    (const QRect& rect, const QCLImage2D& dest, const QPoint& destOffset)
+    (const QRect &rect, const QCLImage2D &dest, const QPoint &destOffset)
 {
     size_t src_origin[3] = {rect.x(), rect.y(), 0};
     size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
@@ -375,7 +375,7 @@ bool QCLImage2D::copyTo
     \sa copyToAsync()
 */
 bool QCLImage2D::copyTo
-    (const QRect& rect, const QCLImage3D& dest, const size_t destOffset[3])
+    (const QRect &rect, const QCLImage3D &dest, const size_t destOffset[3])
 {
     size_t src_origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -403,7 +403,7 @@ bool QCLImage2D::copyTo
     \sa copyToAsync()
 */
 bool QCLImage2D::copyTo
-    (const QRect& rect, const QCLBuffer& dest, size_t destOffset)
+    (const QRect &rect, const QCLBuffer &dest, size_t destOffset)
 {
     size_t src_origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -433,8 +433,8 @@ bool QCLImage2D::copyTo
     \sa copyTo()
 */
 QCLEvent QCLImage2D::copyToAsync
-    (const QRect& rect, const QCLImage2D& dest, const QPoint& destOffset,
-     const QVector<QCLEvent>& after)
+    (const QRect &rect, const QCLImage2D &dest, const QPoint &destOffset,
+     const QVector<QCLEvent> &after)
 {
     size_t src_origin[3] = {rect.x(), rect.y(), 0};
     size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
@@ -464,8 +464,8 @@ QCLEvent QCLImage2D::copyToAsync
     \sa copyTo()
 */
 QCLEvent QCLImage2D::copyToAsync
-    (const QRect& rect, const QCLImage3D& dest, const size_t destOffset[3],
-     const QVector<QCLEvent>& after)
+    (const QRect &rect, const QCLImage3D &dest, const size_t destOffset[3],
+     const QVector<QCLEvent> &after)
 {
     size_t src_origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -494,8 +494,8 @@ QCLEvent QCLImage2D::copyToAsync
     \sa copyTo()
 */
 QCLEvent QCLImage2D::copyToAsync
-    (const QRect& rect, const QCLBuffer& dest, size_t destOffset,
-     const QVector<QCLEvent>& after)
+    (const QRect &rect, const QCLBuffer &dest, size_t destOffset,
+     const QVector<QCLEvent> &after)
 {
     size_t src_origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -528,7 +528,7 @@ extern cl_map_flags qt_cl_map_flags(QCL::Access access);
     \sa mapAsync(), unmap()
 */
 void *QCLImage2D::map
-    (const QRect& rect, QCL::Access access, int *bytesPerLine)
+    (const QRect &rect, QCL::Access access, int *bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -563,8 +563,8 @@ void *QCLImage2D::map
     \sa map(), unmapAsync()
 */
 QCLEvent QCLImage2D::mapAsync
-    (void **ptr, const QRect& rect, QCL::Access access,
-     const QVector<QCLEvent>& after, int *bytesPerLine)
+    (void **ptr, const QRect &rect, QCL::Access access,
+     const QVector<QCLEvent> &after, int *bytesPerLine)
 {
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
@@ -630,13 +630,13 @@ QImage QCLImage2D::toQImage()
 */
 
 /*!
-    \fn QCLImage3D::QCLImage3D(const QCLImage3D& other)
+    \fn QCLImage3D::QCLImage3D(const QCLImage3D &other)
 
     Constructs a copy of \a other.
 */
 
 /*!
-    \fn QCLImage3D& QCLImage3D::operator=(const QCLImage3D& other)
+    \fn QCLImage3D &QCLImage3D::operator=(const QCLImage3D &other)
 
     Assigns \a other to this object.
 */
@@ -865,7 +865,7 @@ QCLEvent QCLImage3D::writeAsync
 */
 bool QCLImage3D::copyTo
     (const size_t origin[3], const size_t size[3],
-     const QCLImage3D& dest, const size_t destOffset[3])
+     const QCLImage3D &dest, const size_t destOffset[3])
 {
     cl_event event;
     cl_int error = clEnqueueCopyImage
@@ -893,8 +893,8 @@ bool QCLImage3D::copyTo
     \sa copyToAsync()
 */
 bool QCLImage3D::copyTo
-    (const size_t origin[3], const QSize& size, const QCLImage2D& dest,
-     const QPoint& destOffset)
+    (const size_t origin[3], const QSize &size, const QCLImage2D &dest,
+     const QPoint &destOffset)
 {
     size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
     size_t region[3] = {size.width(), size.height(), 1};
@@ -924,7 +924,7 @@ bool QCLImage3D::copyTo
 */
 bool QCLImage3D::copyTo
     (const size_t origin[3], const size_t size[3],
-     const QCLBuffer& dest, size_t destOffset)
+     const QCLBuffer &dest, size_t destOffset)
 {
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
@@ -957,8 +957,8 @@ bool QCLImage3D::copyTo
 */
 QCLEvent QCLImage3D::copyToAsync
     (const size_t origin[3], const size_t size[3],
-     const QCLImage3D& dest, const size_t destOffset[3],
-     const QVector<QCLEvent>& after)
+     const QCLImage3D &dest, const size_t destOffset[3],
+     const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueCopyImage
@@ -990,9 +990,9 @@ QCLEvent QCLImage3D::copyToAsync
     \sa copyTo()
 */
 QCLEvent QCLImage3D::copyToAsync
-    (const size_t origin[3], const QSize& size,
-     const QCLImage2D& dest, const QPoint& destOffset,
-     const QVector<QCLEvent>& after)
+    (const size_t origin[3], const QSize &size,
+     const QCLImage2D &dest, const QPoint &destOffset,
+     const QVector<QCLEvent> &after)
 {
     size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
     size_t region[3] = {size.width(), size.height(), 1};
@@ -1026,8 +1026,8 @@ QCLEvent QCLImage3D::copyToAsync
 */
 QCLEvent QCLImage3D::copyToAsync
     (const size_t origin[3], const size_t size[3],
-     const QCLBuffer& dest, size_t destOffset,
-     const QVector<QCLEvent>& after)
+     const QCLBuffer &dest, size_t destOffset,
+     const QVector<QCLEvent> &after)
 {
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
@@ -1096,7 +1096,7 @@ void *QCLImage3D::map
 */
 QCLEvent QCLImage3D::mapAsync
     (void **ptr, const size_t origin[3], const size_t size[3],
-     QCL::Access access, const QVector<QCLEvent>& after,
+     QCL::Access access, const QVector<QCLEvent> &after,
      int *bytesPerLine, int *bytesPerSlice)
 {
     cl_int error;

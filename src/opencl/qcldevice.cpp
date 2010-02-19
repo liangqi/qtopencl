@@ -303,7 +303,7 @@ QList<QCLDevice> QCLDevice::devices(QCLDevice::DeviceTypes types)
     \a platform on this system.
 */
 QList<QCLDevice> QCLDevice::devices
-    (QCLDevice::DeviceTypes types, const QCLPlatform& platform)
+    (QCLDevice::DeviceTypes types, const QCLPlatform &platform)
 {
     QList<QCLPlatform> platforms;
     platforms.append(platform);
@@ -315,7 +315,7 @@ QList<QCLDevice> QCLDevice::devices
     the specified \a platforms list.
 */
 QList<QCLDevice> QCLDevice::devices
-    (QCLDevice::DeviceTypes types, const QList<QCLPlatform>& platforms)
+    (QCLDevice::DeviceTypes types, const QList<QCLPlatform> &platforms)
 {
     QList<QCLDevice> devs;
     for (int plat = 0; plat < platforms.size(); ++plat) {
