@@ -41,10 +41,10 @@
 
 /*!
     \page clinfo.html
-    \title OpenCL Information Utility
+    \title Querying OpenCL Device Capabilities
 
-    The \c{clinfo} program can be used to dump out information about
-    the platform's OpenCL implementation.  The following is a sample
+    The \c{clinfo} program can be used to query and dump out information
+    about the platform's OpenCL implementation.  The following is a sample
     of the output that it produces:
 
     \code

@@ -16,13 +16,14 @@ examples.fileextensions = "*.cpp *.h *.js *.xq *.svg *.xml *.ui *.qrc *.txt *.cl
 outputdir               = $DESTDIR
 base                    = file:$DESTDIR
 defines                 = 
-extraimages.HTML        = qt-logo teapot-logo
+extraimages.HTML        = qt-logo qtopencl-logo
 
 HTML.stylesheets        = classic.css
 HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
                           "<tr>\n" \
                           "<td align=\"left\" valign=\"top\" width=\"150\">" \
                           "<img src=\"images/qt-logo.png\" align=\"left\" border=\"0\" />" \
+                          "&nbsp;&nbsp;<img src=\"images/qtopencl-logo.png\" border=\"0\" />" \
                           "</td>\n" \
                           "<td width=\"1\">&nbsp;&nbsp;</td>" \
                           "<td class=\"postheader\" valign=\"center\">" \

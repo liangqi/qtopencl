@@ -45,23 +45,62 @@
     \keyword QtOpenCL Reference Documentation
 
     QtOpenCL is a set of extension classes for the QtCore and QtOpenGL
-    modules to enable the use of OpenCL in Qt 4.6.2 and Qt 4.7.
+    modules to enable the use of OpenCL in Qt 4.6.2 and Qt 4.7.  The current
+    project goals are:
 
     \list
-    \o \l{Building QtOpenCL}{Building}
-    \o \l{opencl}{Class Reference}
-    \o Examples
-        \list
-        \o \l{vectoradd}{Vector Addition}
-        \o \l{blur}{Gaussian Blur}
-        \endlist
-    \o Demos
-        \list
-        \o \l{mandelbrot}{Mandelbrot Viewer}
-        \endlist
-    \o Utilities
-        \list
-        \o \l{clinfo.html}{clinfo}
-        \endlist
+    \o Create a good Qt-style wrapper for OpenCL that takes the pain
+    out of OpenCL initialization, buffer management, and kernel execution.
+    \o Provide a solid foundation for accelerating other parts of Qt.
+    \o Be more than just a 1-to-1 C++ wrapper: take advantage of Qt
+    to improve the programmer's experience.
+    \o Interface to standard Qt facilities such as QImage, QPixmap, and
+    QtOpenGL to make it very easy to use and generate Qt images and textures
+    using OpenCL.
+    \o Provide an extensive unit test suite to not only test QtOpenCL,
+    but to also exercise the underlying OpenCL implementation to check
+    that it properly implements the facilities that Qt needs elsewhere.
+    Ultimately, running the QtOpenCL unit tests on a device should
+    instantly tell us what bugs or boundary cases are present in the
+    vendor-supplied OpenCL implementation.
     \endlist
+
+    The following pages provide more information about the project:
+
+    \raw HTML
+        <table cellpadding="2" cellspacing="1" border="0" width="100%" bgcolor="#e5e5e5">
+        <tr>
+        <th bgcolor="#66b036" width="33%">
+        Getting Started
+        </th>
+        <th bgcolor="#66b036" width="33%">
+        Examples &amp; Demos
+        </th>
+        <th bgcolor="#66b036" width="33%">
+        API Reference
+        </th>
+        </tr>
+        <tr>
+        <td valign="top">
+        <ul>
+        <li><a href="building.html">Building</a></li>
+        <li><a href="clinfo.html">Device Capabilities</a></li>
+        </ul>
+        </td>
+        <td valign="top">
+        <ul>
+        <li><a href="vectoradd.html">Vector Addition</a></li>
+        <li><a href="blur.html">Gaussian Blur</a></li>
+        <li><a href="mandelbrot.html">Mandelbrot Viewer</a></li>
+        </ul>
+        </td>
+        <td valign="top">
+        <ul>
+        <li><a href="opencl.html">QtOpenCL Classes</a></li>
+        <li><a href="qcl.html">QCL Namespace</a></li>
+        </ul>
+        </td>
+        </tr>
+        </table>
+    \endraw
 */
