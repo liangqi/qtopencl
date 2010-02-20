@@ -1159,7 +1159,7 @@ void QCLContext::finish()
 /*!
     Returns a marker event for the active command queue.  The event
     will be signalled when all commands that were queued before this
-    point have completed.
+    point have finished.
 
     \sa barrier(), sync()
 */
@@ -1192,12 +1192,12 @@ void QCLContext::sync()
 
 /*!
     Adds a barrier to the active command queue.  All commands that
-    were queued before this point must complete before any further
+    were queued before this point must finish before any further
     commands added after this point are executed.
 
     This function will return immediately and will not block waiting
-    for the commands to complete.  Use sync() to block until all queued
-    commands complete.
+    for the commands to finish.  Use sync() to block until all queued
+    commands finish.
 
     \sa marker(), sync()
 */

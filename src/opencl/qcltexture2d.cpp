@@ -230,7 +230,7 @@ void QCLTexture2D::acquireGL()
 {
     Q_D(QCLTexture2D);
     if (d->directRender)
-        QCLImage2D::acquireGL().wait();
+        QCLImage2D::acquireGL().waitForFinished();
 }
 
 /*!
@@ -247,13 +247,13 @@ void QCLTexture2D::releaseGL()
 
     // If we are doing direct rendering, then just release the OpenCL object.
     if (d->directRender) {
-        QCLImage2D::releaseGL().wait();
+        QCLImage2D::releaseGL().waitForFinished();
         glBindTexture(GL_TEXTURE_2D, d->textureId);
         return;
     }
 
     // Wait for the current OpenCL commands to finish.
-    context()->marker().wait();
+    context()->marker().waitForFinished();
 
     // Upload the contents of the OpenCL buffer into the texture.
     void *ptr = map(QRect(QPoint(0, 0), d->size), QCL::ReadOnly);

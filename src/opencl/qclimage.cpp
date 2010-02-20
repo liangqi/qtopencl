@@ -186,7 +186,7 @@ bool QCLImage2D::isRenderbuffer() const
     If \a bytesPerLine is not zero, it indicates the number of bytes
     between lines in \a data.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa readAsync(), write(), toQImage()
@@ -209,7 +209,7 @@ bool QCLImage2D::read(void *data, const QRect &rect, int bytesPerLine)
     into \a image.  Returns true if the read was successful; false otherwise.
     If \a rect is null, then the entire image is read.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 */
 bool QCLImage2D::read(QImage *image, const QRect &rect)
@@ -231,10 +231,10 @@ bool QCLImage2D::read(QImage *image, const QRect &rect)
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa read(), writeAsync()
@@ -264,7 +264,7 @@ QCLEvent QCLImage2D::readAsync
     If \a bytesPerLine is not zero, it indicates the number of bytes
     between lines in \a data.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa writeAsync(), read()
@@ -287,7 +287,7 @@ bool QCLImage2D::write(const void *data, const QRect &rect, int bytesPerLine)
     Returns true if the write was successful; false otherwise.
     If \a rect is null, then the entire image is read.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 */
 bool QCLImage2D::write(const QImage &image, const QRect &rect)
@@ -309,10 +309,10 @@ bool QCLImage2D::write(const QImage &image, const QRect &rect)
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa write(), readAsync()
@@ -340,7 +340,7 @@ QCLEvent QCLImage2D::writeAsync
     Copies the contents of \a rect from this image to \a destOffset
     in \a dest.  Returns true if the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -369,7 +369,7 @@ bool QCLImage2D::copyTo
     Copies the contents of \a rect from this image to \a destOffset
     in \a dest.  Returns true if the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -397,7 +397,7 @@ bool QCLImage2D::copyTo
     Copies the contents of \a rect from this image to \a destOffset
     in \a dest.  Returns true if the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -424,10 +424,10 @@ bool QCLImage2D::copyTo
 /*!
     Requests that the contents of \a rect from this image be copied
     to \a destOffset in \a dest.  Returns an event object that can be
-    used to wait for the request to complete.
+    used to wait for the request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -455,10 +455,10 @@ QCLEvent QCLImage2D::copyToAsync
 /*!
     Requests that the contents of \a rect from this image be copied
     to \a destOffset in \a dest.  Returns an event object that can be
-    used to wait for the request to complete.
+    used to wait for the request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -485,10 +485,10 @@ QCLEvent QCLImage2D::copyToAsync
 /*!
     Requests that the contents of \a rect from this image be copied
     to \a destOffset in \a dest.  Returns an event object that can be
-    used to wait for the request to complete.
+    used to wait for the request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -522,7 +522,7 @@ extern cl_map_flags qt_cl_map_flags(QCL::Access access);
     If \a bytesPerLine is not null, it will return the number of
     bytes per line in the mapped image.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa mapAsync(), unmap()
@@ -547,17 +547,17 @@ void *QCLImage2D::map
 /*!
     Maps the image region \a rect into host memory for the specified
     \a access mode.  Returns a pointer to the mapped region in \a ptr,
-    which will be valid only after the request completes.
+    which will be valid only after the request finishes.
 
     If \a bytesPerLine is not null, it will return the number of
     bytes per line in the mapped image.
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa map(), unmapAsync()
@@ -743,7 +743,7 @@ bool QCLImage3D::isTexture3D() const
     If \a bytesPerSlice is not zero, it indicates the number of bytes
     between slices in \a data.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa readAsync(), write()
@@ -769,10 +769,10 @@ bool QCLImage3D::read
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa read(), writeAsync()
@@ -802,7 +802,7 @@ QCLEvent QCLImage3D::readAsync
     If \a bytesPerSlice is not zero, it indicates the number of bytes
     between slices in \a data.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa read(), writeAsync()
@@ -828,10 +828,10 @@ bool QCLImage3D::write
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa readAsync(), write()
@@ -858,7 +858,7 @@ QCLEvent QCLImage3D::writeAsync
     extending for \a size, to \a destOffset in \a dest.  Returns true
     if the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -887,7 +887,7 @@ bool QCLImage3D::copyTo
     to \a destOffset in \a dest.  Returns true if the copy was
     successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -917,7 +917,7 @@ bool QCLImage3D::copyTo
     extending for \a size, to \a destOffset in \a dest.  Returns true
     if the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -947,10 +947,10 @@ bool QCLImage3D::copyTo
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -981,10 +981,10 @@ QCLEvent QCLImage3D::copyToAsync
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -1016,10 +1016,10 @@ QCLEvent QCLImage3D::copyToAsync
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -1051,7 +1051,7 @@ QCLEvent QCLImage3D::copyToAsync
     bytes per line in the mapped image.  If \a bytesPerSlice is not null,
     it will return the number of bytes per slice in the mapped image.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa mapAsync(), unmap()
@@ -1078,7 +1078,7 @@ void *QCLImage3D::map
     Maps the image region starting at \a origin and extending for
     \a size into host memory for the specified \a access mode.
     Returns a pointer to the mapped region in \a ptr, which will be
-    valid only after the request completes.
+    valid only after the request finishes.
 
     If \a bytesPerLine is not null, it will return the number of
     bytes per line in the mapped image.  If \a bytesPerSlice is not null,
@@ -1086,10 +1086,10 @@ void *QCLImage3D::map
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa map(), unmap()

@@ -103,7 +103,7 @@ bool QCLBuffer::isGLBuffer() const
     into the supplied \a data array.  Returns true if the read
     was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa readAsync(), write()
@@ -124,7 +124,7 @@ bool QCLBuffer::read(size_t offset, void *data, size_t size)
     into the supplied \a data array.  Returns true if the read
     was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa readAsync(), write()
@@ -144,10 +144,10 @@ bool QCLBuffer::read(void *data, size_t size)
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa read(), writeAsync()
@@ -173,7 +173,7 @@ QCLEvent QCLBuffer::readAsync(size_t offset, void *data, size_t size,
     from the supplied \a data array.  Returns true if the write
     was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa writeAsync(), read()
@@ -192,7 +192,7 @@ bool QCLBuffer::write(size_t offset, const void *data, size_t size)
     from the supplied \a data array.  Returns true if the write
     was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa writeAsync(), read()
@@ -212,10 +212,10 @@ bool QCLBuffer::write(const void *data, size_t size)
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa write(), readAsync()
@@ -241,7 +241,7 @@ QCLEvent QCLBuffer::writeAsync(size_t offset, const void *data, size_t size,
     be copied to \a destOffset in the buffer \a dest.  Returns true
     if the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -268,7 +268,7 @@ bool QCLBuffer::copyTo
     \a rect within \a dest.  Returns true if the copy was successful;
     false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -297,7 +297,7 @@ bool QCLBuffer::copyTo
     \a origin within \a dest, extending for \a size.  Returns true if
     the copy was successful; false otherwise.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa copyToAsync()
@@ -323,10 +323,10 @@ bool QCLBuffer::copyTo
 /*!
     Requests that the \a size bytes at \a offset in this buffer
     be copied to \a destOffset in the buffer \a dest.  Returns an
-    event object that can be used to wait for the request to complete.
+    event object that can be used to wait for the request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -351,10 +351,10 @@ QCLEvent QCLBuffer::copyToAsync
 /*!
     Copies the contents of this buffer, starting at \a offset to
     \a rect within \a dest.  Returns an event object that can be used
-    to wait for the request to complete.
+    to wait for the request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -381,10 +381,10 @@ QCLEvent QCLBuffer::copyToAsync
 /*!
     Copies the contents of this buffer, starting at \a offset to
     \a origin within \a dest, extending for \a size.  Returns an event
-    object that can be used to wait for the request to complete.
+    object that can be used to wait for the request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa copyTo()
@@ -425,7 +425,7 @@ cl_map_flags qt_cl_map_flags(QCL::Access access)
     into host memory for the specified \a access mode.  Returns a
     pointer to the mapped region.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa mapAsync(), unmap()
@@ -457,14 +457,14 @@ void *QCLBuffer::map(QCL::Access access)
     Maps the \a size bytes starting at \a offset in this buffer
     into host memory for the specified \a access mode.  Returns a
     pointer to the mapped region in \a ptr, which will be valid
-    only after the request completes.
+    only after the request finishes.
 
     This function will queue the request and return immediately.
     Returns an event object that can be used to wait for the
-    request to complete.
+    request to finish.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.  The request is executed on
+    have been signaled as finished.  The request is executed on
     the active command queue for context().
 
     \sa map(), unmapAsync()

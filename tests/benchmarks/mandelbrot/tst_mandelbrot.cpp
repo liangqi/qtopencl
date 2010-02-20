@@ -193,7 +193,7 @@ void tst_Mandelbrot::openclPerPixel()
             (data, colors, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations);
-        event.wait();
+        event.waitForFinished();
     }
 }
 
@@ -227,7 +227,7 @@ void tst_Mandelbrot::openclPerPixelHost()
             (data, colors, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations);
-        event.wait();
+        event.waitForFinished();
 
         // Force a copy-back to host memory by mapping it.
         void *ptr = data.map(QCL::WriteOnly);
@@ -265,7 +265,7 @@ void tst_Mandelbrot::openclPerGroup()
             (data, colors, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations, 16);
-        event.wait();
+        event.waitForFinished();
     }
 }
 
@@ -302,7 +302,7 @@ void tst_Mandelbrot::openclImage()
             (data, colorBuffer, float(region.x()), float(region.y()),
              float(region.width()), float(region.height()),
              Test_Width, Test_Height, Test_MaxIterations);
-        event.wait();
+        event.waitForFinished();
     }
 }
 

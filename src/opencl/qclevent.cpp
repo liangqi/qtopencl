@@ -64,24 +64,25 @@ QT_BEGIN_NAMESPACE
     \row \o isSubmitted() \o The command has been submitted to
     the OpenCL device for execution, but has not started executing.
     \row \o isRunning() \o The command is running on the OpenCL device,
-    but has not yet completed.
-    \row \o isComplete() \o The command has completed execution and
+    but has not yet finished.
+    \row \o isFinished() \o The command has finished execution and
     the results, if any, are now available for use in further commands.
     \endtable
 
     Host applications can wait for the event (and thus, the command
-    that created it) to complete by calling wait() or waitForEvents():
+    that created it) to finish by calling waitForFinished() or
+    waitForEvents():
 
     \code
     QCLBuffer buffer = ...;
     QCLEvent event = buffer.readAsync(offset, data, size);
     ...
-    event.wait();
+    event.waitForFinished();
     \endcode
 
     Applications can also pass a QVector list of QCLEvent objects to
     another command to tell it to start executing only once all events
-    in the list have completed:
+    in the list have finished:
 
     \code
     QCLBuffer buffer = ...;
@@ -92,11 +93,11 @@ QT_BEGIN_NAMESPACE
     after << event1 << event2;
     QCLEvent event3 = buffer.readAsync(offset3, data3, size3, after);
     ...
-    event3.wait();
+    event3.waitForFinished();
     \endcode
 
     Normally it isn't necessary to wait for previous requests to
-    complete because the command queue's natural order will enforce
+    finish because the command queue's natural order will enforce
     the conditions.  If however QCLCommandQueue::isOutOfOrder() is set,
     it is possible for the second and third QCLBuffer::readAsync()
     commands above to start before the first command has finished.
@@ -176,7 +177,7 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
     queued for execution on the host, but has not yet been submitted to
     the device yet.
 
-    \sa isSubmitted(), isRunning(), isComplete(), status()
+    \sa isSubmitted(), isRunning(), isFinished()
 */
 
 /*!
@@ -185,33 +186,29 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
     Returns true if the command associated with this OpenCL event has been
     submitted for execution on the device yet, but is not yet running.
 
-    \sa isQueued(), isRunning(), isComplete(), status()
+    \sa isQueued(), isRunning(), isFinished()
 */
 
 /*!
     \fn bool QCLEvent::isRunning() const
 
     Returns true if the command associated with this OpenCL event is
-    running on the device, but has not yet completed.
+    running on the device, but has not yet finished.
 
-    \sa isQueued(), isSubmitted(), isComplete(), status()
+    \sa isQueued(), isSubmitted(), isFinished()
 */
 
 /*!
-    \fn bool QCLEvent::isComplete() const
+    \fn bool QCLEvent::isFinished() const
 
     Returns true if the command associated with this OpenCL event
-    has completed execution on the device.
+    has finished execution on the device.
 
-    \sa isQueued(), isSubmitted(), isRunning(), status()
+    \sa isQueued(), isSubmitted(), isRunning()
 */
 
 /*!
-    Returns the execution status of this event, usually one of
-    \c{CL_QUEUED}, \c{CL_SUBMITTED}, \c{CL_RUNNING}, \c{CL_COMPLETE},
-    or a negative error code.
-
-    \sa isQueued(), isSubmitted(), isRunning(), isComplete()
+    \internal
 */
 int QCLEvent::status() const
 {
@@ -227,28 +224,30 @@ int QCLEvent::status() const
 }
 
 /*!
-    Waits for this event to be signalled as complete.  The calling thread
+    Waits for this event to be signalled as finished.  The calling thread
     is blocked until the event is signalled.  This function returns
     immediately if the event is null.
 
-    \sa waitForEvents(), status()
+    \sa waitForEvents(), isFinished()
 */
-void QCLEvent::wait()
+void QCLEvent::waitForFinished()
 {
     if (m_id) {
         cl_int error = clWaitForEvents(1, &m_id);
-        if (error != CL_SUCCESS)
-            qWarning() << "QCLEvent::wait:" << QCLContext::errorName(error);
+        if (error != CL_SUCCESS) {
+            qWarning() << "QCLEvent::waitForFinished:"
+                       << QCLContext::errorName(error);
+        }
     }
 }
 
 /*!
-    Waits for all of the listed \a events to be signalled as complete.
+    Waits for all of the listed \a events to be signalled as finished.
     The calling thread is blocked until all of the \a events are signalled.
 
     If \a events is empty, then this function returns immediately.
 
-    \sa wait(), status()
+    \sa waitForFinished(), isFinished()
 */
 void QCLEvent::waitForEvents(const QVector<QCLEvent> &events)
 {
@@ -273,9 +272,9 @@ static void qt_cl_future_wait(cl_event event)
 
     This function creates a thread on the host CPU to monitor the
     event in the background.  If the caller wants to block in the
-    foreground thread, then wait() is recommended instead
-    of using toFuture(), because wait() does not need to create an
-    extra thread on the host CPU.
+    foreground thread, then waitForFinished() is recommended instead
+    of using toFuture(), because waitForFinished() does not need to
+    create an extra thread on the host CPU.
 
     If however the caller wants to receive notification of event
     completion via a signal, then toFuture() can be used with
@@ -285,7 +284,7 @@ static void qt_cl_future_wait(cl_event event)
     QCLEvent event = ...;
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
     watcher->setFuture(event.toFuture());
-    connect(watcher, SIGNAL(finished()), this, SLOT(eventComplete()));
+    connect(watcher, SIGNAL(finished()), this, SLOT(eventFinished()));
     \endcode
 
     QCLEvent has an implicit conversion operator to QFuture<void>,

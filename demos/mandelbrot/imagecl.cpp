@@ -155,7 +155,7 @@ void ImageCL::generateIterationData
         (data, float(region.x()), float(region.y()),
          float(region.width()), float(region.height()),
          wid, ht, maxIterations);
-    event.wait();
+    event.waitForFinished();
 }
 
 void ImageCL::generateImage

@@ -94,19 +94,19 @@ QT_BEGIN_NAMESPACE
     10 arguments.
 
     Note that both execute() and operator()() return immediately;
-    they will not block until execution is complete.  Both functions
+    they will not block until execution is finished.  Both functions
     return a QCLEvent object that can be used to wait for the
-    request to complete:
+    request to finish:
 
     \code
     kernel.setGlobalWorkSize(100, 100);
     QCLEvent event = kernel(a1, b1);
-    event.wait();
+    event.waitForFinished();
     \endcode
 
     Usually it isn't necessary for an explicit QCLEvent wait
     because the next OpenCL request will implicitly block until
-    the kernel completes execution:
+    the kernel finishes execution:
 
     \code
     QCLBuffer buffer = ...;
@@ -119,7 +119,7 @@ QT_BEGIN_NAMESPACE
 
     With the default in-order command execution policy, OpenCL will ensure
     that the QCLBuffer::read() request will not begin execution until the
-    kernel execution completes.
+    kernel execution finishes.
 
     The following types are handled specially via setArg() and operator()():
     \c cl_int, \c cl_uint, \c cl_long, \c cl_ulong, \c float,
@@ -658,7 +658,7 @@ QCLEvent QCLKernel::execute()
     optionally subdivided into work groups of localWorkSize() items.
 
     If \a after is not an empty list, it indicates the events that must
-    be signalled as complete before this kernel instance can begin executing.
+    be signaled as finished before this kernel instance can begin executing.
 
     Returns an event object that can be used to wait for the kernel
     to finish execution.  The request is executed on the active
@@ -688,7 +688,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with zero arguments.
     Returns an event object that can be used to wait for the
-    kernel to complete execution.
+    kernel to finish execution.
 */
 
 /*!
@@ -696,7 +696,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the argument \a arg1.
     Returns an event object that can be used to wait for the
-    kernel to complete execution.
+    kernel to finish execution.
 */
 
 /*!
@@ -704,7 +704,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1 and \a arg2.
     Returns an event object that can be used to wait for the
-    kernel to complete execution.
+    kernel to finish execution.
 */
 
 /*!
@@ -712,7 +712,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     and \a arg3.  Returns an event object that can be used to wait for the
-    kernel to complete execution.
+    kernel to finish execution.
 */
 
 /*!
@@ -720,7 +720,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, and \a arg4.  Returns an event object that can be used to
-    wait for the kernel to complete execution.
+    wait for the kernel to finish execution.
 */
 
 /*!
@@ -728,7 +728,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, and \a arg5.  Returns an event object that can be
-    used to wait for the kernel to complete execution.
+    used to wait for the kernel to finish execution.
 */
 
 /*!
@@ -736,7 +736,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, and \a arg6.  Returns an event object that
-    can be used to wait for the kernel to complete execution.
+    can be used to wait for the kernel to finish execution.
 */
 
 /*!
@@ -744,7 +744,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, and \a arg7.  Returns an event
-    object that can be used to wait for the kernel to complete execution.
+    object that can be used to wait for the kernel to finish execution.
 */
 
 /*!
@@ -752,7 +752,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, and \a arg8.  Returns
-    an event object that can be used to wait for the kernel to complete
+    an event object that can be used to wait for the kernel to finish
     execution.
 */
 
@@ -762,7 +762,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, \a arg8, and \a arg9.
     Returns an event object that can be used to wait for the kernel
-    to complete execution.
+    to finish execution.
 */
 
 /*!
@@ -771,7 +771,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
     Executes this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, \a arg8, \a arg9,
     and \a arg10.  Returns an event object that can be used to wait
-    for the kernel to complete execution.
+    for the kernel to finish execution.
 */
 
 QT_END_NAMESPACE

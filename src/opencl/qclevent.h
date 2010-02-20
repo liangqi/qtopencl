@@ -66,14 +66,13 @@ public:
 
     cl_event id() const { return m_id; }
 
-    int status() const;
-
     bool isQueued() const { return status() == CL_QUEUED; }
     bool isSubmitted() const { return status() == CL_SUBMITTED; }
     bool isRunning() const { return status() == CL_RUNNING; }
-    bool isComplete() const { return status() == CL_COMPLETE; }
+    bool isFinished() const { return status() == CL_COMPLETE; }
 
-    void wait();
+    void waitForFinished();
+
     static void waitForEvents(const QVector<QCLEvent> &events);
 
     QFuture<void> toFuture() const;
@@ -81,6 +80,8 @@ public:
 
 private:
     cl_event m_id;
+
+    int status() const;
 };
 
 QT_END_NAMESPACE

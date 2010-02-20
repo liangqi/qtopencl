@@ -165,7 +165,7 @@ size_t QCLMemoryObject::size() const
     Requests that the region at \a ptr that was previously mapped from an
     OpenCL buffer or image be unmapped.
 
-    This function will block until the request completes.
+    This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
     \sa unmapAsync(), QCLBuffer::map()
@@ -187,10 +187,10 @@ void QCLMemoryObject::unmap(void *ptr)
     an OpenCL buffer or image be unmapped.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.
+    have been signaled as finished.
 
     Returns an event object that can be used to wait for the
-    request to complete.  The request is executed on the active
+    request to finish.  The request is executed on the active
     command queue for context().
 
     \sa unmap(), QCLBuffer::mapAsync()
@@ -215,7 +215,7 @@ QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QVector<QCLEvent> &after)
     operation on any OpenCL memory object.
 
     Returns an event object that can be used to wait for the
-    request to complete.  The request is executed on the active
+    request to finish.  The request is executed on the active
     command queue for context().
 
     \sa releaseGL()
@@ -244,10 +244,10 @@ QCLEvent QCLMemoryObject::acquireGL()
     operation on any OpenCL memory object.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.
+    have been signaled as finished.
 
     Returns an event object that can be used to wait for the
-    request to complete.  The request is executed on the active
+    request to finish.  The request is executed on the active
     command queue for context().
 
     \sa releaseGL()
@@ -278,7 +278,7 @@ QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent> &after)
     OpenGL operations on the object.
 
     Returns an event object that can be used to wait for the
-    request to complete.  The request is executed on the active
+    request to finish.  The request is executed on the active
     command queue for context().
 
     \sa acquireGL()
@@ -308,10 +308,10 @@ QCLEvent QCLMemoryObject::releaseGL()
     OpenGL operations on the object.
 
     The request will not start until all of the events in \a after
-    have been signalled as completed.
+    have been signaled as finished.
 
     Returns an event object that can be used to wait for the
-    request to complete.  The request is executed on the active
+    request to finish.  The request is executed on the active
     command queue for context().
 
     \sa acquireGL()
