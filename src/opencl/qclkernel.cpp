@@ -69,12 +69,12 @@ QT_BEGIN_NAMESPACE
     kernel.setGlobalWorkSize(100, 100);
     kernel.setArg(0, a1);
     kernel.setArg(1, b1);
-    kernel.execute();
+    kernel.run();
 
     kernel.setGlobalWorkSize(200, 200);
     kernel.setArg(0, a2);
     kernel.setArg(1, b2);
-    kernel.execute();
+    kernel.run();
     \endcode
 
     Alternatively, operator()() can be used to avoid the setArg() calls:
@@ -90,10 +90,10 @@ QT_BEGIN_NAMESPACE
     \endcode
 
     Up to 10 arguments can be provided to operator()().  Use explicit
-    setArg() and execute() calls with kernels that have more than
+    setArg() and run() calls with kernels that have more than
     10 arguments.
 
-    Note that both execute() and operator()() return immediately;
+    Note that both run() and operator()() return immediately;
     they will not block until execution is finished.  Both functions
     return a QCLEvent object that can be used to wait for the
     request to finish:
@@ -651,7 +651,7 @@ void QCLKernel::setArg(int index, const void *data, size_t size)
 }
 
 /*!
-    Requests that this kernel instance be executed on globalWorkSize() items,
+    Requests that this kernel instance be run on globalWorkSize() items,
     optionally subdivided into work groups of localWorkSize() items.
 
     Returns an event object that can be used to wait for the kernel
@@ -660,7 +660,7 @@ void QCLKernel::setArg(int index, const void *data, size_t size)
 
     \sa operator()()
 */
-QCLEvent QCLKernel::execute()
+QCLEvent QCLKernel::run()
 {
     Q_D(const QCLKernel);
     cl_event event;
@@ -679,7 +679,7 @@ QCLEvent QCLKernel::execute()
 /*!
     \overload
 
-    Requests that this kernel instance be executed on globalWorkSize() items,
+    Requests that this kernel instance be run on globalWorkSize() items,
     optionally subdivided into work groups of localWorkSize() items.
 
     If \a after is not an empty list, it indicates the events that must
@@ -689,7 +689,7 @@ QCLEvent QCLKernel::execute()
     to finish execution.  The request is executed on the active
     command queue for context().
 */
-QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
+QCLEvent QCLKernel::run(const QVector<QCLEvent> &after)
 {
     Q_D(const QCLKernel);
     cl_event event;
@@ -711,7 +711,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()()
 
-    Executes this kernel instance with zero arguments.
+    Runs this kernel instance with zero arguments.
     Returns an event object that can be used to wait for the
     kernel to finish execution.
 */
@@ -719,7 +719,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1)
 
-    Executes this kernel instance with the argument \a arg1.
+    Runs this kernel instance with the argument \a arg1.
     Returns an event object that can be used to wait for the
     kernel to finish execution.
 */
@@ -727,7 +727,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2)
 
-    Executes this kernel instance with the arguments \a arg1 and \a arg2.
+    Runs this kernel instance with the arguments \a arg1 and \a arg2.
     Returns an event object that can be used to wait for the
     kernel to finish execution.
 */
@@ -735,7 +735,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     and \a arg3.  Returns an event object that can be used to wait for the
     kernel to finish execution.
 */
@@ -743,7 +743,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, and \a arg4.  Returns an event object that can be used to
     wait for the kernel to finish execution.
 */
@@ -751,7 +751,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, and \a arg5.  Returns an event object that can be
     used to wait for the kernel to finish execution.
 */
@@ -759,7 +759,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, and \a arg6.  Returns an event object that
     can be used to wait for the kernel to finish execution.
 */
@@ -767,7 +767,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, and \a arg7.  Returns an event
     object that can be used to wait for the kernel to finish execution.
 */
@@ -775,7 +775,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, and \a arg8.  Returns
     an event object that can be used to wait for the kernel to finish
     execution.
@@ -784,7 +784,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8, const T9 &arg9)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, \a arg8, and \a arg9.
     Returns an event object that can be used to wait for the kernel
     to finish execution.
@@ -793,7 +793,7 @@ QCLEvent QCLKernel::execute(const QVector<QCLEvent> &after)
 /*!
     \fn QCLEvent QCLKernel::operator()(const T1 &arg1, const T2 &arg2, const T3 &arg3, const T4 &arg4, const T5 &arg5, const T6 &arg6, const T7 &arg7, const T8 &arg8, const T9 &arg9, const T10 &arg10)
 
-    Executes this kernel instance with the arguments \a arg1, \a arg2,
+    Runs this kernel instance with the arguments \a arg1, \a arg2,
     \a arg3, \a arg4, \a arg5, \a arg6, \a arg7, \a arg8, \a arg9,
     and \a arg10.  Returns an event object that can be used to wait
     for the kernel to finish execution.

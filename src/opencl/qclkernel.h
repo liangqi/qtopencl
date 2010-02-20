@@ -120,16 +120,16 @@ public:
     void setArg(int index, const QCLSampler &value);
     void setArg(int index, const void *data, size_t size);
 
-    QCLEvent execute();
-    QCLEvent execute(const QVector<QCLEvent> &after);
+    QCLEvent run();
+    QCLEvent run(const QVector<QCLEvent> &after);
 
-    inline QCLEvent operator()() { return execute(); }
+    inline QCLEvent operator()() { return run(); }
 
     template <typename T1>
     inline QCLEvent operator()(const T1 &arg1)
     {
         setArg(0, arg1);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2>
@@ -137,7 +137,7 @@ public:
     {
         setArg(0, arg1);
         setArg(1, arg2);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3>
@@ -147,7 +147,7 @@ public:
         setArg(0, arg1);
         setArg(1, arg2);
         setArg(2, arg3);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4>
@@ -158,7 +158,7 @@ public:
         setArg(1, arg2);
         setArg(2, arg3);
         setArg(3, arg4);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4,
@@ -172,7 +172,7 @@ public:
         setArg(2, arg3);
         setArg(3, arg4);
         setArg(4, arg5);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4,
@@ -187,7 +187,7 @@ public:
         setArg(3, arg4);
         setArg(4, arg5);
         setArg(5, arg6);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4,
@@ -203,7 +203,7 @@ public:
         setArg(4, arg5);
         setArg(5, arg6);
         setArg(6, arg7);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4,
@@ -220,7 +220,7 @@ public:
         setArg(5, arg6);
         setArg(6, arg7);
         setArg(7, arg8);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4,
@@ -240,7 +240,7 @@ public:
         setArg(6, arg7);
         setArg(7, arg8);
         setArg(8, arg9);
-        return execute();
+        return run();
     }
 
     template <typename T1, typename T2, typename T3, typename T4,
@@ -261,7 +261,7 @@ public:
         setArg(7, arg8);
         setArg(8, arg9);
         setArg(9, arg10);
-        return execute();
+        return run();
     }
 
 private:
