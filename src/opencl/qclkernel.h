@@ -116,7 +116,11 @@ public:
     void setArg(int index, const QPointF &value);
     void setArg(int index, const QMatrix4x4 &value);
     void setArg(int index, const QCLMemoryObject &value);
+#if defined(Q_QDOC)
+    void setArg(int index, const QCLVector<T> &value);
+#else
     void setArg(int index, const QCLVectorBase &value);
+#endif
     void setArg(int index, const QCLSampler &value);
     void setArg(int index, const void *data, size_t size);
 

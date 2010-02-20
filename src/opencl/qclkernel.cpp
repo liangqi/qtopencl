@@ -124,7 +124,7 @@ QT_BEGIN_NAMESPACE
     The following types are handled specially via setArg() and operator()():
     \c cl_int, \c cl_uint, \c cl_long, \c cl_ulong, \c float,
     QVector2D, QVector3D, QVector4D, QPointF, QPoint, QMatrix4x4,
-    QCLBuffer, QCLImage2D, QCLImage3D, and QCLSampler.
+    QCLBuffer, QCLImage2D, QCLImage3D, QCLVector, and QCLSampler.
     Other argument types must be set explicitly by calling the
     setArg() override that takes a buffer and size.
 
@@ -615,18 +615,29 @@ void QCLKernel::setArg(int index, const QCLMemoryObject &value)
     clSetKernelArg(d->id, index, sizeof(id), &id);
 }
 
+#if defined(Q_QDOC)
+
+// Generate nicer qdoc output.
+
 /*!
+    \fn void QCLKernel::setArg(int index, const QCLVector<T> &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared as a pointer
     to a buffer.
 */
+
+#else
+
 void QCLKernel::setArg(int index, const QCLVectorBase &value)
 {
     Q_D(const QCLKernel);
     cl_mem id = value.kernelArg();
     clSetKernelArg(d->id, index, sizeof(id), &id);
 }
+
+#endif
 
 /*!
     Sets argument \a index for this kernel to \a value.
