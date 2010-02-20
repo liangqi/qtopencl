@@ -64,8 +64,7 @@ SOURCES += \
     qclprogram.cpp \
     qclsampler.cpp \
     qcltexture2d.cpp \
-    qclvector.cpp \
-    qclworksize.cpp
+    qclvector.cpp
 
 PRIVATE_HEADERS += \
     qcl_gl_p.h

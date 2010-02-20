@@ -39,10 +39,6 @@
 **
 ****************************************************************************/
 
-#include "qclworksize.h"
-
-QT_BEGIN_NAMESPACE
-
 /*!
     \class QCLWorkSize
     \brief The QCLWorkSize class defines the size of an item of work for an OpenCL kernel.
@@ -156,5 +152,3 @@ QT_BEGIN_NAMESPACE
 
     \sa operator==()
 */
-
-QT_END_NAMESPACE
