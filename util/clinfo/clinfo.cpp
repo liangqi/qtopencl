@@ -43,6 +43,9 @@
 #include "qclplatform.h"
 #include "qcldevice.h"
 
+static void printFloatCapabilities(QCLDevice::FloatCapabilities caps);
+static void printMemorySize(quint64 size);
+
 int main(int argc, char *argv[])
 {
     Q_UNUSED(argc);
@@ -50,12 +53,12 @@ int main(int argc, char *argv[])
     printf("OpenCL Platforms:\n");
     QList<QCLPlatform> platforms = QCLPlatform::platforms();
     foreach (QCLPlatform platform, platforms) {
-        printf("    Platform ID    : %ld\n", long(platform.id()));
-        printf("    Profile        : %s\n", platform.profile().toLatin1().constData());
-        printf("    Version        : %s\n", platform.version().toLatin1().constData());
-        printf("    Name           : %s\n", platform.name().toLatin1().constData());
-        printf("    Vendor         : %s\n", platform.vendor().toLatin1().constData());
-        printf("    Extensions     :\n");
+        printf("    Platform ID       : %ld\n", long(platform.id()));
+        printf("    Profile           : %s\n", platform.profile().toLatin1().constData());
+        printf("    Version           : %s\n", platform.version().toLatin1().constData());
+        printf("    Name              : %s\n", platform.name().toLatin1().constData());
+        printf("    Vendor            : %s\n", platform.vendor().toLatin1().constData());
+        printf("    Extensions        :\n");
         QStringList extns = platform.extensions();
         foreach (QString ext, extns)
             printf("        %s\n", ext.toLatin1().constData());
@@ -65,10 +68,10 @@ int main(int argc, char *argv[])
     printf("OpenCL Devices:\n");
     QList<QCLDevice> devices = QCLDevice::devices();
     foreach (QCLDevice dev, devices) {
-        printf("    Device ID      : %ld\n", long(dev.id()));
-        printf("    Platform ID    : %ld\n", long(dev.platform().id()));
-        printf("    Vendor ID      : %u\n", dev.paramUInt(CL_DEVICE_VENDOR_ID));
-        printf("    Type           :");
+        printf("    Device ID         : %ld\n", long(dev.id()));
+        printf("    Platform ID       : %ld\n", long(dev.platform().id()));
+        printf("    Vendor ID         : %u\n", dev.vendorId());
+        printf("    Type              :");
         QCLDevice::DeviceTypes type = dev.deviceType();
         if (type & QCLDevice::Default)
             printf(" Default");
@@ -79,24 +82,95 @@ int main(int argc, char *argv[])
         if (type & QCLDevice::Accelerator)
             printf(" Accelerator");
         printf("\n");
-        printf("    Profile        : %s\n", dev.profile().toLatin1().constData());
-        printf("    Version        : %s\n", dev.version().toLatin1().constData());
-        printf("    Driver Version : %s\n", dev.driverVersion().toLatin1().constData());
-        printf("    Name           : %s\n", dev.name().toLatin1().constData());
-        printf("    Vendor         : %s\n", dev.vendor().toLatin1().constData());
-        printf("    Compute Units  : %u\n", dev.paramUInt(CL_DEVICE_MAX_COMPUTE_UNITS));
+        printf("    Profile           : %s\n", dev.profile().toLatin1().constData());
+        printf("    Version           : %s\n", dev.version().toLatin1().constData());
+        printf("    Driver Version    : %s\n", dev.driverVersion().toLatin1().constData());
+        printf("    Name              : %s\n", dev.name().toLatin1().constData());
+        printf("    Vendor            : %s\n", dev.vendor().toLatin1().constData());
+        printf("    Available         : %s\n",
+               dev.isAvailable() ? "true" : "false");
+        printf("    Compute Units     : %d\n", dev.computeUnits());
+        printf("    Clock Frequency   : %d MHz\n", dev.clockFrequency());
+        printf("    Address Bits      : %d\n", dev.addressBits());
+        printf("    Byte Order        : %s\n",
+               (dev.byteOrder() == QSysInfo::LittleEndian
+                    ? "Little Endian" : "Big Endian"));
         QCLWorkSize size = dev.maximumWorkItemSize();
-        printf("    Max Work Size  : %ux%ux%u\n",
+        printf("    Max Work Size     : %ux%ux%u\n",
                uint(size.width()), uint(size.height()),
                uint(size.depth()));
-        printf("    Max Items/Group: %u\n", uint(dev.maximumWorkItemsPerGroup()));
-        printf("    Available      : %s\n",
-               dev.isAvailable() ? "true" : "false");
-        printf("    Image Support  : %s\n",
-               dev.paramBool(CL_DEVICE_IMAGE_SUPPORT) ? "true" : "false");
-        printf("    Has Compiler   : %s\n",
-               dev.paramBool(CL_DEVICE_COMPILER_AVAILABLE) ? "true" : "false");
-        printf("    Extensions     :\n");
+        printf("    Max Items/Group   : %d\n", dev.maximumWorkItemsPerGroup());
+        printf("    Local Memory      : ");
+        printMemorySize(dev.localMemorySize());
+        printf("    Global Memory     : ");
+        printMemorySize(dev.globalMemorySize());
+        QCLDevice::CacheType cacheType;
+        printf("    Global Cache Type : ");
+        if (cacheType == QCLDevice::ReadOnlyCache)
+            printf("ReadOnly\n");
+        else if (cacheType == QCLDevice::ReadWriteCache)
+            printf("ReadWrite\n");
+        else
+            printf("None\n");
+        printf("    Global Cache Size : ");
+        printMemorySize(dev.globalMemoryCacheSize());
+        printf("    Cache Line Size   : %d\n",
+               dev.globalMemoryCacheLineSize());
+        printf("    Max Alloc Size    : ");
+        printMemorySize(dev.maximumAllocationSize());
+        printf("    Max Constant Size : ");
+        printMemorySize(dev.maximumConstantBufferSize());
+        printf("    Max Constant Args : %d\n",
+               dev.maximumConstantArguments());
+        printf("    Separate Local    : %s\n",
+               dev.isLocalMemorySeparate() ? "true" : "false");
+        printf("    Alignment         : %d (min %d)\n",
+               dev.defaultAlignment(), dev.minimumAlignment());
+        printf("    Max Param Bytes   : %d\n",
+               dev.maximumParameterBytes());
+        printf("    Error Correction  : %s\n",
+               dev.hasErrorCorrectingMemory() ? "true" : "false");
+        printf("    Float Support     :");
+        printFloatCapabilities(dev.floatCapabilities());
+        printf("    Double Support    :");
+        printFloatCapabilities(dev.doubleCapabilities());
+        printf("    Half Float Support:");
+        printFloatCapabilities(dev.halfFloatCapabilities());
+        printf("    Image Support     : %s\n",
+               dev.hasImages() ? "true" : "false");
+        if (dev.hasImages()) {
+            QSize size2d = dev.maximumImage2DSize();
+            printf("    Max 2D Image Size : %dx%d\n",
+                   size2d.width(), size2d.height());
+            QCLWorkSize size3d = dev.maximumImage3DSize();
+            printf("    Max 3D Image      : %ux%ux%u\n",
+                   uint(size3d.width()), uint(size3d.height()),
+                   uint(size3d.depth()));
+            printf("    Max Samplers      : %d\n", dev.maximumSamplers());
+            printf("    Max Read Images   : %d\n", dev.maximumReadImages());
+            printf("    Max Write Images  : %d\n", dev.maximumWriteImages());
+            printf("    Writable 3D Images: %s\n",
+                   dev.hasWritable3DImages() ? "true" : "false");
+        }
+        printf("    Has Compiler      : %s\n",
+               dev.hasCompiler() ? "true" : "false");
+        printf("    Native Kernels    : %s\n",
+               dev.hasNativeKernels() ? "true" : "false");
+        printf("    Out of Order Exec : %s\n",
+               dev.hasOutOfOrderExecution() ? "true" : "false");
+        printf("    Preferred Vector Sizes:\n");
+        printf("        char%d, short%d, int%d, long%d, float%d",
+               dev.preferredCharVectorSize(),
+               dev.preferredShortVectorSize(),
+               dev.preferredIntVectorSize(),
+               dev.preferredLongVectorSize(),
+               dev.preferredFloatVectorSize());
+        int dsize = dev.preferredDoubleVectorSize();
+        if (dsize)
+            printf(", double%d\n", dsize);
+        else
+            printf("\n");
+        printf("    Extensions        :\n");
         QStringList extns = dev.extensions();
         foreach (QString ext, extns)
             printf("        %s\n", ext.toLatin1().constData());
@@ -104,4 +178,33 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+void printFloatCapabilities(QCLDevice::FloatCapabilities caps)
+{
+    if (caps == QCLDevice::NotSupported) {
+        printf(" No\n");
+        return;
+    }
+    if ((caps & QCLDevice::Denorm) != 0)
+        printf(" Denom");
+    if ((caps & QCLDevice::InfinityNaN) != 0)
+        printf(" InfinityNaN");
+    if ((caps & QCLDevice::RoundNearest) != 0)
+        printf(" RoundNearest");
+    if ((caps & QCLDevice::RoundZero) != 0)
+        printf(" RoundZero");
+    if ((caps & QCLDevice::RoundInfinity) != 0)
+        printf(" RoundInfinity");
+    if ((caps & QCLDevice::FusedMultiplyAdd) != 0)
+        printf(" FusedMultiplyAdd");
+    printf("\n");
+}
+
+static void printMemorySize(quint64 size)
+{
+    if (size >= 1024 * 1024)
+        printf("%d MB\n", (int)(size / (1024 * 1024)));
+    else
+        printf("%d kB\n", (int)(size / 1024));
 }

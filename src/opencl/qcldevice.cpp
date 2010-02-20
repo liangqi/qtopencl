@@ -82,6 +82,67 @@ QT_BEGIN_NAMESPACE
     \value All All OpenCL device types.
 */
 
+static uint qt_cl_paramUInt(cl_device_id id, cl_device_info name)
+{
+    cl_uint value;
+    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+            != CL_SUCCESS)
+        return 0;
+    else
+        return uint(value);
+}
+
+static int qt_cl_paramInt(cl_device_id id, cl_device_info name)
+{
+    cl_int value;
+    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+            != CL_SUCCESS)
+        return 0;
+    else
+        return int(value);
+}
+
+static quint64 qt_cl_paramULong(cl_device_id id, cl_device_info name)
+{
+    cl_ulong value;
+    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+            != CL_SUCCESS)
+        return 0;
+    else
+        return quint64(value);
+}
+
+static size_t qt_cl_paramSize(cl_device_id id, cl_device_info name)
+{
+    size_t value;
+    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+            != CL_SUCCESS)
+        return 0;
+    else
+        return value;
+}
+
+static bool qt_cl_paramBool(cl_device_id id, cl_device_info name)
+{
+    cl_bool value;
+    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+            != CL_SUCCESS)
+        return false;
+    else
+        return value != 0;
+}
+
+static QString qt_cl_paramString(cl_device_id id, cl_device_info name)
+{
+    size_t size;
+    if (clGetDeviceInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+        return QString();
+    QVarLengthArray<char> buf(size);
+    if (clGetDeviceInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
+        return QString();
+    return QString::fromLatin1(buf.data());
+}
+
 /*!
     Returns the type of this device.  It is possible for a device
     to have more than one type.
@@ -89,8 +150,7 @@ QT_BEGIN_NAMESPACE
 QCLDevice::DeviceTypes QCLDevice::deviceType() const
 {
     cl_device_type type;
-    size_t size;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_TYPE, sizeof(type), &type, &size)
+    if (clGetDeviceInfo(m_id, CL_DEVICE_TYPE, sizeof(type), &type, 0)
             != CL_SUCCESS)
         return QCLDevice::DeviceTypes(0);
     else
@@ -103,8 +163,7 @@ QCLDevice::DeviceTypes QCLDevice::deviceType() const
 QCLPlatform QCLDevice::platform() const
 {
     cl_platform_id plat;
-    size_t size;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_PLATFORM, sizeof(plat), &plat, &size)
+    if (clGetDeviceInfo(m_id, CL_DEVICE_PLATFORM, sizeof(plat), &plat, 0)
             != CL_SUCCESS)
         return QCLPlatform();
     else
@@ -112,11 +171,132 @@ QCLPlatform QCLDevice::platform() const
 }
 
 /*!
+    Returns the vendor's identifier for this device.
+*/
+uint QCLDevice::vendorId() const
+{
+    return qt_cl_paramUInt(m_id, CL_DEVICE_VENDOR_ID);
+}
+
+/*!
     Returns true if this device is available; false otherwise.
 */
 bool QCLDevice::isAvailable() const
 {
-    return paramBool(CL_DEVICE_AVAILABLE);
+    return qt_cl_paramBool(m_id, CL_DEVICE_AVAILABLE);
+}
+
+/*!
+    Returns true if this device has a compiler available;
+    false otherwise.
+*/
+bool QCLDevice::hasCompiler() const
+{
+    return qt_cl_paramBool(m_id, CL_DEVICE_COMPILER_AVAILABLE);
+}
+
+/*!
+    Returns true if this device has support for executing
+    native kernels; false otherwise.
+*/
+bool QCLDevice::hasNativeKernels() const
+{
+    cl_device_exec_capabilities caps;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_EXECUTION_CAPABILITIES,
+                        sizeof(caps), &caps, 0)
+            != CL_SUCCESS)
+        return false;
+    else
+        return (caps & CL_EXEC_NATIVE_KERNEL) != 0;
+}
+
+/*!
+    Returns true if this device supports out of order execution
+    of commands on a QCLCommandQueue; false otherwise.
+
+    \sa QCLCommandQueue::isOutOfOrder()
+*/
+bool QCLDevice::hasOutOfOrderExecution() const
+{
+    cl_command_queue_properties props;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_QUEUE_PROPERTIES,
+                        sizeof(props), &props, 0)
+            != CL_SUCCESS)
+        return false;
+    else
+        return (props & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) != 0;
+}
+
+/*!
+    Returns true if this device supports the \c{double} type
+    via the \c{cl_khr_fp64} extension; false otherwise.
+*/
+bool QCLDevice::hasDouble() const
+{
+    return extensions().contains
+        (QLatin1String("cl_khr_fp64"), Qt::CaseInsensitive);
+}
+
+/*!
+    Returns true if this device supports operations on the
+    \c{half} type via the \c{cl_khr_fp16} extension;
+    false otherwise.
+
+    Note: \c{half} is supported by the OpenCL 1.0 core specification
+    for data storage even if this function returns false.
+    However, kernels can only perform arithmetic operations on
+    \c{half} values if this function returns true.
+*/
+bool QCLDevice::hasHalfFloat() const
+{
+    return extensions().contains
+        (QLatin1String("cl_khr_fp16"), Qt::CaseInsensitive);
+}
+
+/*!
+    Returns true if the device implements error correction on
+    its memory areas; false otherwise.
+*/
+bool QCLDevice::hasErrorCorrectingMemory() const
+{
+    return qt_cl_paramBool(m_id, CL_DEVICE_ERROR_CORRECTION_SUPPORT);
+}
+
+/*!
+    Returns the number of parallel compute units on the device.
+*/
+int QCLDevice::computeUnits() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_MAX_COMPUTE_UNITS);
+}
+
+/*!
+    Returns the maximum clock frequency for this device in MHz.
+*/
+int QCLDevice::clockFrequency() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_MAX_CLOCK_FREQUENCY);
+}
+
+/*!
+    Returns the number of address bits used by the device;
+    usually 32 or 64.
+*/
+int QCLDevice::addressBits() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_ADDRESS_BITS);
+}
+
+/*!
+    Returns the byte order of the device, indicating little
+    endian or big endian.
+*/
+QSysInfo::Endian QCLDevice::byteOrder() const
+{
+    if (qt_cl_paramBool(m_id, CL_DEVICE_ENDIAN_LITTLE))
+        return QSysInfo::LittleEndian;
+    else
+        return QSysInfo::BigEndian;
 }
 
 /*!
@@ -148,83 +328,401 @@ QCLWorkSize QCLDevice::maximumWorkItemSize() const
 
     \sa maximumWorkItemSize()
 */
-size_t QCLDevice::maximumWorkItemsPerGroup() const
+int QCLDevice::maximumWorkItemsPerGroup() const
 {
-    return paramSize(CL_DEVICE_MAX_WORK_GROUP_SIZE);
+    return int(qt_cl_paramSize(m_id, CL_DEVICE_MAX_WORK_GROUP_SIZE));
 }
 
 /*!
-    Returns the unsigned integer parameter \a name on this device.
-    If the parameter is not present, \a defaultValue will be returned.
+    Returns true if this device has image support; false otherwise.
 */
-uint QCLDevice::paramUInt(cl_device_info name, uint defaultValue) const
+bool QCLDevice::hasImages() const
 {
-    cl_uint value;
-    size_t size;
-    if (clGetDeviceInfo(m_id, name, sizeof(value), &value, &size)
+    return qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT);
+}
+
+/*!
+    Returns true if this device supports writing to 3D images
+    via the \c{cl_khr_3d_image_writes} extension; false otherwise.
+*/
+bool QCLDevice::hasWritable3DImages() const
+{
+    return extensions().contains
+        (QLatin1String("cl_khr_3d_image_writes"), Qt::CaseInsensitive);
+}
+
+/*!
+    Returns the maximum size of 2D images that are supported
+    by this device; or an empty QSize if images are not supported.
+
+    \sa maximumImage3DSize(), hasImages()
+*/
+QSize QCLDevice::maximumImage2DSize() const
+{
+    if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
+        return QSize();
+    return QSize(qt_cl_paramInt(m_id, CL_DEVICE_IMAGE2D_MAX_WIDTH),
+                 qt_cl_paramInt(m_id, CL_DEVICE_IMAGE2D_MAX_HEIGHT));
+}
+
+/*!
+    Returns the maximum size of 3D images that are supported
+    by this device; or a (0, 0, 0) if images are not supported.
+
+    \sa maximumImage2DSize(), hasImages()
+*/
+QCLWorkSize QCLDevice::maximumImage3DSize() const
+{
+    if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
+        return QCLWorkSize(0, 0, 0);
+    return QCLWorkSize(qt_cl_paramSize(m_id, CL_DEVICE_IMAGE3D_MAX_WIDTH),
+                       qt_cl_paramSize(m_id, CL_DEVICE_IMAGE3D_MAX_HEIGHT),
+                       qt_cl_paramSize(m_id, CL_DEVICE_IMAGE3D_MAX_DEPTH));
+}
+
+/*!
+    Returns the maximum number of image samplers that can be used
+    in a kernel at one time; 0 if images are not supported.
+
+    \sa hasImages()
+*/
+int QCLDevice::maximumSamplers() const
+{
+    if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
+        return 0;
+    return qt_cl_paramInt(m_id, CL_DEVICE_MAX_SAMPLERS);
+}
+
+/*!
+    Returns the maximum number of image objects that can be
+    read simultaneously by a kernel; 0 if images are not supported.
+
+    \sa maximumWriteImages(), hasImages()
+*/
+int QCLDevice::maximumReadImages() const
+{
+    if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
+        return 0;
+    return qt_cl_paramInt(m_id, CL_DEVICE_MAX_READ_IMAGE_ARGS);
+}
+
+/*!
+    Returns the maximum number of image objects that can be
+    written simultaneously by a kernel; 0 if images are not supported.
+
+    \sa maximumReadImages(), hasImages()
+*/
+int QCLDevice::maximumWriteImages() const
+{
+    if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
+        return 0;
+    return qt_cl_paramInt(m_id, CL_DEVICE_MAX_WRITE_IMAGE_ARGS);
+}
+
+/*!
+    Returns the preferred size for vectors of type \c{char}
+    in the device.  For example, 4 indicates that 4 \c{char}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+*/
+int QCLDevice::preferredCharVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR);
+}
+
+/*!
+    Returns the preferred size for vectors of type \c{short}
+    in the device.  For example, 4 indicates that 4 \c{short}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+*/
+int QCLDevice::preferredShortVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT);
+}
+
+/*!
+    Returns the preferred size for vectors of type \c{int}
+    in the device.  For example, 4 indicates that 4 \c{int}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+*/
+int QCLDevice::preferredIntVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT);
+}
+
+/*!
+    Returns the preferred size for vectors of type \c{long}
+    in the device.  For example, 2 indicates that 2 \c{long}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+*/
+int QCLDevice::preferredLongVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG);
+}
+
+/*!
+    Returns the preferred size for vectors of type \c{float}
+    in the device.  For example, 4 indicates that 4 \c{float}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+*/
+int QCLDevice::preferredFloatVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT);
+}
+
+/*!
+    Returns the preferred size for vectors of type \c{double}
+    in the device.  For example, 2 indicates that 2 \c{double}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+
+    Returns zero if the device does not support \c{double}.
+
+    \sa hasDouble()
+*/
+int QCLDevice::preferredDoubleVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE);
+}
+
+/*!
+    \enum QCLDevice::FloatCapability
+    This enum defines the floating-point capabilities of the
+    \c{float} or \c{double} type on an OpenCL device.
+
+    \value NotSupported Returned to indicate that \c{double} is
+           not supported on the device.
+    \value Denorm Denorms are supported.
+    \value InfinityNaN Infinity and quiet NaN's are supported.
+    \value RoundNearest Round to nearest even rounding mode supported.
+    \value RoundZero Round to zero rounding mode supported.
+    \value RoundInfinity Round to infinity rounding mode supported.
+    \value FusedMultiplyAdd IEEE754-2008 fused multiply-add
+           is supported.
+*/
+
+/*!
+    Returns a set of flags that describes the floating-point
+    capabilities of the \c{float} type on this device.
+*/
+QCLDevice::FloatCapabilities QCLDevice::floatCapabilities() const
+{
+    cl_device_fp_config config;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_SINGLE_FP_CONFIG,
+                        sizeof(config), &config, 0)
             != CL_SUCCESS)
-        return defaultValue;
+        return NotSupported;
     else
-        return uint(value);
+        return QCLDevice::FloatCapabilities(config);
 }
 
+#ifndef CL_DEVICE_DOUBLE_FP_CONFIG
+#define CL_DEVICE_DOUBLE_FP_CONFIG 0x1032
+#endif
+
 /*!
-    Returns the unsigned long parameter \a name on this device.
-    If the parameter is not present, \a defaultValue will be returned.
+    Returns a set of flags that describes the floating-point
+    capabilities of the \c{double} type on this device.
+
+    Returns QCLDevice::NotSupported if operations on \c{double}
+    are not supported by the device.
+
+    \sa hasDouble()
 */
-quint64 QCLDevice::paramULong(cl_device_info name, quint64 defaultValue) const
+QCLDevice::FloatCapabilities QCLDevice::doubleCapabilities() const
 {
-    cl_ulong value;
-    size_t size;
-    if (clGetDeviceInfo(m_id, name, sizeof(value), &value, &size)
+    cl_device_fp_config config;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_DOUBLE_FP_CONFIG,
+                        sizeof(config), &config, 0)
             != CL_SUCCESS)
-        return defaultValue;
+        return NotSupported;
     else
-        return quint64(value);
+        return QCLDevice::FloatCapabilities(config);
 }
 
+#ifndef CL_DEVICE_HALF_FP_CONFIG
+#define CL_DEVICE_HALF_FP_CONFIG 0x1033
+#endif
+
 /*!
-    Returns the size parameter \a name on this device.  If the parameter is
-    not present, \a defaultValue will be returned.
+    Returns a set of flags that describes the floating-point
+    capabilities of the \c{half} type on this device.
+
+    Returns QCLDevice::NotSupported if operations on \c{half}
+    are not supported by the device.
+
+    \sa hasHalfFloat()
 */
-size_t QCLDevice::paramSize(cl_device_info name, size_t defaultValue) const
+QCLDevice::FloatCapabilities QCLDevice::halfFloatCapabilities() const
 {
-    size_t value;
-    size_t size;
-    if (clGetDeviceInfo(m_id, name, sizeof(value), &value, &size)
+    cl_device_fp_config config;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_HALF_FP_CONFIG,
+                        sizeof(config), &config, 0)
             != CL_SUCCESS)
-        return defaultValue;
+        return NotSupported;
     else
-        return value;
+        return QCLDevice::FloatCapabilities(config);
 }
 
 /*!
-    Returns the boolean parameter \a name on this device.  If the parameter
-    is not present, \a defaultValue will be returned.
+    Returns the resolution of the device profiling timer in
+    nanoseconds.
+
+    \sa QCLEvent::finishTime(), QCLCommandQueue::setProfilingEnabled()
 */
-bool QCLDevice::paramBool(cl_device_info name, bool defaultValue) const
+quint64 QCLDevice::profilingTimerResolution() const
 {
-    cl_bool value;
-    size_t size;
-    if (clGetDeviceInfo(m_id, name, sizeof(value), &value, &size)
+    // Spec says size_t, even though actual times are cl_ulong.
+    return qt_cl_paramSize(m_id, CL_DEVICE_PROFILING_TIMER_RESOLUTION);
+}
+
+/*!
+    Returns the maximum memory allocation size in bytes.
+
+    \sa globalMemorySize()
+*/
+quint64 QCLDevice::maximumAllocationSize() const
+{
+    return qt_cl_paramULong(m_id, CL_DEVICE_MAX_MEM_ALLOC_SIZE);
+}
+
+/*!
+    Returns the number of bytes of global memory in the device.
+
+    \sa globalMemoryCacheSize(), localMemorySize()
+*/
+quint64 QCLDevice::globalMemorySize() const
+{
+    return qt_cl_paramULong(m_id, CL_DEVICE_GLOBAL_MEM_SIZE);
+}
+
+/*!
+    \enum QCLDevice::CacheType
+    This enum defines the type of global memory cache that is
+    supported by an OpenCL device.
+
+    \value NoCache No global memory cache.
+    \value ReadOnlyCache Read-only global memory cache.
+    \value ReadWriteCache Read-write global memory cache.
+*/
+
+/*!
+    Returns the type of global memory cache that is supported
+    by the device.
+*/
+QCLDevice::CacheType QCLDevice::globalMemoryCacheType() const
+{
+    cl_device_mem_cache_type type;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_GLOBAL_MEM_CACHE_TYPE,
+                        sizeof(type), &type, 0)
             != CL_SUCCESS)
-        return defaultValue;
+        return NoCache;
     else
-        return value != 0;
+        return QCLDevice::CacheType(type);
 }
 
 /*!
-    Returns the string parameter \a name on this device.
+    Returns the size of the global memory cache in bytes.
+
+    \sa globalMemorySize(), globalMemoryCacheLineSize()
 */
-QString QCLDevice::paramString(cl_device_info name) const
+quint64 QCLDevice::globalMemoryCacheSize() const
 {
-    size_t size;
-    if (clGetDeviceInfo(m_id, name, 0, 0, &size) != CL_SUCCESS)
-        return QString();
-    QVarLengthArray<char> buf(size);
-    if (clGetDeviceInfo(m_id, name, size, buf.data(), &size) != CL_SUCCESS)
-        return QString();
-    return QString::fromLatin1(buf.data());
+    return qt_cl_paramULong(m_id, CL_DEVICE_GLOBAL_MEM_CACHE_SIZE);
+}
+
+/*!
+    Returns the size of a single global memory cache line in bytes.
+
+    \sa globalMemoryCacheSize()
+*/
+int QCLDevice::globalMemoryCacheLineSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE);
+}
+
+/*!
+    Returns the number of bytes of local memory in the device.
+
+    \sa globalMemorySize(), isLocalMemorySeparate()
+*/
+quint64 QCLDevice::localMemorySize() const
+{
+    return qt_cl_paramULong(m_id, CL_DEVICE_LOCAL_MEM_SIZE);
+}
+
+/*!
+    Returns true if the local memory on this device is in a separate
+    dedicated storage area from global memory; false if local memory
+    is allocated from global memory.
+
+    \sa localMemorySize()
+*/
+bool QCLDevice::isLocalMemorySeparate() const
+{
+    cl_device_local_mem_type type;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_LOCAL_MEM_TYPE,
+                        sizeof(type), &type, 0)
+            != CL_SUCCESS)
+        return false;
+    else
+        return type == CL_LOCAL;
+}
+
+/*!
+    Returns the maximum size for a constant buffer allocation.
+
+    \sa maximumConstantArguments()
+*/
+quint64 QCLDevice::maximumConstantBufferSize() const
+{
+    return qt_cl_paramULong(m_id, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
+}
+
+/*!
+    Returns the maximum number of constant arguments that can
+    be passed to a kernel.
+
+    \sa maximumConstantBufferSize()
+*/
+int QCLDevice::maximumConstantArguments() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_MAX_CONSTANT_ARGS);
+}
+
+/*!
+    Returns the default alignment for allocated memory in bytes.
+
+    \sa minimumAlignment()
+*/
+int QCLDevice::defaultAlignment() const
+{
+    // OpenCL setting is in bits, but that is inconsistent with
+    // every other alignment value, so return bytes instead.
+    return qt_cl_paramInt(m_id, CL_DEVICE_MEM_BASE_ADDR_ALIGN) / 8;
+}
+
+/*!
+    Returns the minimum alignment for any data type in bytes.
+
+    \sa defaultAlignment()
+*/
+int QCLDevice::minimumAlignment() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE);
+}
+
+/*!
+    Returns the maximum number of parameter bytes that can be passed
+    to a kernel.
+*/
+int QCLDevice::maximumParameterBytes() const
+{
+    return int(qt_cl_paramSize(m_id, CL_DEVICE_MAX_PARAMETER_SIZE));
 }
 
 /*!
@@ -233,7 +731,7 @@ QString QCLDevice::paramString(cl_device_info name) const
 */
 QString QCLDevice::profile() const
 {
-    return paramString(CL_DEVICE_PROFILE);
+    return qt_cl_paramString(m_id, CL_DEVICE_PROFILE);
 }
 
 /*!
@@ -244,7 +742,7 @@ QString QCLDevice::profile() const
 */
 QString QCLDevice::version() const
 {
-    return paramString(CL_DEVICE_VERSION);
+    return qt_cl_paramString(m_id, CL_DEVICE_VERSION);
 }
 
 /*!
@@ -254,7 +752,7 @@ QString QCLDevice::version() const
 */
 QString QCLDevice::driverVersion() const
 {
-    return paramString(CL_DRIVER_VERSION);
+    return qt_cl_paramString(m_id, CL_DRIVER_VERSION);
 }
 
 /*!
@@ -262,7 +760,7 @@ QString QCLDevice::driverVersion() const
 */
 QString QCLDevice::name() const
 {
-    return paramString(CL_DEVICE_NAME);
+    return qt_cl_paramString(m_id, CL_DEVICE_NAME);
 }
 
 /*!
@@ -270,7 +768,7 @@ QString QCLDevice::name() const
 */
 QString QCLDevice::vendor() const
 {
-    return paramString(CL_DEVICE_VENDOR);
+    return qt_cl_paramString(m_id, CL_DEVICE_VENDOR);
 }
 
 /*!
@@ -278,7 +776,7 @@ QString QCLDevice::vendor() const
 */
 QStringList QCLDevice::extensions() const
 {
-    return paramString(CL_DEVICE_EXTENSIONS).simplified().split(QChar(' '));
+    return qt_cl_paramString(m_id, CL_DEVICE_EXTENSIONS).simplified().split(QChar(' '));
 }
 
 /*!

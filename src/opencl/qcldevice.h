@@ -68,18 +68,80 @@ public:
     Q_DECLARE_FLAGS(DeviceTypes, DeviceType)
 
     bool isNull() const { return m_id == 0; }
+
     QCLDevice::DeviceTypes deviceType() const;
     QCLPlatform platform() const;
+    uint vendorId() const;
     bool isAvailable() const;
 
-    QCLWorkSize maximumWorkItemSize() const;
-    size_t maximumWorkItemsPerGroup() const;
+    bool hasCompiler() const;
+    bool hasNativeKernels() const;
+    bool hasOutOfOrderExecution() const;
+    bool hasDouble() const;
+    bool hasHalfFloat() const;
+    bool hasErrorCorrectingMemory() const;
 
-    uint paramUInt(cl_device_info name, uint defaultValue = 0) const;
-    quint64 paramULong(cl_device_info name, quint64 defaultValue = 0) const;
-    size_t paramSize(cl_device_info name, size_t defaultValue = 0) const;
-    bool paramBool(cl_device_info name, bool defaultValue = false) const;
-    QString paramString(cl_device_info name) const;
+    int computeUnits() const;
+    int clockFrequency() const;
+    int addressBits() const;
+    QSysInfo::Endian byteOrder() const;
+
+    QCLWorkSize maximumWorkItemSize() const;
+    int maximumWorkItemsPerGroup() const;
+
+    bool hasImages() const;
+    bool hasWritable3DImages() const;
+    QSize maximumImage2DSize() const;
+    QCLWorkSize maximumImage3DSize() const;
+    int maximumSamplers() const;
+    int maximumReadImages() const;
+    int maximumWriteImages() const;
+
+    int preferredCharVectorSize() const;
+    int preferredShortVectorSize() const;
+    int preferredIntVectorSize() const;
+    int preferredLongVectorSize() const;
+    int preferredFloatVectorSize() const;
+    int preferredDoubleVectorSize() const;
+
+    enum FloatCapability
+    {
+        NotSupported        = 0x0000,
+        Denorm              = 0x0001,
+        InfinityNaN         = 0x0002,
+        RoundNearest        = 0x0004,
+        RoundZero           = 0x0008,
+        RoundInfinity       = 0x0010,
+        FusedMultiplyAdd    = 0x0020
+    };
+    Q_DECLARE_FLAGS(FloatCapabilities, FloatCapability)
+
+    QCLDevice::FloatCapabilities floatCapabilities() const;
+    QCLDevice::FloatCapabilities doubleCapabilities() const;
+    QCLDevice::FloatCapabilities halfFloatCapabilities() const;
+
+    quint64 profilingTimerResolution() const;
+
+    enum CacheType
+    {
+        NoCache             = 0,
+        ReadOnlyCache       = 1,
+        ReadWriteCache      = 2
+    };
+
+    quint64 maximumAllocationSize() const;
+    quint64 globalMemorySize() const;
+    QCLDevice::CacheType globalMemoryCacheType() const;
+    quint64 globalMemoryCacheSize() const;
+    int globalMemoryCacheLineSize() const;
+    quint64 localMemorySize() const;
+    bool isLocalMemorySeparate() const;
+    quint64 maximumConstantBufferSize() const;
+    int maximumConstantArguments() const;
+
+    int defaultAlignment() const;
+    int minimumAlignment() const;
+    int maximumParameterBytes() const;
 
     QString profile() const;
     QString version() const;
@@ -104,6 +166,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QCLDevice::DeviceTypes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QCLDevice::FloatCapabilities)
 
 inline bool QCLDevice::operator==(const QCLDevice &other) const
 {
