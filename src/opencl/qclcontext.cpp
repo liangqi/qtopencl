@@ -508,6 +508,9 @@ QString QCLContext::errorName(cl_int code)
     // OpenCL-OpenGL sharing extension error codes.
     case -1000: return QLatin1String("CL_INVALID_CL_SHAREGROUP_REFERENCE_KHR");
 
+    // cl_khr_icd extension.
+    case -1001: return QLatin1String("CL_PLATFORM_NOT_FOUND_KHR");
+
     default: break;
     }
     return QLatin1String("Error ") + QString::number(code);
