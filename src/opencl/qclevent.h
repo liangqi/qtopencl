@@ -73,6 +73,11 @@ public:
 
     void waitForFinished();
 
+    quint64 queueTime() const;
+    quint64 submitTime() const;
+    quint64 runTime() const;
+    quint64 finishTime() const;
+
     bool operator==(const QCLEvent &other) const;
     bool operator!=(const QCLEvent &other) const;
 
@@ -165,6 +170,8 @@ inline QCLEventList &QCLEventList::operator<<(const QCLEventList &other)
     append(other);
     return *this;
 }
+
+Q_CL_EXPORT QDebug operator<<(QDebug, const QCLEvent &);
 
 QT_END_NAMESPACE
 

@@ -147,6 +147,42 @@ void QCLCommandQueue::setOutOfOrder(bool enable)
 }
 
 /*!
+    Returns true if this command queue will perform profiling on
+    commands; false otherwise.
+
+    Profiling information is made available when a QCLEvent finishes
+    execution.
+
+    \sa setProfilingEnabled(), QCLEvent::finishTime()
+*/
+bool QCLCommandQueue::isProfilingEnabled() const
+{
+    if (!m_id)
+        return false;
+    cl_command_queue_properties props = 0;
+    if (clGetCommandQueueInfo(m_id, CL_QUEUE_PROPERTIES,
+                              sizeof(props), &props, 0) != CL_SUCCESS)
+        return false;
+    return (props & CL_QUEUE_PROFILING_ENABLE) != 0;
+}
+
+/*!
+    Enables or disables profiling of commands according to \a enable.
+
+    Profiling information is made available when a QCLEvent finishes
+    execution.
+
+    \sa isProfilingEnabled(), QCLEvent::finishTime()
+*/
+void QCLCommandQueue::setProfilingEnabled(bool enable)
+{
+    if (!m_id)
+        return;
+    clSetCommandQueueProperty(m_id, CL_QUEUE_PROFILING_ENABLE,
+                              (enable ? CL_TRUE : CL_FALSE), 0);
+}
+
+/*!
     \fn cl_command_queue QCLCommandQueue::id() const
 
     Returns the native OpenCL command queue identifier for this object.

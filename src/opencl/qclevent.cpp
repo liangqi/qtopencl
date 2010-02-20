@@ -241,6 +241,86 @@ void QCLEvent::waitForFinished()
 }
 
 /*!
+    Returns the device time in nanoseconds when the command was
+    queued for execution on the host.
+
+    The return value is only valid if the command has finished
+    execution and profiling was enabled on the command queue.
+
+    \sa submitTime(), runTime(), finishTime(), isQueued()
+    \sa QCLCommandQueue::setProfilingEnabled()
+*/
+quint64 QCLEvent::queueTime() const
+{
+    cl_ulong time;
+    if (clGetEventProfilingInfo
+            (m_id, CL_PROFILING_COMMAND_QUEUED,
+             sizeof(time), &time, 0) != CL_SUCCESS)
+        return 0;
+    return quint64(time);
+}
+
+/*!
+    Returns the device time in nanoseconds when the command was
+    submitted by the host for execution on the device.
+
+    The return value is only valid if the command has finished
+    execution and profiling was enabled on the command queue.
+
+    \sa queueTime(), runTime(), finishTime(), isSubmitted()
+    \sa QCLCommandQueue::setProfilingEnabled()
+*/
+quint64 QCLEvent::submitTime() const
+{
+    cl_ulong time;
+    if (clGetEventProfilingInfo
+            (m_id, CL_PROFILING_COMMAND_SUBMIT,
+             sizeof(time), &time, 0) != CL_SUCCESS)
+        return 0;
+    return quint64(time);
+}
+
+/*!
+    Returns the device time in nanoseconds when the command started
+    running on the device.
+
+    The return value is only valid if the command has finished
+    execution and profiling was enabled on the command queue.
+
+    \sa queueTime(), submitTime(), finishTime(), isRunning()
+    \sa QCLCommandQueue::setProfilingEnabled()
+*/
+quint64 QCLEvent::runTime() const
+{
+    cl_ulong time;
+    if (clGetEventProfilingInfo
+            (m_id, CL_PROFILING_COMMAND_START,
+             sizeof(time), &time, 0) != CL_SUCCESS)
+        return 0;
+    return quint64(time);
+}
+
+/*!
+    Returns the device time in nanoseconds when the command finished
+    running on the device.
+
+    The return value is only valid if the command has finished
+    execution and profiling was enabled on the command queue.
+
+    \sa queueTime(), submitTime(), runTime(), isFinished()
+    \sa QCLCommandQueue::setProfilingEnabled()
+*/
+quint64 QCLEvent::finishTime() const
+{
+    cl_ulong time;
+    if (clGetEventProfilingInfo
+            (m_id, CL_PROFILING_COMMAND_END,
+             sizeof(time), &time, 0) != CL_SUCCESS)
+        return 0;
+    return quint64(time);
+}
+
+/*!
     \fn bool QCLEvent::operator==(const QCLEvent &other) const
 
     Returns true if this OpenCL event is the same as \a other;
@@ -314,6 +394,110 @@ QFuture<void> QCLEvent::toFuture() const
 QCLEvent::operator QFuture<void>() const
 {
     return toFuture();
+}
+
+QDebug operator<<(QDebug dbg, const QCLEvent &event)
+{
+    cl_event id = event.id();
+    if (!id) {
+        dbg << "QCLEvent()";
+        return dbg;
+    }
+    cl_command_type command;
+    cl_int status;
+    if (clGetEventInfo(id, CL_EVENT_COMMAND_TYPE,
+                       sizeof(command), &command, 0) != CL_SUCCESS) {
+        dbg << "QCLEvent(invalid)";
+        return dbg;
+    }
+    if (clGetEventInfo(id, CL_EVENT_COMMAND_EXECUTION_STATUS,
+                       sizeof(status), &status, 0) != CL_SUCCESS) {
+        dbg << "QCLEvent(invalid)";
+        return dbg;
+    }
+    const char *commandName;
+    switch (command) {
+    case CL_COMMAND_NDRANGE_KERNEL:
+        commandName = "clEnqueueNDRangeKernel"; break;
+    case CL_COMMAND_TASK:
+        commandName = "clEnqueueTask"; break;
+    case CL_COMMAND_NATIVE_KERNEL:
+        commandName = "clEnqueueNativeKernel"; break;
+    case CL_COMMAND_READ_BUFFER:
+        commandName = "clEnqueueReadBuffer"; break;
+    case CL_COMMAND_WRITE_BUFFER:
+        commandName = "clEnqueueWriteBuffer"; break;
+    case CL_COMMAND_COPY_BUFFER:
+        commandName = "clEnqueueCopyBuffer"; break;
+    case CL_COMMAND_READ_IMAGE:
+        commandName = "clEnqueueReadImage"; break;
+    case CL_COMMAND_WRITE_IMAGE:
+        commandName = "clEnqueueWriteImage"; break;
+    case CL_COMMAND_COPY_IMAGE:
+        commandName = "clEnqueueCopyImage"; break;
+    case CL_COMMAND_COPY_IMAGE_TO_BUFFER:
+        commandName = "clEnqueueCopyImageToBuffer"; break;
+    case CL_COMMAND_COPY_BUFFER_TO_IMAGE:
+        commandName = "clEnqueueCopyBufferToImage"; break;
+    case CL_COMMAND_MAP_BUFFER:
+        commandName = "clEnqueueMapBuffer"; break;
+    case CL_COMMAND_MAP_IMAGE:
+        commandName = "clEnqueueMapImage"; break;
+    case CL_COMMAND_UNMAP_MEM_OBJECT:
+        commandName = "clEnqueueUnmapMemObject"; break;
+    case CL_COMMAND_MARKER:
+        commandName = "clEnqueueMarker"; break;
+    case CL_COMMAND_ACQUIRE_GL_OBJECTS:
+        commandName = "clEnqueueAcquireGLObjects"; break;
+    case CL_COMMAND_RELEASE_GL_OBJECTS:
+        commandName = "clEnqueueReleaseGLObjects"; break;
+    default:
+        commandName = "Unknown"; break;
+    }
+    const char *statusName;
+    switch (status) {
+    case CL_COMPLETE:   statusName = "finished"; break;
+    case CL_RUNNING:    statusName = "running"; break;
+    case CL_SUBMITTED:  statusName = "submitted"; break;
+    case CL_QUEUED:     statusName = "queued"; break;
+    default:            statusName = "Unknown"; break;
+    }
+    if (status != CL_COMPLETE) {
+        // Command is not complete: no profiling information yet.
+        dbg << "QCLEvent(id:" << reinterpret_cast<long>(id)
+            << "request:" << commandName
+            << "status:" << statusName
+            << ")";
+    } else {
+        cl_ulong queueTime, runTime, finishTime;
+        if (clGetEventProfilingInfo
+                (id, CL_PROFILING_COMMAND_QUEUED,
+                 sizeof(queueTime), &queueTime, 0) != CL_SUCCESS ||
+            clGetEventProfilingInfo
+                (id, CL_PROFILING_COMMAND_START,
+                 sizeof(runTime), &runTime, 0) != CL_SUCCESS ||
+            clGetEventProfilingInfo
+                (id, CL_PROFILING_COMMAND_END,
+                 sizeof(finishTime), &finishTime, 0) != CL_SUCCESS) {
+            // Profiling information is not available, probably
+            // because it was not enabled on the command queue.
+            dbg << "QCLEvent(id:" << reinterpret_cast<long>(id)
+                << "request:" << commandName
+                << "status:" << statusName
+                << ")";
+        } else {
+            // Include profiling information in the debug output.
+            qreal fullDuration = (finishTime - queueTime) / 1000000.0f;
+            qreal runDuration = (finishTime - runTime) / 1000000.0f;
+            dbg << "QCLEvent(id:" << reinterpret_cast<long>(id)
+                << "request:" << commandName
+                << "status:" << statusName
+                << "full-time:" << fullDuration
+                << "ms running-time:" << runDuration
+                << "ms)";
+        }
+    }
+    return dbg;
 }
 
 /*!

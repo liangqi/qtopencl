@@ -68,6 +68,9 @@ public:
     bool isOutOfOrder() const;
     void setOutOfOrder(bool enable);
 
+    bool isProfilingEnabled() const;
+    void setProfilingEnabled(bool enable);
+
     cl_command_queue id() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
