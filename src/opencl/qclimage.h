@@ -85,14 +85,14 @@ public:
     bool read(void *data, const QRect &rect, int bytesPerLine = 0);
     bool read(QImage *image, const QRect &rect = QRect());
     QCLEvent readAsync(void *data, const QRect &rect,
-                       const QVector<QCLEvent> &after = QVector<QCLEvent>(),
+                       const QCLEventList &after = QCLEventList(),
                        int bytesPerLine = 0);
 
     bool write(const void *data, const QRect &rect, int bytesPerLine = 0);
     bool write(const QImage &image, const QRect &rect = QRect());
     QCLEvent writeAsync
         (const void *data, const QRect &rect,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>(),
+         const QCLEventList &after = QCLEventList(),
          int bytesPerLine = 0);
 
     bool copyTo(const QRect &rect, const QCLImage2D &dest,
@@ -103,19 +103,19 @@ public:
                 size_t destOffset);
     QCLEvent copyToAsync
         (const QRect &rect, const QCLImage2D &dest, const QPoint &destOffset,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
     QCLEvent copyToAsync
         (const QRect &rect, const QCLImage3D &dest, const size_t destOffset[3],
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
     QCLEvent copyToAsync
         (const QRect &rect, const QCLBuffer &dest, size_t destOffset,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
 
     void *map(const QRect &rect, QCL::Access access,
               int *bytesPerLine = 0);
     QCLEvent mapAsync(void **ptr, const QRect &rect,
                       QCL::Access access,
-                      const QVector<QCLEvent> &after = QVector<QCLEvent>(),
+                      const QCLEventList &after = QCLEventList(),
                       int *bytesPerLine = 0);
 
     QImage toQImage();
@@ -152,14 +152,14 @@ public:
               int bytesPerLine = 0, int bytesPerSlice = 0);
     QCLEvent readAsync
         (void *data, const size_t origin[3], const size_t size[3],
-         const QVector<QCLEvent> after = QVector<QCLEvent>(),
+         const QCLEventList &after = QCLEventList(),
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
     bool write(const void *data, const size_t origin[3], const size_t size[3],
                int bytesPerLine = 0, int bytesPerSlice = 0);
     QCLEvent writeAsync
         (const void *data, const size_t origin[3], const size_t size[3],
-         const QVector<QCLEvent> after = QVector<QCLEvent>(),
+         const QCLEventList &after = QCLEventList(),
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
     bool copyTo(const size_t origin[3], const size_t size[3],
@@ -171,15 +171,15 @@ public:
     QCLEvent copyToAsync
         (const size_t origin[3], const size_t size[3],
          const QCLImage3D &dest, const size_t destOffset[3],
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
     QCLEvent copyToAsync
         (const size_t origin[3], const QSize &size,
          const QCLImage2D &dest, const QPoint &destOffset,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
     QCLEvent copyToAsync
         (const size_t origin[3], const size_t size[3],
          const QCLBuffer &dest, size_t destOffset,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
 
     void *map(const size_t origin[3], const size_t size[3],
               QCL::Access access,
@@ -187,7 +187,7 @@ public:
     QCLEvent mapAsync
         (void **ptr, const size_t origin[3], const size_t size[3],
          QCL::Access access,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>(),
+         const QCLEventList &after = QCLEventList(),
          int *bytesPerLine = 0, int *bytesPerSlice = 0);
 };
 

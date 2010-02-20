@@ -1216,14 +1216,13 @@ void QCLContext::barrier()
 
     \sa marker()
 */
-void QCLContext::barrier(const QVector<QCLEvent> &events)
+void QCLContext::barrier(const QCLEventList &events)
 {
     if (events.isEmpty())
         return;
     cl_int error = clEnqueueWaitForEvents
-        (activeQueue(), events.size(),
-         reinterpret_cast<const cl_event *>(events.constData()));
-    reportError("QCLContext::barrier(QVector<QCLEvent>):", error);
+        (activeQueue(), events.size(), events.eventData());
+    reportError("QCLContext::barrier(QCLEventList):", error);
 }
 
 /*!

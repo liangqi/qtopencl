@@ -70,8 +70,7 @@ QT_BEGIN_NAMESPACE
     \endtable
 
     Host applications can wait for the event (and thus, the command
-    that created it) to finish by calling waitForFinished() or
-    waitForEvents():
+    that created it) to finish by calling waitForFinished():
 
     \code
     QCLBuffer buffer = ...;
@@ -80,7 +79,7 @@ QT_BEGIN_NAMESPACE
     event.waitForFinished();
     \endcode
 
-    Applications can also pass a QVector list of QCLEvent objects to
+    Applications can also pass a QCLEventList of event objects to
     another command to tell it to start executing only once all events
     in the list have finished:
 
@@ -89,7 +88,7 @@ QT_BEGIN_NAMESPACE
     QCLEvent event1 = buffer.readAsync(offset1, data1, size1);
     QCLEvent event2 = buffer.readAsync(offset2, data2, size2);
 
-    QVector<QCLEvent> after;
+    QCLEventList after;
     after << event1 << event2;
     QCLEvent event3 = buffer.readAsync(offset3, data3, size3, after);
     ...
@@ -104,7 +103,7 @@ QT_BEGIN_NAMESPACE
     Event lists can be used to order commands when out-of-order
     command execution is in use.
 
-    \sa QCLCommandQueue::isOutOfOrder()
+    \sa QCLCommandQueue::isOutOfOrder(), QCLEventList
 */
 
 /*!
@@ -228,7 +227,7 @@ int QCLEvent::status() const
     is blocked until the event is signalled.  This function returns
     immediately if the event is null.
 
-    \sa waitForEvents(), isFinished()
+    \sa isFinished(), QCLEventList::waitForFinished()
 */
 void QCLEvent::waitForFinished()
 {
@@ -239,25 +238,6 @@ void QCLEvent::waitForFinished()
                        << QCLContext::errorName(error);
         }
     }
-}
-
-/*!
-    Waits for all of the listed \a events to be signalled as finished.
-    The calling thread is blocked until all of the \a events are signalled.
-
-    If \a events is empty, then this function returns immediately.
-
-    \sa waitForFinished(), isFinished()
-*/
-void QCLEvent::waitForEvents(const QVector<QCLEvent> &events)
-{
-    if (events.isEmpty())
-        return;
-    cl_int error = clWaitForEvents
-        (events.size(),
-         reinterpret_cast<const cl_event *>(events.constData()));
-    if (error != CL_SUCCESS)
-        qWarning() << "QCLEvent::waitForEvents:" << QCLContext::errorName(error);
 }
 
 /*!
@@ -285,8 +265,8 @@ static void qt_cl_future_wait(cl_event event)
 }
 
 /*!
-    Returns a QFuture object that can be used to track the completion
-    of this OpenCL event.
+    Returns a QFuture object that can be used to track when this
+    OpenCL event finishes.
 
     This function creates a thread on the host CPU to monitor the
     event in the background.  If the caller wants to block in the
@@ -294,8 +274,8 @@ static void qt_cl_future_wait(cl_event event)
     of using toFuture(), because waitForFinished() does not need to
     create an extra thread on the host CPU.
 
-    If however the caller wants to receive notification of event
-    completion via a signal, then toFuture() can be used with
+    If however the caller wants to receive notification of the event
+    finishing via a signal, then toFuture() can be used with
     QFutureWatcher to receive the signal:
 
     \code
@@ -332,6 +312,282 @@ QFuture<void> QCLEvent::toFuture() const
     OpenCL to code that uses QtConcurrent.
 */
 QCLEvent::operator QFuture<void>() const
+{
+    return toFuture();
+}
+
+/*!
+    \class QCLEventList
+    \brief The QCLEventList class represents a list of QCLEvent objects.
+    \since 4.7
+    \ingroup opencl
+
+    \sa QCLEvent
+*/
+
+/*!
+    \fn QCLEventList::QCLEventList()
+
+    Constructs an empty list of OpenCL events.
+*/
+
+/*!
+    Constructs a list of OpenCL events that contains \a event.
+    If \a event is null, this constructor will construct an
+    empty list.
+
+    \sa append()
+*/
+QCLEventList::QCLEventList(const QCLEvent &event)
+{
+    cl_event id = event.id();
+    if (id) {
+        clRetainEvent(id);
+        m_events.append(id);
+    }
+}
+
+/*!
+    Constructs a copy of \a other.
+
+    \sa operator=()
+*/
+QCLEventList::QCLEventList(const QCLEventList &other)
+    : m_events(other.m_events)
+{
+    for (int index = 0; index < m_events.size(); ++index)
+        clRetainEvent(m_events[index]);
+}
+
+/*!
+    Destroys this list of OpenCL events.
+*/
+QCLEventList::~QCLEventList()
+{
+    for (int index = 0; index < m_events.size(); ++index)
+        clReleaseEvent(m_events[index]);
+}
+
+/*!
+    Assigns the contents of \a other to this object.
+*/
+QCLEventList &QCLEventList::operator=(const QCLEventList &other)
+{
+    if (this != &other) {
+        for (int index = 0; index < m_events.size(); ++index)
+            clReleaseEvent(m_events[index]);
+        m_events = other.m_events;
+        for (int index = 0; index < m_events.size(); ++index)
+            clRetainEvent(m_events[index]);
+    }
+    return *this;
+}
+
+/*!
+    \fn bool QCLEventList::isEmpty() const
+
+    Returns true if this is an empty list; false otherwise.
+
+    \sa size()
+*/
+
+/*!
+    \fn int QCLEventList::size() const
+
+    Returns the size of this event list.
+
+    \sa isEmpty(), at()
+*/
+
+/*!
+    Appends \a event to this list of OpenCL events if it is not null.
+    Does nothing if \a event is null.
+
+    \sa remove()
+*/
+void QCLEventList::append(const QCLEvent &event)
+{
+    cl_event id = event.id();
+    if (id) {
+        clRetainEvent(id);
+        m_events.append(id);
+    }
+}
+
+/*!
+    \overload
+
+    Appends the contents of \a other to this event list.
+*/
+void QCLEventList::append(const QCLEventList &other)
+{
+    for (int index = 0; index < other.m_events.size(); ++index) {
+        cl_event id = other.m_events[index];
+        clRetainEvent(id);
+        m_events.append(id);
+    }
+}
+
+/*!
+    Removes \a event from this event list.
+
+    \sa append(), contains()
+*/
+void QCLEventList::remove(const QCLEvent &event)
+{
+    QVector<cl_event>::Iterator it = m_events.begin();
+    while (it != m_events.end()) {
+        if (*it == event.id()) {
+            clReleaseEvent(*it);
+            it = m_events.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+/*!
+    Returns the event at \a index in this event list, or a null
+    QCLEvent if \a index is out of range.
+
+    \sa size(), contains()
+*/
+QCLEvent QCLEventList::at(int index) const
+{
+    if (index >= 0 && index < m_events.size()) {
+        cl_event id = m_events[index];
+        clRetainEvent(id);
+        return QCLEvent(id);
+    } else {
+        return QCLEvent();
+    }
+}
+
+/*!
+    \fn bool QCLEventList::contains(const QCLEvent &event) const
+
+    Returns true if this event list contains \a event;
+    false otherwise.
+
+    \sa at(), remove()
+*/
+
+/*!
+    \fn const cl_event *QCLEventList::eventData() const
+
+    Returns a const pointer to the raw OpenCL event data in this
+    event list; null if the list is empty.
+
+    This function is intended for use with native OpenCL library
+    functions that take an array of \c{cl_event} objects as
+    an argument.
+
+    \sa size()
+*/
+
+/*!
+    \fn QCLEventList &QCLEventList::operator+=(const QCLEvent &event)
+
+    Same as append(\event).
+*/
+
+/*!
+    \fn QCLEventList &QCLEventList::operator+=(const QCLEventList &other)
+
+    Same as append(\a other).
+*/
+
+/*!
+    \fn QCLEventList &QCLEventList::operator<<(const QCLEvent &event)
+
+    Same as append(\event).
+*/
+
+/*!
+    \fn QCLEventList &QCLEventList::operator<<(const QCLEventList &other)
+
+    Same as append(\a other).
+*/
+
+/*!
+    Waits for all of the events in this list to be signalled as
+    finished.  The calling thread is blocked until all of the
+    events are signalled.  If the list is empty, then this function
+    returns immediately.
+
+    \sa QCLEvent::waitForFinished()
+*/
+void QCLEventList::waitForFinished()
+{
+    if (m_events.isEmpty())
+        return;
+    cl_int error = clWaitForEvents(size(), eventData());
+    if (error != CL_SUCCESS) {
+        qWarning() << "QCLEventList::waitForFinished:"
+                   << QCLContext::errorName(error);
+    }
+}
+
+static void qt_cl_future_list_wait(QVector<cl_event> events)
+{
+    clWaitForEvents(events.size(), events.constData());
+    for (int index = 0; index < events.size(); ++index)
+        clReleaseEvent(events[index]);
+}
+
+/*!
+    Returns a QFuture object that can be used to track when all
+    of the events on this list finish.
+
+    This function creates a thread on the host CPU to monitor the
+    events in the background.  If the caller wants to block in the
+    foreground thread, then waitForFinished() is recommended instead
+    of using toFuture(), because waitForFinished() does not need to
+    create an extra thread on the host CPU.
+
+    If however the caller wants to receive notification of the events
+    finishing via a signal, then toFuture() can be used with
+    QFutureWatcher to receive the signal:
+
+    \code
+    QCLEventList list;
+    list += event1;
+    list += event2;
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+    watcher->setFuture(list.toFuture());
+    connect(watcher, SIGNAL(finished()), this, SLOT(eventsFinished()));
+    \endcode
+
+    QCLEventList has an implicit conversion operator to QFuture<void>,
+    which allows the QFutureWatcher::setFuture() call to be shortened
+    as follows:
+
+    \code
+    watcher->setFuture(list);
+    \endcode
+
+    \sa operator QFuture<void>()
+*/
+QFuture<void> QCLEventList::toFuture() const
+{
+    if (!m_events.isEmpty()) {
+        QVector<cl_event> events(m_events);
+        events.detach();
+        for (int index = 0; index < events.size(); ++index)
+            clRetainEvent(events[index]);
+        return QtConcurrent::run(qt_cl_future_list_wait, events);
+    } else {
+        return QFuture<void>();
+    }
+}
+
+/*!
+    Equivalent to calling toFuture().
+
+    This conversion operator is intended to help with interfacing
+    OpenCL to code that uses QtConcurrent.
+*/
+QCLEventList::operator QFuture<void>() const
 {
     return toFuture();
 }

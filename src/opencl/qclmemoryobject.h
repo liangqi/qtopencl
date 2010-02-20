@@ -75,13 +75,13 @@ public:
 
     void unmap(void *ptr);
     QCLEvent unmapAsync
-        (void *ptr, const QVector<QCLEvent> &after = QVector<QCLEvent>());
+        (void *ptr, const QCLEventList &after = QCLEventList());
 
     QCLEvent acquireGL();
-    QCLEvent acquireGL(const QVector<QCLEvent> &after);
+    QCLEvent acquireGL(const QCLEventList &after);
 
     QCLEvent releaseGL();
-    QCLEvent releaseGL(const QVector<QCLEvent> &after);
+    QCLEvent releaseGL(const QCLEventList &after);
 
     bool operator==(const QCLMemoryObject &other) const;
     bool operator!=(const QCLMemoryObject &other) const;

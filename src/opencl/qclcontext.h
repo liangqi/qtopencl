@@ -152,7 +152,7 @@ public:
     void sync();
 
     void barrier();
-    void barrier(const QVector<QCLEvent> &events);
+    void barrier(const QCLEventList &events);
 
 private:
     QScopedPointer<QCLContextPrivate> d_ptr;

@@ -75,12 +75,12 @@ public:
     bool read(void *data, size_t size);
     bool read(size_t offset, void *data, size_t size);
     QCLEvent readAsync(size_t offset, void *data, size_t size,
-                       const QVector<QCLEvent> &after = QVector<QCLEvent>());
+                       const QCLEventList &after = QCLEventList());
 
     bool write(const void *data, size_t size);
     bool write(size_t offset, const void *data, size_t size);
     QCLEvent writeAsync(size_t offset, const void *data, size_t size,
-                        const QVector<QCLEvent> &after = QVector<QCLEvent>());
+                        const QCLEventList &after = QCLEventList());
 
     bool copyTo(size_t offset, size_t size,
                 const QCLBuffer &dest, size_t destOffset);
@@ -90,20 +90,20 @@ public:
     QCLEvent copyToAsync
         (size_t offset, size_t size,
          const QCLBuffer &dest, size_t destOffset,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
     QCLEvent copyToAsync
         (size_t offset, const QCLImage2D &dest, const QRect &rect,
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
     QCLEvent copyToAsync
         (size_t offset, const QCLImage3D &dest,
          const size_t origin[3], const size_t size[3],
-         const QVector<QCLEvent> &after = QVector<QCLEvent>());
+         const QCLEventList &after = QCLEventList());
 
     void *map(size_t offset, size_t size, QCL::Access access);
     void *map(QCL::Access access);
     QCLEvent mapAsync(void **ptr, size_t offset, size_t size,
                       QCL::Access access,
-                      const QVector<QCLEvent> &after = QVector<QCLEvent>());
+                      const QCLEventList &after = QCLEventList());
 };
 
 QT_END_NAMESPACE

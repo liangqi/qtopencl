@@ -195,13 +195,12 @@ void QCLMemoryObject::unmap(void *ptr)
 
     \sa unmap(), QCLBuffer::mapAsync()
 */
-QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QVector<QCLEvent> &after)
+QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QCLEventList &after)
 {
     cl_event event;
     cl_int error = clEnqueueUnmapMemObject
-        (context()->activeQueue(), id(), ptr, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+        (context()->activeQueue(), id(), ptr,
+        after.size(), after.eventData(), &event);
     context()->reportError("QCLMemoryObject::unmapAsync:", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);
@@ -252,14 +251,13 @@ QCLEvent QCLMemoryObject::acquireGL()
 
     \sa releaseGL()
 */
-QCLEvent QCLMemoryObject::acquireGL(const QVector<QCLEvent> &after)
+QCLEvent QCLMemoryObject::acquireGL(const QCLEventList &after)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_event event;
     cl_int error = clEnqueueAcquireGLObjects
-        (context()->activeQueue(), 1, &m_id, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+        (context()->activeQueue(), 1, &m_id,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLMemoryObject::acquireGL(after):", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);
@@ -316,14 +314,13 @@ QCLEvent QCLMemoryObject::releaseGL()
 
     \sa acquireGL()
 */
-QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent> &after)
+QCLEvent QCLMemoryObject::releaseGL(const QCLEventList &after)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_event event;
     cl_int error = clEnqueueReleaseGLObjects
-        (context()->activeQueue(), 1, &m_id, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+        (context()->activeQueue(), 1, &m_id,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLMemoryObject::releaseGL(after):", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);

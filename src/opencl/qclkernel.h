@@ -121,7 +121,7 @@ public:
     void setArg(int index, const void *data, size_t size);
 
     QCLEvent run();
-    QCLEvent run(const QVector<QCLEvent> &after);
+    QCLEvent run(const QCLEventList &after);
 
     inline QCLEvent operator()() { return run(); }
 

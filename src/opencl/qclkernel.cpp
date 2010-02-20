@@ -689,7 +689,7 @@ QCLEvent QCLKernel::run()
     to finish execution.  The request is executed on the active
     command queue for context().
 */
-QCLEvent QCLKernel::run(const QVector<QCLEvent> &after)
+QCLEvent QCLKernel::run(const QCLEventList &after)
 {
     Q_D(const QCLKernel);
     cl_event event;
@@ -697,10 +697,7 @@ QCLEvent QCLKernel::run(const QVector<QCLEvent> &after)
         (d->context->activeQueue(), d->id, d->globalWorkSize.dimensions(),
          0, d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
-         after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())),
-         &event);
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLKernel::execute:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();

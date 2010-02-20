@@ -153,14 +153,12 @@ bool QCLBuffer::read(void *data, size_t size)
     \sa read(), writeAsync()
 */
 QCLEvent QCLBuffer::readAsync(size_t offset, void *data, size_t size,
-                              const QVector<QCLEvent> &after)
+                              const QCLEventList &after)
 {
     cl_event event;
     cl_int error = clEnqueueReadBuffer
-        (context()->activeQueue(), id(),
-         CL_FALSE, offset, size, data, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+        (context()->activeQueue(), id(), CL_FALSE, offset, size, data,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::readAsync:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
@@ -221,14 +219,12 @@ bool QCLBuffer::write(const void *data, size_t size)
     \sa write(), readAsync()
 */
 QCLEvent QCLBuffer::writeAsync(size_t offset, const void *data, size_t size,
-                               const QVector<QCLEvent> &after)
+                               const QCLEventList &after)
 {
     cl_event event;
     cl_int error = clEnqueueWriteBuffer
-        (context()->activeQueue(), id(),
-         CL_FALSE, offset, size, data, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+        (context()->activeQueue(), id(), CL_FALSE, offset, size, data,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::writeAsync:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
@@ -333,14 +329,13 @@ bool QCLBuffer::copyTo
 */
 QCLEvent QCLBuffer::copyToAsync
     (size_t offset, size_t size, const QCLBuffer &dest, size_t destOffset,
-     const QVector<QCLEvent> &after)
+     const QCLEventList &after)
 {
     cl_event event;
     cl_int error = clEnqueueCopyBuffer
         (context()->activeQueue(), id(), dest.id(),
-         offset, destOffset, size, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+         offset, destOffset, size,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::copyToAsync:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
@@ -361,16 +356,15 @@ QCLEvent QCLBuffer::copyToAsync
 */
 QCLEvent QCLBuffer::copyToAsync
     (size_t offset, const QCLImage2D &dest, const QRect &rect,
-     const QVector<QCLEvent> &after)
+     const QCLEventList &after)
 {
     const size_t dst_origin[3] = {rect.x(), rect.y(), 0};
     const size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
         (context()->activeQueue(), id(), dest.id(),
-         offset, dst_origin, region, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+         offset, dst_origin, region,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::copyToAsync(QCLImage2D):", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);
@@ -392,14 +386,13 @@ QCLEvent QCLBuffer::copyToAsync
 QCLEvent QCLBuffer::copyToAsync
     (size_t offset, const QCLImage3D &dest,
      const size_t origin[3], const size_t size[3],
-     const QVector<QCLEvent> &after)
+     const QCLEventList &after)
 {
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
         (context()->activeQueue(), id(), dest.id(),
-         offset, origin, size, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())), &event);
+         offset, origin, size,
+         after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::copyToAsync(QCLImage3D):", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);
@@ -471,16 +464,14 @@ void *QCLBuffer::map(QCL::Access access)
 */
 QCLEvent QCLBuffer::mapAsync
     (void **ptr, size_t offset, size_t size,
-     QCL::Access access, const QVector<QCLEvent> &after)
+     QCL::Access access, const QCLEventList &after)
 {
     cl_int error;
     cl_event event;
     *ptr = clEnqueueMapBuffer
         (context()->activeQueue(), id(), CL_FALSE,
-         qt_cl_map_flags(access), offset, size, after.size(),
-         (after.isEmpty() ? 0 :
-            reinterpret_cast<const cl_event *>(after.constData())),
-         &event, &error);
+         qt_cl_map_flags(access), offset, size,
+         after.size(), after.eventData(), &event, &error);
     context()->reportError("QCLBuffer::mapAsync:", error);
     if (error == CL_SUCCESS)
         return QCLEvent(event);

@@ -73,8 +73,6 @@ public:
 
     void waitForFinished();
 
-    static void waitForEvents(const QVector<QCLEvent> &events);
-
     bool operator==(const QCLEvent &other) const;
     bool operator!=(const QCLEvent &other) const;
 
@@ -87,6 +85,43 @@ private:
     int status() const;
 };
 
+class Q_CL_EXPORT QCLEventList
+{
+public:
+    QCLEventList() {}
+    QCLEventList(const QCLEvent &event);
+    QCLEventList(const QCLEventList &other);
+    ~QCLEventList();
+
+    QCLEventList &operator=(const QCLEventList &other);
+
+    bool isEmpty() const { return m_events.isEmpty(); }
+    int size() const { return m_events.size(); }
+
+    void append(const QCLEvent &event);
+    void append(const QCLEventList &other);
+    void remove(const QCLEvent &event);
+
+    QCLEvent at(int index) const;
+    bool contains(const QCLEvent &event) const;
+
+    const cl_event *eventData() const;
+
+    QCLEventList &operator+=(const QCLEvent &event);
+    QCLEventList &operator+=(const QCLEventList &other);
+
+    QCLEventList &operator<<(const QCLEvent &event);
+    QCLEventList &operator<<(const QCLEventList &other);
+
+    void waitForFinished();
+
+    QFuture<void> toFuture() const;
+    operator QFuture<void>() const;
+
+private:
+    QVector<cl_event> m_events;
+};
+
 inline bool QCLEvent::operator==(const QCLEvent &other) const
 {
     return m_id == other.m_id;
@@ -95,6 +130,40 @@ inline bool QCLEvent::operator==(const QCLEvent &other) const
 inline bool QCLEvent::operator!=(const QCLEvent &other) const
 {
     return m_id != other.m_id;
+}
+
+inline bool QCLEventList::contains(const QCLEvent &event) const
+{
+    return m_events.contains(event.id());
+}
+
+inline const cl_event *QCLEventList::eventData() const
+{
+    return m_events.isEmpty() ? 0 : m_events.constData();
+}
+
+inline QCLEventList &QCLEventList::operator+=(const QCLEvent &event)
+{
+    append(event);
+    return *this;
+}
+
+inline QCLEventList &QCLEventList::operator+=(const QCLEventList &other)
+{
+    append(other);
+    return *this;
+}
+
+inline QCLEventList &QCLEventList::operator<<(const QCLEvent &event)
+{
+    append(event);
+    return *this;
+}
+
+inline QCLEventList &QCLEventList::operator<<(const QCLEventList &other)
+{
+    append(other);
+    return *this;
 }
 
 QT_END_NAMESPACE
