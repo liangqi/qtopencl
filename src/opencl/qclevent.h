@@ -75,6 +75,9 @@ public:
 
     static void waitForEvents(const QVector<QCLEvent> &events);
 
+    bool operator==(const QCLEvent &other) const;
+    bool operator!=(const QCLEvent &other) const;
+
     QFuture<void> toFuture() const;
     operator QFuture<void>() const;
 
@@ -83,6 +86,16 @@ private:
 
     int status() const;
 };
+
+inline bool QCLEvent::operator==(const QCLEvent &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLEvent::operator!=(const QCLEvent &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 

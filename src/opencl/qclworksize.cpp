@@ -139,4 +139,22 @@ QT_BEGIN_NAMESPACE
     Returns a const pointer to the size array within this object.
 */
 
+/*!
+    \fn bool QCLWorkSize::operator==(const QCLWorkSize &other) const
+
+    Returns true if this work size specification has the same
+    dimensions as \a other; false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLWorkSize::operator!=(const QCLWorkSize &other) const
+
+    Returns true if this work size specification does not have
+    the same dimensions as \a other; false otherwise.
+
+    \sa operator==()
+*/
+
 QT_END_NAMESPACE

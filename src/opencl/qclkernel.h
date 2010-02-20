@@ -81,6 +81,9 @@ public:
 
     bool isNull() const;
 
+    bool operator==(const QCLKernel &other) const;
+    bool operator!=(const QCLKernel &other) const;
+
     cl_kernel id() const;
     QCLContext *context() const;
 

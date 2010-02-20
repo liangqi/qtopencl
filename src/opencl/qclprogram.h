@@ -84,10 +84,23 @@ public:
 
     static void unloadCompiler();
 
+    bool operator==(const QCLProgram &other) const;
+    bool operator!=(const QCLProgram &other) const;
+
 private:
     QCLContext *m_context;
     cl_program m_id;
 };
+
+inline bool QCLProgram::operator==(const QCLProgram &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLProgram::operator!=(const QCLProgram &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 

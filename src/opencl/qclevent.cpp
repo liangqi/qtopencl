@@ -260,6 +260,24 @@ void QCLEvent::waitForEvents(const QVector<QCLEvent> &events)
         qWarning() << "QCLEvent::waitForEvents:" << QCLContext::errorName(error);
 }
 
+/*!
+    \fn bool QCLEvent::operator==(const QCLEvent &other) const
+
+    Returns true if this OpenCL event is the same as \a other;
+    false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLEvent::operator!=(const QCLEvent &other) const
+
+    Returns true if this OpenCL event is not the same as \a other;
+    false otherwise.
+
+    \sa operator==()
+*/
+
 static void qt_cl_future_wait(cl_event event)
 {
     clWaitForEvents(1, &event);

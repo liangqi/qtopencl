@@ -158,4 +158,22 @@ void QCLCommandQueue::setOutOfOrder(bool enable)
     Returns the OpenCL context that created this queue object.
 */
 
+/*!
+    \fn bool QCLCommandQueue::operator==(const QCLCommandQueue &other) const
+
+    Returns true if this OpenCL command queue is the same as \a other;
+    false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLCommandQueue::operator!=(const QCLCommandQueue &other) const
+
+    Returns true if this OpenCL command queue is not the same as \a other;
+    false otherwise.
+
+    \sa operator==()
+*/
+
 QT_END_NAMESPACE

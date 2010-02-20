@@ -71,10 +71,23 @@ public:
     cl_command_queue id() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
+    bool operator==(const QCLCommandQueue &other) const;
+    bool operator!=(const QCLCommandQueue &other) const;
+
 private:
     QCLContext *m_context;
     cl_command_queue m_id;
 };
+
+inline bool QCLCommandQueue::operator==(const QCLCommandQueue &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLCommandQueue::operator!=(const QCLCommandQueue &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 

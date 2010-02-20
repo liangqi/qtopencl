@@ -64,9 +64,22 @@ public:
 
     cl_sampler id() const { return m_id; }
 
+    bool operator==(const QCLSampler &other) const;
+    bool operator!=(const QCLSampler &other) const;
+
 private:
     cl_sampler m_id;
 };
+
+inline bool QCLSampler::operator==(const QCLSampler &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLSampler::operator!=(const QCLSampler &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 

@@ -146,4 +146,22 @@ QList<QCLPlatform> QCLPlatform::platforms()
     return platforms;
 }
 
+/*!
+    \fn bool QCLPlatform::operator==(const QCLPlatform &other) const
+
+    Returns true if this OpenCL platform identifier is the same
+    as \a other; false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLPlatform::operator!=(const QCLPlatform &other) const
+
+    Returns true if this OpenCL platform identifier is not the
+    same as \a other; false otherwise.
+
+    \sa operator==()
+*/
+
 QT_END_NAMESPACE

@@ -73,10 +73,29 @@ public:
 
     const size_t *sizes() const { return m_sizes; }
 
+    bool operator==(const QCLWorkSize &other) const;
+    bool operator!=(const QCLWorkSize &other) const;
+
 private:
     size_t m_dim;
     size_t m_sizes[3];
 };
+
+inline bool QCLWorkSize::operator==(const QCLWorkSize &other) const
+{
+    return m_dim == other.m_dim &&
+           m_sizes[0] == other.m_sizes[0] &&
+           m_sizes[1] == other.m_sizes[1] &&
+           m_sizes[2] == other.m_sizes[2];
+}
+
+inline bool QCLWorkSize::operator!=(const QCLWorkSize &other) const
+{
+    return m_dim != other.m_dim ||
+           m_sizes[0] != other.m_sizes[0] ||
+           m_sizes[1] != other.m_sizes[1] ||
+           m_sizes[2] != other.m_sizes[2];
+}
 
 QT_END_NAMESPACE
 

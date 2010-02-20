@@ -267,4 +267,22 @@ void QCLProgram::unloadCompiler()
     clUnloadCompiler();
 }
 
+/*!
+    \fn bool QCLProgram::operator==(const QCLProgram &other) const
+
+    Returns true if this OpenCL program is the same as \a other;
+    false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLProgram::operator!=(const QCLProgram &other) const
+
+    Returns true if this OpenCL program is not the same as \a other;
+    false otherwise.
+
+    \sa operator==()
+*/
+
 QT_END_NAMESPACE

@@ -113,4 +113,22 @@ QCLSampler &QCLSampler::operator=(const QCLSampler &other)
     Returns the native OpenCL identifier for this sampler.
 */
 
+/*!
+    \fn bool QCLSampler::operator==(const QCLSampler &other) const
+
+    Returns true if this OpenCL sampler is the same as \a other;
+    false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLSampler::operator!=(const QCLSampler &other) const
+
+    Returns true if this OpenCL sampler is not the same as \a other;
+    false otherwise.
+
+    \sa operator==()
+*/
+
 QT_END_NAMESPACE

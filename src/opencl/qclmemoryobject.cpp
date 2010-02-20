@@ -336,6 +336,24 @@ QCLEvent QCLMemoryObject::releaseGL(const QVector<QCLEvent> &after)
 }
 
 /*!
+    \fn bool QCLMemoryObject::operator==(const QCLMemoryObject &other) const
+
+    Returns true if this OpenCL memory object is the same as \a other;
+    false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLMemoryObject::operator!=(const QCLMemoryObject &other) const
+
+    Returns true if this OpenCL memory object is not the same as \a other;
+    false otherwise.
+
+    \sa operator==()
+*/
+
+/*!
     \internal
 */
 void QCLMemoryObject::setId(QCLContext *context, cl_mem id)

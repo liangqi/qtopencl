@@ -96,11 +96,24 @@ public:
     static QList<QCLDevice> devices
         (QCLDevice::DeviceTypes types, const QList<QCLPlatform> &platforms);
 
+    bool operator==(const QCLDevice &other) const;
+    bool operator!=(const QCLDevice &other) const;
+
 private:
     cl_device_id m_id;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QCLDevice::DeviceTypes)
+
+inline bool QCLDevice::operator==(const QCLDevice &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLDevice::operator!=(const QCLDevice &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 

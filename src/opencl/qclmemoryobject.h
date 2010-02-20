@@ -83,6 +83,9 @@ public:
     QCLEvent releaseGL();
     QCLEvent releaseGL(const QVector<QCLEvent> &after);
 
+    bool operator==(const QCLMemoryObject &other) const;
+    bool operator!=(const QCLMemoryObject &other) const;
+
 protected:
     void setId(QCLContext *context, cl_mem id);
 
@@ -92,6 +95,16 @@ private:
 
     Q_DISABLE_COPY(QCLMemoryObject)
 };
+
+inline bool QCLMemoryObject::operator==(const QCLMemoryObject &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLMemoryObject::operator!=(const QCLMemoryObject &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 

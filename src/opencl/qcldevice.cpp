@@ -333,4 +333,22 @@ QList<QCLDevice> QCLDevice::devices
     return devs;
 }
 
+/*!
+    \fn bool QCLDevice::operator==(const QCLDevice &other) const
+
+    Returns true if this OpenCL device identifier is the same
+    as \a other; false otherwise.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QCLDevice::operator!=(const QCLDevice &other) const
+
+    Returns true if this OpenCL device identifier is not the
+    same as \a other; false otherwise.
+
+    \sa operator==()
+*/
+
 QT_END_NAMESPACE

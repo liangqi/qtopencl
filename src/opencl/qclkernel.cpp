@@ -228,6 +228,31 @@ bool QCLKernel::isNull() const
 }
 
 /*!
+    Returns true if this OpenCL kernel object has the same
+    identifier as \a other; false otherwise.
+
+    Note: this operator checks for equality solely on id().
+    The two objects may have different global and local work sizes.
+
+    \sa operator!=(), id()
+*/
+bool QCLKernel::operator==(const QCLKernel &other) const
+{
+    return d_ptr->id == other.d_ptr->id;
+}
+
+/*!
+    Returns true if this OpenCL kernel object does not have the same
+    identifier as \a other; false otherwise.
+
+    \sa operator==(), id()
+*/
+bool QCLKernel::operator!=(const QCLKernel &other) const
+{
+    return d_ptr->id != other.d_ptr->id;
+}
+
+/*!
     Returns the native OpenCL identifier for this kernel.
 */
 cl_kernel QCLKernel::id() const

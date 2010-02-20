@@ -71,9 +71,22 @@ public:
 
     static QList<QCLPlatform> platforms();
 
+    bool operator==(const QCLPlatform &other) const;
+    bool operator!=(const QCLPlatform &other) const;
+
 private:
     cl_platform_id m_id;
 };
+
+inline bool QCLPlatform::operator==(const QCLPlatform &other) const
+{
+    return m_id == other.m_id;
+}
+
+inline bool QCLPlatform::operator!=(const QCLPlatform &other) const
+{
+    return m_id != other.m_id;
+}
 
 QT_END_NAMESPACE
 
