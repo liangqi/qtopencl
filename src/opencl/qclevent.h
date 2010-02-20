@@ -44,6 +44,7 @@
 
 #include "qclglobal.h"
 #include <QtCore/qvector.h>
+#include <QtCore/qfuture.h>
 
 QT_BEGIN_HEADER
 
@@ -74,6 +75,9 @@ public:
 
     void wait();
     static void waitForEvents(const QVector<QCLEvent> &events);
+
+    QFuture<void> toFuture() const;
+    operator QFuture<void>() const;
 
 private:
     cl_event m_id;

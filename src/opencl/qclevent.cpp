@@ -43,6 +43,7 @@
 #include "qclcommandqueue.h"
 #include "qclcontext.h"
 #include <QtCore/qdebug.h>
+#include <QtCore/qtconcurrentrun.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -258,6 +259,64 @@ void QCLEvent::waitForEvents(const QVector<QCLEvent> &events)
          reinterpret_cast<const cl_event *>(events.constData()));
     if (error != CL_SUCCESS)
         qWarning() << "QCLEvent::waitForEvents:" << QCLContext::errorName(error);
+}
+
+static void qt_cl_future_wait(cl_event event)
+{
+    clWaitForEvents(1, &event);
+    clReleaseEvent(event);
+}
+
+/*!
+    Returns a QFuture object that can be used to track the completion
+    of this OpenCL event.
+
+    This function creates a thread on the host CPU to monitor the
+    event in the background.  If the caller wants to block in the
+    foreground thread, then wait() is recommended instead
+    of using toFuture(), because wait() does not need to create an
+    extra thread on the host CPU.
+
+    If however the caller wants to receive notification of event
+    completion via a signal, then toFuture() can be used with
+    QFutureWatcher to receive the signal:
+
+    \code
+    QCLEvent event = ...;
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+    watcher->setFuture(event.toFuture());
+    connect(watcher, SIGNAL(finished()), this, SLOT(eventComplete()));
+    \endcode
+
+    QCLEvent has an implicit conversion operator to QFuture<void>,
+    which allows the QFutureWatcher::setFuture() call to be shortened
+    as follows:
+
+    \code
+    watcher->setFuture(event);
+    \endcode
+
+    \sa operator QFuture<void>()
+*/
+QFuture<void> QCLEvent::toFuture() const
+{
+    if (m_id) {
+        clRetainEvent(m_id);
+        return QtConcurrent::run(qt_cl_future_wait, m_id);
+    } else {
+        return QFuture<void>();
+    }
+}
+
+/*!
+    Equivalent to calling toFuture().
+
+    This conversion operator is intended to help with interfacing
+    OpenCL to code that uses QtConcurrent.
+*/
+QCLEvent::operator QFuture<void>() const
+{
+    return toFuture();
 }
 
 QT_END_NAMESPACE
