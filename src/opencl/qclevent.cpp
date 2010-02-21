@@ -372,8 +372,6 @@ static void qt_cl_future_wait(cl_event event)
     \code
     watcher->setFuture(event);
     \endcode
-
-    \sa operator QFuture<void>()
 */
 QFuture<void> QCLEvent::toFuture() const
 {
@@ -672,7 +670,7 @@ QCLEvent QCLEventList::at(int index) const
 /*!
     \fn QCLEventList &QCLEventList::operator+=(const QCLEvent &event)
 
-    Same as append(\event).
+    Same as append(\a event).
 */
 
 /*!
@@ -684,7 +682,7 @@ QCLEvent QCLEventList::at(int index) const
 /*!
     \fn QCLEventList &QCLEventList::operator<<(const QCLEvent &event)
 
-    Same as append(\event).
+    Same as append(\a event).
 */
 
 /*!
@@ -749,8 +747,6 @@ static void qt_cl_future_list_wait(QVector<cl_event> events)
     \code
     watcher->setFuture(list);
     \endcode
-
-    \sa operator QFuture<void>()
 */
 QFuture<void> QCLEventList::toFuture() const
 {

@@ -615,7 +615,7 @@ void QCLKernel::setArg(int index, const QCLMemoryObject &value)
     clSetKernelArg(d->id, index, sizeof(id), &id);
 }
 
-#if defined(Q_QDOC)
+#if defined(qdoc)
 
 // Generate nicer qdoc output.
 
