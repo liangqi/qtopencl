@@ -49,33 +49,61 @@
 
     \code
 OpenCL Platforms:
-    Platform ID    : 12289
-    Profile        : FULL_PROFILE
-    Version        : OpenCL 1.0
-    Name           : NVIDIA
-    Vendor         : NVIDIA Corporation
-    Extensions     :
+    Platform ID       : 12289
+    Profile           : FULL_PROFILE
+    Version           : OpenCL 1.0
+    Name              : NVIDIA
+    Vendor            : NVIDIA Corporation
+    Extensions        :
         cl_khr_byte_addressable_store
         cl_nv_compiler_options
         cl_nv_device_attribute_query
 
 OpenCL Devices:
-    Device ID      : 65536
-    Platform ID    : 12289
-    Vendor ID      : 4318
-    Type           : GPU
-    Profile        : FULL_PROFILE
-    Version        : OpenCL 1.0
-    Driver Version : 190.29
-    Name           : GeForce GTX 275
-    Vendor         : NVIDIA Corporation
-    Compute Units  : 30
-    Max Work Size  : 512x512x64
-    Max Items/Group: 512
-    Available      : true
-    Image Support  : true
-    Has Compiler   : true
-    Extensions     :
+    Device ID         : 65536
+    Platform ID       : 12289
+    Vendor ID         : 4318
+    Type              : GPU
+    Profile           : FULL_PROFILE
+    Version           : OpenCL 1.0
+    Driver Version    : 190.29
+    Name              : GeForce GTX 275
+    Vendor            : NVIDIA Corporation
+    Available         : true
+    Compute Units     : 30
+    Clock Frequency   : 1404 MHz
+    Address Bits      : 32
+    Byte Order        : Little Endian
+    Max Work Size     : 512x512x64
+    Max Items/Group   : 512
+    Local Memory      : 16 kB
+    Global Memory     : 895 MB
+    Global Cache Type : None
+    Global Cache Size : 0 kB
+    Cache Line Size   : 0
+    Max Alloc Size    : 223 MB
+    Max Constant Size : 64 kB
+    Max Constant Args : 9
+    Separate Local    : true
+    Alignment         : 32 (min 16)
+    Max Param Bytes   : 4352
+    Error Correction  : false
+    Float Support     : InfinityNaN RoundNearest
+    Double Support    : No
+    Half Float Support: No
+    Image Support     : true
+    Max 2D Image Size : 8192x8192
+    Max 3D Image      : 2048x2048x2048
+    Max Samplers      : 16
+    Max Read Images   : 128
+    Max Write Images  : 8
+    Writable 3D Images: false
+    Has Compiler      : true
+    Native Kernels    : false
+    Out of Order Exec : true
+    Preferred Vector Sizes:
+        char1, short1, int1, long1, float1
+    Extensions        :
         cl_khr_byte_addressable_store
         cl_nv_compiler_options
         cl_nv_device_attribute_query
