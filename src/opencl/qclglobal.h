@@ -64,8 +64,10 @@ QT_LICENSED_MODULE(CL)
 #endif
 
 #if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenCL/cl_platform.h>
 #include <OpenCL/cl.h>
 #else
+#include <CL/cl_platform.h>
 #include <CL/cl.h>
 #endif
 
