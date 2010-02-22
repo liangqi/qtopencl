@@ -131,10 +131,6 @@ public:
          int width, int height, int depth, QCL::Access access,
          int bytesPerLine = 0, int bytesPerSlice = 0);
 
-    QCLSampler createSampler
-        (bool normalizedCoords, cl_addressing_mode addressingMode,
-         cl_filter_mode filterMode);
-
     QCLProgram createProgramFromSourceCode(const QByteArray &sourceCode);
     QCLProgram createProgramFromSourceFile(const QString &fileName);
 
@@ -170,6 +166,7 @@ private:
     friend class QCLCommandQueue;
     friend class QCLProgram;
     friend class QCLVectorBase;
+    friend class QCLSampler;
 
     void reportError(const char *name, cl_int error);
 };

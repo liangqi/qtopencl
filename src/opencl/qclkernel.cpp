@@ -648,8 +648,8 @@ void QCLKernel::setArg(int index, const QCLVectorBase &value)
 void QCLKernel::setArg(int index, const QCLSampler &value)
 {
     Q_D(const QCLKernel);
-    cl_sampler id = value.samplerId();
-    clSetKernelArg(d->id, index, sizeof(id), &id);
+    // Ask QCLSampler to create the cl_sampler on demand if necessary.
+    value.setKernelArg(d->context, d->id, index);
 }
 
 /*!

@@ -43,6 +43,7 @@
 #define QCLSAMPLER_H
 
 #include "qclglobal.h"
+#include <QtCore/qscopedpointer.h>
 
 QT_BEGIN_HEADER
 
@@ -50,35 +51,62 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
+class QCLSamplerPrivate;
+class QCLContext;
+
 class Q_CL_EXPORT QCLSampler
 {
 public:
-    QCLSampler() : m_id(0) {}
-    QCLSampler(cl_sampler id) : m_id(id) {}
+    QCLSampler();
+    QCLSampler(cl_sampler id);
     QCLSampler(const QCLSampler &other);
     ~QCLSampler();
 
     QCLSampler &operator=(const QCLSampler &other);
 
-    bool isNull() const { return m_id == 0; }
+    enum AddressingMode
+    {
+        None                = 0x1130,   // CL_ADDRESS_NONE
+        ClampToEdge         = 0x1131,   // CL_ADDRESS_CLAMP_TO_EDGE
+        Clamp               = 0x1132,   // CL_ADDRESS_CLAMP
+        Repeat              = 0x1133    // CL_ADDRESS_REPEAT
+    };
 
-    cl_sampler samplerId() const { return m_id; }
+    enum FilterMode
+    {
+        Nearest             = 0x1140,   // CL_FILTER_NEAREST
+        Linear              = 0x1141    // CL_FILTER_LINEAR
+    };
+
+    bool normalizedCoordinates() const;
+    void setNormalizedCoordinates(bool value);
+
+    QCLSampler::AddressingMode addressingMode() const;
+    void setAddressingMode(QCLSampler::AddressingMode value);
+
+    QCLSampler::FilterMode filterMode() const;
+    void setFilterMode(QCLSampler::FilterMode value);
+
+    cl_sampler samplerId() const;
+    QCLContext *context() const;
 
     bool operator==(const QCLSampler &other) const;
     bool operator!=(const QCLSampler &other) const;
 
 private:
-    cl_sampler m_id;
-};
+    QScopedPointer<QCLSamplerPrivate> d_ptr;
 
-inline bool QCLSampler::operator==(const QCLSampler &other) const
-{
-    return m_id == other.m_id;
-}
+    Q_DECLARE_PRIVATE(QCLSampler)
+
+    void setKernelArg(QCLContext *context, cl_kernel kernel, int index) const;
+
+    friend class QCLContext;
+    friend class QCLKernel;
+};
 
 inline bool QCLSampler::operator!=(const QCLSampler &other) const
 {
-    return m_id != other.m_id;
+    return !(*this == other);
 }
 
 QT_END_NAMESPACE

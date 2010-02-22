@@ -1001,26 +1001,6 @@ QCLImage3D QCLContext::createImage3DCopy
 }
 
 /*!
-    Creates and returns an OpenCL sampler from the \a normalizedCoords,
-    \a addressingMode, and \a filterMode parameters.
-*/
-QCLSampler QCLContext::createSampler
-    (bool normalizedCoords, cl_addressing_mode addressingMode,
-     cl_filter_mode filterMode)
-{
-    Q_D(QCLContext);
-    cl_int error;
-    cl_sampler sampler = clCreateSampler
-        (d->id, normalizedCoords ? CL_TRUE : CL_FALSE,
-         addressingMode, filterMode, &error);
-    reportError("QCLContext::createSampler:", error);
-    if (sampler)
-        return QCLSampler(sampler);
-    else
-        return QCLSampler();
-}
-
-/*!
     Creates an OpenCL program object from the supplied \a sourceCode.
 
     \sa createProgramFromSourceFile(), buildProgramFromSourceCode()
