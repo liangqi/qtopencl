@@ -101,3 +101,8 @@ __kernel void storeMat4(__global __write_only float4 *output, float16 input)
     output[2] = input.hi.lo;
     output[3] = input.hi.hi;
 }
+
+__kernel void addToVector(__global float *vector, float value)
+{
+    vector[get_global_id(0)] += value;
+}

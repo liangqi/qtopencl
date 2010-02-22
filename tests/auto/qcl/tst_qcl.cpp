@@ -58,6 +58,7 @@ private slots:
     void initTestCase();
     void buildProgram();
     void argumentPassing();
+    void vectorBuffer();
 
 private:
     QCLContext context;
@@ -168,6 +169,60 @@ void tst_QCL::argumentPassing()
     QCOMPARE(buf[13], 8.0f);
     QCOMPARE(buf[14], 12.0f);
     QCOMPARE(buf[15], 16.0f);
+}
+
+static float constVectorAt(const QCLVector<float>& vector, int index)
+{
+    return vector[index];
+}
+
+// Test the QCLVector<T> class.
+void tst_QCL::vectorBuffer()
+{
+    QCLVector<float> vector1;
+    QVERIFY(vector1.isNull());
+    QVERIFY(vector1.isEmpty());
+    QCOMPARE(vector1.size(), 0);
+    QVERIFY(vector1.memoryId() == 0);
+    QVERIFY(vector1.context() == 0);
+    QVERIFY(!vector1.isMapped());
+
+    vector1 = context.createVector<float>(100);
+    QVERIFY(!vector1.isNull());
+    QVERIFY(!vector1.isEmpty());
+    QCOMPARE(vector1.size(), 100);
+    QVERIFY(vector1.memoryId() != 0);
+    QVERIFY(vector1.context() == &context);
+    QVERIFY(!vector1.isMapped());
+
+    for (int index = 0; index < 100; ++index)
+        vector1[index] = float(index);
+    QVERIFY(vector1.isMapped());
+
+    vector1.unmap();
+    QVERIFY(!vector1.isMapped());
+    for (int index = 0; index < 100; ++index)
+        QCOMPARE(vector1[index], float(index));
+    QVERIFY(vector1.isMapped());
+
+    QCLKernel addToVector = program.createKernel("addToVector");
+    addToVector.setGlobalWorkSize(vector1.size());
+    addToVector(vector1, 42.0f);
+    QVERIFY(!vector1.isMapped());
+
+    for (int index = 0; index < 100; ++index) {
+        QCOMPARE(constVectorAt(vector1, index), float(index + 42));
+        QCOMPARE(vector1[index], float(index + 42));
+    }
+    QVERIFY(vector1.isMapped());
+
+    vector1.release();
+    QVERIFY(vector1.isNull());
+    QVERIFY(vector1.isEmpty());
+    QCOMPARE(vector1.size(), 0);
+    QVERIFY(vector1.memoryId() == 0);
+    QVERIFY(vector1.context() == 0);
+    QVERIFY(!vector1.isMapped());
 }
 
 QTEST_MAIN(tst_QCL)

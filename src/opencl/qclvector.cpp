@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
     OpenCL buffer object to make it appear as a host-accessible array
     of elements of type T.
 
-    Whenever the host CPU calls operator[](), at(), or map(), the
+    Whenever the host CPU calls operator[]() or map(), the
     array's contents are mapped into host-accessible memory for
     direct access.  When the host calls unmap() or sets the vector
     on a QCLKernel as an argument, the data is copied back to the
@@ -392,24 +392,17 @@ cl_mem QCLVectorBase::kernelArg() const
     Returns a reference to the element at \a index in this OpenCL vector.
     The vector will be mapped into host memory if necessary.
 
-    \sa map(), at()
+    \sa map()
 */
 
 /*!
     \fn const T &QCLVector::operator[](int index) const
-    \overload
-
-    Same as at(\a index).
-*/
-
-/*!
-    \fn const T &QCLVector::at(int index) const
 
     Returns a const reference to the element at \a index in this
     OpenCL vector.  The vector will be mapped into host memory
     if necessary.
 
-    \sa map(), operator[]()
+    \sa map()
 */
 
 /*!

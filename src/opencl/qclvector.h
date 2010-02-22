@@ -106,7 +106,6 @@ public:
 
     T &operator[](int index);
     const T &operator[](int index) const;
-    const T &at(int index) const;
 
     void map();
     void unmap();
@@ -182,21 +181,11 @@ Q_INLINE_TEMPLATE T &QCLVector<T>::operator[](int index)
 template <typename T>
 Q_INLINE_TEMPLATE const T &QCLVector<T>::operator[](int index) const
 {
-    Q_ASSERT_X(index >= 0 && index < m_size, "QCLVector<T>::operator[]",
+    Q_ASSERT_X(index >= 0 && index < int(m_size), "QCLVector<T>::operator[]",
                "index out of range");
     if (!m_mapped)
-        map();
-    return (reinterpret_cast<const T *>(m_mapped))[index];
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE const T &QCLVector<T>::at(int index) const
-{
-    Q_ASSERT_X(index >= 0 && index < m_size, "QCLVector<T>::at",
-               "index out of range");
-    if (!m_mapped)
-        map();
-    return (reinterpret_cast<const T *>(m_mapped))[index];
+        const_cast<QCLVector<T> *>(this)->map();
+    return (reinterpret_cast<T *>(m_mapped))[index];
 }
 
 template <typename T>
