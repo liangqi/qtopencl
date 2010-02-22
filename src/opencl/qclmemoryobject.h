@@ -65,7 +65,7 @@ public:
 
     bool isNull() const { return m_id == 0; }
 
-    cl_mem id() const { return m_id; }
+    cl_mem memoryId() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
     QCL::Access access() const;

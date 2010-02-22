@@ -94,17 +94,17 @@ QCLContext::QCLContext()
 
 /*!
     Destroys this OpenCL context object.  If the underlying
-    context id() has been created, then it will be released.
+    contextId() has been created, then it will be released.
 */
 QCLContext::~QCLContext()
 {
 }
 
 /*!
-    Returns true if the underlying OpenCL context id() has been
+    Returns true if the underlying OpenCL contextId() has been
     created; false otherwise.
 
-    \sa create(), setId()
+    \sa create(), setContextId()
 */
 bool QCLContext::isCreated() const
 {
@@ -163,7 +163,7 @@ static void qt_cl_context_notify(const char *errinfo,
     Returns true if the context was created; false otherwise.
     On error, the status can be retrieved by calling lastError().
 
-    \sa isCreated(), setId(), release()
+    \sa isCreated(), setContextId(), release()
 */
 bool QCLContext::create(QCLDevice::DeviceTypes type)
 {
@@ -173,7 +173,7 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
     if (!d->platform.isNull()) {
         cl_context_properties props[] = {
             CL_CONTEXT_PLATFORM,
-            cl_context_properties(d->platform.id()),
+            cl_context_properties(d->platform.platformId()),
             0
         };
         d->id = clCreateContextFromType
@@ -199,7 +199,7 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
     Returns true if the context was created; false otherwise.
     On error, the status can be retrieved by calling lastError().
 
-    \sa isCreated(), setId(), release()
+    \sa isCreated(), setContextId(), release()
 */
 bool QCLContext::create(const QList<QCLDevice> &devices)
 {
@@ -208,11 +208,11 @@ bool QCLContext::create(const QList<QCLDevice> &devices)
         return true;
     QVector<cl_device_id> devs;
     foreach (QCLDevice dev, devices)
-        devs.append(dev.id());
+        devs.append(dev.deviceId());
     if (!d->platform.isNull()) {
         cl_context_properties props[] = {
             CL_CONTEXT_PLATFORM,
-            intptr_t(d->platform.id()),
+            intptr_t(d->platform.platformId()),
             0
         };
         d->id = clCreateContext
@@ -251,9 +251,9 @@ void QCLContext::release()
     Returns the native OpenCL context identifier associated
     with this object.
 
-    \sa setId()
+    \sa setContextId()
 */
-cl_context QCLContext::id() const
+cl_context QCLContext::contextId() const
 {
     Q_D(const QCLContext);
     return d->id;
@@ -268,9 +268,9 @@ cl_context QCLContext::id() const
     to something else, then \c{clReleaseContext()} will be called
     on the previous value.
 
-    \sa id(), create()
+    \sa contextId(), create()
 */
-void QCLContext::setId(cl_context id)
+void QCLContext::setContextId(cl_context id)
 {
     Q_D(QCLContext);
     if (d->id == id || !id)
@@ -564,7 +564,7 @@ QCLCommandQueue QCLContext::defaultCommandQueue()
             return QCLCommandQueue();
         cl_command_queue queue;
         cl_int error = CL_INVALID_VALUE;
-        queue = clCreateCommandQueue(d->id, dev.id(), 0, &error);
+        queue = clCreateCommandQueue(d->id, dev.deviceId(), 0, &error);
         d->lastError = error;
         if (!queue) {
             qWarning() << "QCLContext::defaultCommandQueue:"
@@ -580,13 +580,13 @@ QCLCommandQueue QCLContext::defaultCommandQueue()
 cl_command_queue QCLContext::activeQueue()
 {
     Q_D(QCLContext);
-    cl_command_queue queue = d->commandQueue.id();
+    cl_command_queue queue = d->commandQueue.queueId();
     if (queue)
         return queue;
-    queue = d->defaultCommandQueue.id();
+    queue = d->defaultCommandQueue.queueId();
     if (queue)
         return queue;
-    return defaultCommandQueue().id();
+    return defaultCommandQueue().queueId();
 }
 
 /*!
@@ -605,7 +605,7 @@ QCLCommandQueue QCLContext::createCommandQueue
     Q_D(QCLContext);
     cl_command_queue queue;
     cl_int error = CL_INVALID_VALUE;
-    queue = clCreateCommandQueue(d->id, device.id(), properties, &error);
+    queue = clCreateCommandQueue(d->id, device.deviceId(), properties, &error);
     reportError("QCLContext::createCommandQueue:", error);
     if (queue)
         return QCLCommandQueue(this, queue);

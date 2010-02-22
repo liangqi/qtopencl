@@ -231,10 +231,10 @@ bool QCLKernel::isNull() const
     Returns true if this OpenCL kernel object has the same
     identifier as \a other; false otherwise.
 
-    Note: this operator checks for equality solely on id().
+    Note: this operator checks for equality solely on kernelId().
     The two objects may have different global and local work sizes.
 
-    \sa operator!=(), id()
+    \sa operator!=(), kernelId()
 */
 bool QCLKernel::operator==(const QCLKernel &other) const
 {
@@ -245,7 +245,7 @@ bool QCLKernel::operator==(const QCLKernel &other) const
     Returns true if this OpenCL kernel object does not have the same
     identifier as \a other; false otherwise.
 
-    \sa operator==(), id()
+    \sa operator==(), kernelId()
 */
 bool QCLKernel::operator!=(const QCLKernel &other) const
 {
@@ -255,7 +255,7 @@ bool QCLKernel::operator!=(const QCLKernel &other) const
 /*!
     Returns the native OpenCL identifier for this kernel.
 */
-cl_kernel QCLKernel::id() const
+cl_kernel QCLKernel::kernelId() const
 {
     Q_D(const QCLKernel);
     return d->id;
@@ -331,7 +331,7 @@ QCLWorkSize QCLKernel::declaredWorkGroupSize() const
     Q_D(const QCLKernel);
     size_t sizes[3];
     if (clGetKernelWorkGroupInfo
-            (d->id, d->context->defaultDevice().id(),
+            (d->id, d->context->defaultDevice().deviceId(),
              CL_KERNEL_COMPILE_WORK_GROUP_SIZE,
              sizeof(sizes), sizes, 0) != CL_SUCCESS)
         return QCLWorkSize(0, 0, 0);
@@ -353,7 +353,7 @@ QCLWorkSize QCLKernel::declaredWorkGroupSize(const QCLDevice &device) const
     Q_D(const QCLKernel);
     size_t sizes[3];
     if (clGetKernelWorkGroupInfo
-            (d->id, device.id(),
+            (d->id, device.deviceId(),
              CL_KERNEL_COMPILE_WORK_GROUP_SIZE,
              sizeof(sizes), sizes, 0) != CL_SUCCESS)
         return QCLWorkSize(0, 0, 0);
@@ -611,7 +611,7 @@ void QCLKernel::setArg(int index, const QMatrix4x4 &value)
 void QCLKernel::setArg(int index, const QCLMemoryObject &value)
 {
     Q_D(const QCLKernel);
-    cl_mem id = value.id();
+    cl_mem id = value.memoryId();
     clSetKernelArg(d->id, index, sizeof(id), &id);
 }
 
@@ -648,7 +648,7 @@ void QCLKernel::setArg(int index, const QCLVectorBase &value)
 void QCLKernel::setArg(int index, const QCLSampler &value)
 {
     Q_D(const QCLKernel);
-    cl_sampler id = value.id();
+    cl_sampler id = value.samplerId();
     clSetKernelArg(d->id, index, sizeof(id), &id);
 }
 

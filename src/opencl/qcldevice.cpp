@@ -780,7 +780,7 @@ QStringList QCLDevice::extensions() const
 }
 
 /*!
-    \fn cl_device_id QCLDevice::id() const
+    \fn cl_device_id QCLDevice::deviceId() const
 
     Returns the native OpenCL device identifier for this object.
 */
@@ -818,11 +818,11 @@ QList<QCLDevice> QCLDevice::devices
     QList<QCLDevice> devs;
     for (int plat = 0; plat < platforms.size(); ++plat) {
         cl_uint size;
-        if (clGetDeviceIDs(platforms[plat].id(), cl_device_type(types),
+        if (clGetDeviceIDs(platforms[plat].platformId(), cl_device_type(types),
                            0, 0, &size) != CL_SUCCESS)
             continue;
         QVarLengthArray<cl_device_id> buf(size);
-        if (clGetDeviceIDs(platforms[plat].id(), cl_device_type(types),
+        if (clGetDeviceIDs(platforms[plat].platformId(), cl_device_type(types),
                            size, buf.data(), &size) != CL_SUCCESS)
             continue;
         for (int index = 0; index < buf.size(); ++index)

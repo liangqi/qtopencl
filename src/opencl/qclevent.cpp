@@ -122,7 +122,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     Constructs a copy of \a other.  The \c{clRetainEvent()} function
-    will be called to update the reference count on id().
+    will be called to update the reference count on eventId().
 */
 QCLEvent::QCLEvent(const QCLEvent &other)
     : m_id(other.m_id)
@@ -141,8 +141,8 @@ QCLEvent::~QCLEvent()
 }
 
 /*!
-    Assigns \a other to this OpenCL event object.  The current id() will
-    be released with \c{clReleaseEvent()}, and the new id() will be
+    Assigns \a other to this OpenCL event object.  The current eventId() will
+    be released with \c{clReleaseEvent()}, and the new eventId() will be
     retained with \c{clRetainEvent()}.
 */
 QCLEvent &QCLEvent::operator=(const QCLEvent &other)
@@ -164,7 +164,7 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
 */
 
 /*!
-    \fn cl_event QCLEvent::id() const
+    \fn cl_event QCLEvent::eventId() const
 
     Returns the native OpenCL identifier for this event.
 */
@@ -396,7 +396,7 @@ QCLEvent::operator QFuture<void>() const
 
 QDebug operator<<(QDebug dbg, const QCLEvent &event)
 {
-    cl_event id = event.id();
+    cl_event id = event.eventId();
     if (!id) {
         dbg << "QCLEvent()";
         return dbg;
@@ -522,7 +522,7 @@ QDebug operator<<(QDebug dbg, const QCLEvent &event)
 */
 QCLEventList::QCLEventList(const QCLEvent &event)
 {
-    cl_event id = event.id();
+    cl_event id = event.eventId();
     if (id) {
         clRetainEvent(id);
         m_events.append(id);
@@ -589,7 +589,7 @@ QCLEventList &QCLEventList::operator=(const QCLEventList &other)
 */
 void QCLEventList::append(const QCLEvent &event)
 {
-    cl_event id = event.id();
+    cl_event id = event.eventId();
     if (id) {
         clRetainEvent(id);
         m_events.append(id);
@@ -619,7 +619,7 @@ void QCLEventList::remove(const QCLEvent &event)
 {
     QVector<cl_event>::Iterator it = m_events.begin();
     while (it != m_events.end()) {
-        if (*it == event.id()) {
+        if (*it == event.eventId()) {
             clReleaseEvent(*it);
             it = m_events.erase(it);
         } else {

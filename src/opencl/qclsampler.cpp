@@ -66,7 +66,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     Constructs a copy of \a other.  The \c{clRetainSampler()} function
-    will be called to update the reference count on id().
+    will be called to update the reference count on samplerId().
 */
 QCLSampler::QCLSampler(const QCLSampler &other)
     : m_id(other.m_id)
@@ -85,9 +85,9 @@ QCLSampler::~QCLSampler()
 }
 
 /*!
-    Assigns \a other to this OpenCL sampler object.  The current id() will
-    be released with \c{clReleaseSampler()}, and the new id() will be
-    retained with \c{clRetainSampler()}.
+    Assigns \a other to this OpenCL sampler object.  The current samplerId()
+    will be released with \c{clReleaseSampler()}, and the new samplerId()
+    will be retained with \c{clRetainSampler()}.
 */
 QCLSampler &QCLSampler::operator=(const QCLSampler &other)
 {
@@ -108,7 +108,7 @@ QCLSampler &QCLSampler::operator=(const QCLSampler &other)
 */
 
 /*!
-    \fn cl_sampler QCLSampler::id() const
+    \fn cl_sampler QCLSampler::samplerId() const
 
     Returns the native OpenCL identifier for this sampler.
 */

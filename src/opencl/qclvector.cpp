@@ -158,7 +158,7 @@ void QCLVectorBase::create
     d_ptr->owners.append(this);
     cl_int error;
     cl_mem id = clCreateBuffer
-        (context->id(),
+        (context->contextId(),
 #ifndef QT_CL_COPY_VECTOR
             cl_mem_flags(access) | CL_MEM_ALLOC_HOST_PTR,
 #else
@@ -306,7 +306,7 @@ void QCLVectorBase::write(const void *data, int count, int offset)
     }
 }
 
-cl_mem QCLVectorBase::id() const
+cl_mem QCLVectorBase::memoryId() const
 {
     return d_ptr ? d_ptr->id : 0;
 }
@@ -482,7 +482,7 @@ cl_mem QCLVectorBase::kernelArg() const
 */
 
 /*!
-    \fn cl_mem QCLVector::id() const
+    \fn cl_mem QCLVector::memoryId() const
 
     Returns the native OpenCL memory buffer identifier for this vector.
 */

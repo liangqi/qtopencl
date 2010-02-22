@@ -67,7 +67,7 @@ public:
     QString vendor() const;
     QStringList extensions() const;
 
-    cl_platform_id id() const { return m_id; }
+    cl_platform_id platformId() const { return m_id; }
 
     static QList<QCLPlatform> platforms();
 

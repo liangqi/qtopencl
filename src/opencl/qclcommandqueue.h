@@ -71,7 +71,7 @@ public:
     bool isProfilingEnabled() const;
     void setProfilingEnabled(bool enable);
 
-    cl_command_queue id() const { return m_id; }
+    cl_command_queue queueId() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
     bool operator==(const QCLCommandQueue &other) const;

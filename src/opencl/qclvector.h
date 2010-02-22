@@ -79,7 +79,7 @@ protected:
     void read(void *data, int count, int offset);
     void write(const void *data, int count, int offset);
 
-    cl_mem id() const;
+    cl_mem memoryId() const;
     QCLContext *context() const;
 
     cl_mem kernelArg() const;
@@ -118,7 +118,7 @@ public:
 
     T *data() const;
 
-    cl_mem id() const;
+    cl_mem memoryId() const;
     QCLContext *context() const;
 
     QCLBuffer toBuffer() const;
@@ -249,9 +249,9 @@ Q_INLINE_TEMPLATE T *QCLVector<T>::data() const
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE cl_mem QCLVector<T>::id() const
+Q_INLINE_TEMPLATE cl_mem QCLVector<T>::memoryId() const
 {
-    return QCLVectorBase::id();
+    return QCLVectorBase::memoryId();
 }
 
 template <typename T>
@@ -263,7 +263,7 @@ Q_INLINE_TEMPLATE QCLContext *QCLVector<T>::context() const
 template <typename T>
 Q_INLINE_TEMPLATE QCLBuffer QCLVector<T>::toBuffer() const
 {
-    cl_mem id = QCLVectorBase::id();
+    cl_mem id = QCLVectorBase::memoryId();
     if (id) {
         clRetainMemObject(id);
         return QCLBuffer(context(), id);

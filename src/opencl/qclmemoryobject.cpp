@@ -83,7 +83,7 @@ QCLMemoryObject::~QCLMemoryObject()
 */
 
 /*!
-    \fn cl_mem QCLMemoryObject::id() const
+    \fn cl_mem QCLMemoryObject::memoryId() const
 
     Returns the native OpenCL identifier for this memory object.
 */
@@ -174,7 +174,7 @@ void QCLMemoryObject::unmap(void *ptr)
 {
     cl_event event = 0;
     cl_int error = clEnqueueUnmapMemObject
-        (context()->activeQueue(), id(), ptr, 0, 0, &event);
+        (context()->activeQueue(), memoryId(), ptr, 0, 0, &event);
     context()->reportError("QCLMemoryObject::unmap:", error);
     if (error == CL_SUCCESS) {
         clWaitForEvents(1, &event);
@@ -199,7 +199,7 @@ QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QCLEventList &after)
 {
     cl_event event;
     cl_int error = clEnqueueUnmapMemObject
-        (context()->activeQueue(), id(), ptr,
+        (context()->activeQueue(), memoryId(), ptr,
         after.size(), after.eventData(), &event);
     context()->reportError("QCLMemoryObject::unmapAsync:", error);
     if (error == CL_SUCCESS)

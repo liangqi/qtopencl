@@ -90,7 +90,7 @@ bool QCLBuffer::isGLBuffer() const
 {
 #ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
-    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+    if (clGetGLObjectInfo(memoryId(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_BUFFER;
 #else
@@ -111,7 +111,7 @@ bool QCLBuffer::isGLBuffer() const
 bool QCLBuffer::read(size_t offset, void *data, size_t size)
 {
     cl_int error = clEnqueueReadBuffer
-        (context()->activeQueue(), id(),
+        (context()->activeQueue(), memoryId(),
          CL_TRUE, offset, size, data, 0, 0, 0);
     context()->reportError("QCLBuffer::read:", error);
     return error == CL_SUCCESS;
@@ -132,7 +132,7 @@ bool QCLBuffer::read(size_t offset, void *data, size_t size)
 bool QCLBuffer::read(void *data, size_t size)
 {
     cl_int error = clEnqueueReadBuffer
-        (context()->activeQueue(), id(),
+        (context()->activeQueue(), memoryId(),
          CL_TRUE, 0, size, data, 0, 0, 0);
     context()->reportError("QCLBuffer::read:", error);
     return error == CL_SUCCESS;
@@ -157,7 +157,7 @@ QCLEvent QCLBuffer::readAsync(size_t offset, void *data, size_t size,
 {
     cl_event event;
     cl_int error = clEnqueueReadBuffer
-        (context()->activeQueue(), id(), CL_FALSE, offset, size, data,
+        (context()->activeQueue(), memoryId(), CL_FALSE, offset, size, data,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::readAsync:", error);
     if (error != CL_SUCCESS)
@@ -179,7 +179,7 @@ QCLEvent QCLBuffer::readAsync(size_t offset, void *data, size_t size,
 bool QCLBuffer::write(size_t offset, const void *data, size_t size)
 {
     cl_int error = clEnqueueWriteBuffer
-        (context()->activeQueue(), id(),
+        (context()->activeQueue(), memoryId(),
          CL_TRUE, offset, size, data, 0, 0, 0);
     context()->reportError("QCLBuffer::write:", error);
     return error == CL_SUCCESS;
@@ -198,7 +198,7 @@ bool QCLBuffer::write(size_t offset, const void *data, size_t size)
 bool QCLBuffer::write(const void *data, size_t size)
 {
     cl_int error = clEnqueueWriteBuffer
-        (context()->activeQueue(), id(),
+        (context()->activeQueue(), memoryId(),
          CL_TRUE, 0, size, data, 0, 0, 0);
     context()->reportError("QCLBuffer::write:", error);
     return error == CL_SUCCESS;
@@ -223,7 +223,7 @@ QCLEvent QCLBuffer::writeAsync(size_t offset, const void *data, size_t size,
 {
     cl_event event;
     cl_int error = clEnqueueWriteBuffer
-        (context()->activeQueue(), id(), CL_FALSE, offset, size, data,
+        (context()->activeQueue(), memoryId(), CL_FALSE, offset, size, data,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::writeAsync:", error);
     if (error != CL_SUCCESS)
@@ -247,7 +247,7 @@ bool QCLBuffer::copyTo
 {
     cl_event event;
     cl_int error = clEnqueueCopyBuffer
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          offset, destOffset, size, 0, 0, &event);
     context()->reportError("QCLBuffer::copyTo(QCLBuffer):", error);
     if (error == CL_SUCCESS) {
@@ -276,7 +276,7 @@ bool QCLBuffer::copyTo
     const size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          offset, dst_origin, region, 0, 0, &event);
     context()->reportError("QCLBuffer::copyTo(QCLImage2D):", error);
     if (error == CL_SUCCESS) {
@@ -304,7 +304,7 @@ bool QCLBuffer::copyTo
 {
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          offset, origin, size, 0, 0, &event);
     context()->reportError("QCLBuffer::copyTo(QCLImage3D):", error);
     if (error == CL_SUCCESS) {
@@ -333,7 +333,7 @@ QCLEvent QCLBuffer::copyToAsync
 {
     cl_event event;
     cl_int error = clEnqueueCopyBuffer
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          offset, destOffset, size,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::copyToAsync:", error);
@@ -362,7 +362,7 @@ QCLEvent QCLBuffer::copyToAsync
     const size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          offset, dst_origin, region,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::copyToAsync(QCLImage2D):", error);
@@ -390,7 +390,7 @@ QCLEvent QCLBuffer::copyToAsync
 {
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          offset, origin, size,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLBuffer::copyToAsync(QCLImage3D):", error);
@@ -428,7 +428,7 @@ void *QCLBuffer::map
 {
     cl_int error;
     void *data = clEnqueueMapBuffer
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          qt_cl_map_flags(access), offset, size, 0, 0, 0, &error);
     context()->reportError("QCLBuffer::map:", error);
     return data;
@@ -469,7 +469,7 @@ QCLEvent QCLBuffer::mapAsync
     cl_int error;
     cl_event event;
     *ptr = clEnqueueMapBuffer
-        (context()->activeQueue(), id(), CL_FALSE,
+        (context()->activeQueue(), memoryId(), CL_FALSE,
          qt_cl_map_flags(access), offset, size,
          after.size(), after.eventData(), &event, &error);
     context()->reportError("QCLBuffer::mapAsync:", error);

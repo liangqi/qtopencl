@@ -124,7 +124,7 @@ QStringList QCLPlatform::extensions() const
 }
 
 /*!
-    \fn cl_platform_id QCLPlatform::id() const
+    \fn cl_platform_id QCLPlatform::platformId() const
 
     Returns the native OpenCL platform identifier for this object.
 */

@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     printf("OpenCL Platforms:\n");
     QList<QCLPlatform> platforms = QCLPlatform::platforms();
     foreach (QCLPlatform platform, platforms) {
-        printf("    Platform ID       : %ld\n", long(platform.id()));
+        printf("    Platform ID       : %ld\n", long(platform.platformId()));
         printf("    Profile           : %s\n", platform.profile().toLatin1().constData());
         printf("    Version           : %s\n", platform.version().toLatin1().constData());
         printf("    Name              : %s\n", platform.name().toLatin1().constData());
@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
     printf("OpenCL Devices:\n");
     QList<QCLDevice> devices = QCLDevice::devices();
     foreach (QCLDevice dev, devices) {
-        printf("    Device ID         : %ld\n", long(dev.id()));
-        printf("    Platform ID       : %ld\n", long(dev.platform().id()));
+        printf("    Device ID         : %ld\n", long(dev.deviceId()));
+        printf("    Platform ID       : %ld\n", long(dev.platform().platformId()));
         printf("    Vendor ID         : %u\n", dev.vendorId());
         printf("    Type              :");
         QCLDevice::DeviceTypes type = dev.deviceType();

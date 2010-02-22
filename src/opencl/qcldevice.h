@@ -150,7 +150,7 @@ public:
     QString vendor() const;
     QStringList extensions() const;
 
-    cl_device_id id() const { return m_id; }
+    cl_device_id deviceId() const { return m_id; }
 
     static QList<QCLDevice> devices(QCLDevice::DeviceTypes types = All);
     static QList<QCLDevice> devices

@@ -156,7 +156,7 @@ bool QCLContextGL::create()
     QVarLengthArray<cl_context_properties> properties;
     if (!plat.isNull()) {
         properties.append(CL_CONTEXT_PLATFORM);
-        properties.append(cl_context_properties(plat.id()));
+        properties.append(cl_context_properties(plat.platformId()));
     }
 
     // Determine what kind of OpenCL-OpenGL sharing we have and enable it.
@@ -220,8 +220,8 @@ bool QCLContextGL::create()
         d->supportsSharing = false;
     } else {
         d->supportsSharing = hasSharing;
-        setId(id);
-        clReleaseContext(id);   // setId() adds an extra reference.
+        setContextId(id);
+        clReleaseContext(id);   // setContextId() adds an extra reference.
     }
     return id != 0;
 #else
@@ -256,7 +256,7 @@ QCLBuffer QCLContextGL::createGLBuffer(GLuint bufobj, QCL::Access access)
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLBuffer
-        (id(), flags, bufobj, &error);
+        (contextId(), flags, bufobj, &error);
     reportError("QCLContextGL::createGLBuffer:", error);
     if (mem)
         return QCLBuffer(this, mem);
@@ -311,7 +311,7 @@ QCLImage2D QCLContextGL::createTexture2D
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLTexture2D
-        (id(), flags, type, mipmapLevel, texture, &error);
+        (contextId(), flags, type, mipmapLevel, texture, &error);
     reportError("QCLContextGL::createGLTexture2D:", error);
     if (mem)
         return QCLImage2D(this, mem);
@@ -364,7 +364,7 @@ QCLImage3D QCLContextGL::createTexture3D
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLTexture3D
-        (id(), flags, type, mipmapLevel, texture, &error);
+        (contextId(), flags, type, mipmapLevel, texture, &error);
     reportError("QCLContextGL::createGLTexture3D:", error);
     if (mem)
         return QCLImage3D(this, mem);
@@ -410,7 +410,7 @@ QCLImage2D QCLContextGL::createRenderbuffer
     cl_int error = CL_INVALID_CONTEXT;
     cl_mem_flags flags = cl_mem_flags(access);
     cl_mem mem = clCreateFromGLRenderbuffer
-        (id(), flags, renderbuffer, &error);
+        (contextId(), flags, renderbuffer, &error);
     reportError("QCLContextGL::createGLRenderbuffer:", error);
     if (mem)
         return QCLImage2D(this, mem);

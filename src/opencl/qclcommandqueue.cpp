@@ -183,7 +183,7 @@ void QCLCommandQueue::setProfilingEnabled(bool enable)
 }
 
 /*!
-    \fn cl_command_queue QCLCommandQueue::id() const
+    \fn cl_command_queue QCLCommandQueue::queueId() const
 
     Returns the native OpenCL command queue identifier for this object.
 */

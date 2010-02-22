@@ -86,8 +86,9 @@ QT_BEGIN_NAMESPACE
 QCLImageFormat QCLImage2D::format() const
 {
     cl_image_format iformat;
-    if (clGetImageInfo(id(), CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
-            != CL_SUCCESS)
+    if (clGetImageInfo
+            (memoryId(), CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
+                != CL_SUCCESS)
         return QCLImageFormat();
     else
         return QCLImageFormat
@@ -111,7 +112,7 @@ static int qt_cl_imageParam(cl_mem id, cl_image_info name)
 */
 int QCLImage2D::width() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_WIDTH);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_WIDTH);
 }
 
 /*!
@@ -121,7 +122,7 @@ int QCLImage2D::width() const
 */
 int QCLImage2D::height() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_HEIGHT);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_HEIGHT);
 }
 
 /*!
@@ -131,7 +132,7 @@ int QCLImage2D::height() const
 */
 int QCLImage2D::bytesPerElement() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_ELEMENT_SIZE);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_ELEMENT_SIZE);
 }
 
 /*!
@@ -141,7 +142,7 @@ int QCLImage2D::bytesPerElement() const
 */
 int QCLImage2D::bytesPerLine() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_ROW_PITCH);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_ROW_PITCH);
 }
 
 /*!
@@ -154,7 +155,7 @@ bool QCLImage2D::isTexture2D() const
 {
 #ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
-    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+    if (clGetGLObjectInfo(memoryId(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_TEXTURE2D;
 #else
@@ -172,7 +173,7 @@ bool QCLImage2D::isRenderbuffer() const
 {
 #ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
-    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+    if (clGetGLObjectInfo(memoryId(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_RENDERBUFFER;
 #else
@@ -196,7 +197,7 @@ bool QCLImage2D::read(void *data, const QRect &rect, int bytesPerLine)
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_int error = clEnqueueReadImage
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          origin, region, bytesPerLine, 0, data, 0, 0, 0);
     context()->reportError("QCLImage2D::read:", error);
     return error == CL_SUCCESS;
@@ -247,7 +248,7 @@ QCLEvent QCLImage2D::readAsync
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueReadImage
-        (context()->activeQueue(), id(), CL_FALSE,
+        (context()->activeQueue(), memoryId(), CL_FALSE,
          origin, region, bytesPerLine, 0, data,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage2D::readAsync:", error);
@@ -273,7 +274,7 @@ bool QCLImage2D::write(const void *data, const QRect &rect, int bytesPerLine)
     size_t origin[3] = {rect.x(), rect.y(), 0};
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_int error = clEnqueueWriteImage
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          origin, region, bytesPerLine, 0, data, 0, 0, 0);
     context()->reportError("QCLImage2D::write:", error);
     return error == CL_SUCCESS;
@@ -324,7 +325,7 @@ QCLEvent QCLImage2D::writeAsync
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueWriteImage
-        (context()->activeQueue(), id(), CL_FALSE,
+        (context()->activeQueue(), memoryId(), CL_FALSE,
          origin, region, bytesPerLine, 0, data,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage2D::writeAsync:", error);
@@ -351,7 +352,7 @@ bool QCLImage2D::copyTo
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          src_origin, dst_origin, region, 0, 0, &event);
     context()->reportError("QCLImage2D::copyTo(QCLImage2D):", error);
     if (error == CL_SUCCESS) {
@@ -379,7 +380,7 @@ bool QCLImage2D::copyTo
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          src_origin, destOffset, region, 0, 0, &event);
     context()->reportError("QCLImage2D::copyTo(QCLImage3D):", error);
     if (error == CL_SUCCESS) {
@@ -407,7 +408,7 @@ bool QCLImage2D::copyTo
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          src_origin, region, destOffset, 0, 0, &event);
     context()->reportError("QCLImage2D::copyTo(QCLBuffer):", error);
     if (error == CL_SUCCESS) {
@@ -439,7 +440,7 @@ QCLEvent QCLImage2D::copyToAsync
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          src_origin, dst_origin, region,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage2D::copyToAsync(QCLImage2D):", error);
@@ -468,7 +469,7 @@ QCLEvent QCLImage2D::copyToAsync
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          src_origin, destOffset, region,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage2D::copyToAsync(QCLImage3D):", error);
@@ -497,7 +498,7 @@ QCLEvent QCLImage2D::copyToAsync
     size_t region[3] = {rect.width(), rect.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          src_origin, region, destOffset,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage2D::copyToAsync(QCLBuffer):", error);
@@ -530,7 +531,7 @@ void *QCLImage2D::map
     cl_int error;
     size_t rowPitch;
     void *data = clEnqueueMapImage
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          qt_cl_map_flags(access), origin, region,
          &rowPitch, 0, 0, 0, 0, &error);
     context()->reportError("QCLImage2D::map:", error);
@@ -567,7 +568,7 @@ QCLEvent QCLImage2D::mapAsync
     size_t rowPitch;
     cl_event event;
     *ptr = clEnqueueMapImage
-        (context()->activeQueue(), id(), CL_FALSE,
+        (context()->activeQueue(), memoryId(), CL_FALSE,
          qt_cl_map_flags(access), origin, region, &rowPitch, 0,
          after.size(), after.eventData(), &event, &error);
     context()->reportError("QCLImage2D::mapAsync:", error);
@@ -588,7 +589,7 @@ QCLEvent QCLImage2D::mapAsync
 */
 QImage QCLImage2D::toQImage()
 {
-    if (!id())
+    if (!memoryId())
         return QImage();
     QImage::Format qformat = format().toQImageFormat();
     if (qformat == QImage::Format_Invalid)
@@ -640,8 +641,9 @@ QImage QCLImage2D::toQImage()
 QCLImageFormat QCLImage3D::format() const
 {
     cl_image_format iformat;
-    if (clGetImageInfo(id(), CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
-            != CL_SUCCESS)
+    if (clGetImageInfo
+            (memoryId(), CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
+                != CL_SUCCESS)
         return QCLImageFormat();
     else
         return QCLImageFormat
@@ -656,7 +658,7 @@ QCLImageFormat QCLImage3D::format() const
 */
 int QCLImage3D::width() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_WIDTH);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_WIDTH);
 }
 
 /*!
@@ -666,7 +668,7 @@ int QCLImage3D::width() const
 */
 int QCLImage3D::height() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_HEIGHT);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_HEIGHT);
 }
 
 /*!
@@ -676,7 +678,7 @@ int QCLImage3D::height() const
 */
 int QCLImage3D::depth() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_DEPTH);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_DEPTH);
 }
 
 /*!
@@ -686,7 +688,7 @@ int QCLImage3D::depth() const
 */
 int QCLImage3D::bytesPerElement() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_ELEMENT_SIZE);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_ELEMENT_SIZE);
 }
 
 /*!
@@ -696,7 +698,7 @@ int QCLImage3D::bytesPerElement() const
 */
 int QCLImage3D::bytesPerLine() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_ROW_PITCH);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_ROW_PITCH);
 }
 
 /*!
@@ -707,7 +709,7 @@ int QCLImage3D::bytesPerLine() const
 */
 int QCLImage3D::bytesPerSlice() const
 {
-    return qt_cl_imageParam(id(), CL_IMAGE_SLICE_PITCH);
+    return qt_cl_imageParam(memoryId(), CL_IMAGE_SLICE_PITCH);
 }
 
 /*!
@@ -720,7 +722,7 @@ bool QCLImage3D::isTexture3D() const
 {
 #ifndef QT_NO_CL_OPENGL
     cl_gl_object_type objectType;
-    if (clGetGLObjectInfo(id(), &objectType, 0) != CL_SUCCESS)
+    if (clGetGLObjectInfo(memoryId(), &objectType, 0) != CL_SUCCESS)
         return false;
     return objectType == CL_GL_OBJECT_TEXTURE3D;
 #else
@@ -746,7 +748,7 @@ bool QCLImage3D::read
      int bytesPerLine, int bytesPerSlice)
 {
     cl_int error = clEnqueueReadImage
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          origin, size, bytesPerLine, bytesPerSlice, data, 0, 0, 0);
     context()->reportError("QCLImage3D::read:", error);
     return error == CL_SUCCESS;
@@ -776,7 +778,7 @@ QCLEvent QCLImage3D::readAsync
 {
     cl_event event;
     cl_int error = clEnqueueReadImage
-        (context()->activeQueue(), id(), CL_FALSE,
+        (context()->activeQueue(), memoryId(), CL_FALSE,
          origin, size, bytesPerLine, bytesPerSlice, data,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage3D::readAsync:", error);
@@ -804,7 +806,7 @@ bool QCLImage3D::write
      int bytesPerLine, int bytesPerSlice)
 {
     cl_int error = clEnqueueWriteImage
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          origin, size, bytesPerLine, bytesPerSlice, data, 0, 0, 0);
     context()->reportError("QCLImage3D::write:", error);
     return error == CL_SUCCESS;
@@ -834,7 +836,7 @@ QCLEvent QCLImage3D::writeAsync
 {
     cl_event event;
     cl_int error = clEnqueueWriteImage
-        (context()->activeQueue(), id(), CL_FALSE,
+        (context()->activeQueue(), memoryId(), CL_FALSE,
          origin, size, bytesPerLine, bytesPerSlice, data,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage3D::writeAsync:", error);
@@ -860,7 +862,7 @@ bool QCLImage3D::copyTo
 {
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          origin, destOffset, size, 0, 0, &event);
     context()->reportError("QCLImage3D::copyTo(QCLImage3D):", error);
     if (error == CL_SUCCESS) {
@@ -891,7 +893,7 @@ bool QCLImage3D::copyTo
     size_t region[3] = {size.width(), size.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          origin, dst_origin, region, 0, 0, &event);
     context()->reportError("QCLImage3D::copyTo(QCLImage2D):", error);
     if (error == CL_SUCCESS) {
@@ -919,7 +921,7 @@ bool QCLImage3D::copyTo
 {
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          origin, size, destOffset, 0, 0, &event);
     context()->reportError("QCLImage3D::copyTo(QCLBuffer):", error);
     if (error == CL_SUCCESS) {
@@ -953,7 +955,7 @@ QCLEvent QCLImage3D::copyToAsync
 {
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          origin, destOffset, size,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage3D::copyToAsync(QCLImage3D):", error);
@@ -988,7 +990,7 @@ QCLEvent QCLImage3D::copyToAsync
     size_t region[3] = {size.width(), size.height(), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          origin, dst_origin, region,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage3D::copyToAsync(QCLImage2D):", error);
@@ -1020,7 +1022,7 @@ QCLEvent QCLImage3D::copyToAsync
 {
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
-        (context()->activeQueue(), id(), dest.id(),
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
          origin, size, destOffset,
          after.size(), after.eventData(), &event);
     context()->reportError("QCLImage3D::copyToAsync(QCLBuffer):", error);
@@ -1051,7 +1053,7 @@ void *QCLImage3D::map
     cl_int error;
     size_t rowPitch, slicePitch;
     void *data = clEnqueueMapImage
-        (context()->activeQueue(), id(), CL_TRUE,
+        (context()->activeQueue(), memoryId(), CL_TRUE,
          qt_cl_map_flags(access), origin, size,
          &rowPitch, &slicePitch, 0, 0, 0, &error);
     context()->reportError("QCLImage3D::map:", error);
@@ -1091,7 +1093,8 @@ QCLEvent QCLImage3D::mapAsync
     size_t rowPitch, slicePitch;
     cl_event event;
     *ptr = clEnqueueMapImage
-        (context()->activeQueue(), id(), CL_FALSE, qt_cl_map_flags(access),
+        (context()->activeQueue(), memoryId(),
+         CL_FALSE, qt_cl_map_flags(access),
          origin, size, &rowPitch, &slicePitch,
          after.size(), after.eventData(), &event, &error);
     context()->reportError("QCLImage3D::mapAsync:", error);

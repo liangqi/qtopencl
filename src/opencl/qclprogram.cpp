@@ -110,7 +110,7 @@ QCLProgram &QCLProgram::operator=(const QCLProgram &other)
 */
 
 /*!
-    \fn cl_program QCLProgram::id() const
+    \fn cl_program QCLProgram::programId() const
 
     Returns the native OpenCL identifier for this program.
 */
@@ -152,8 +152,8 @@ bool QCLProgram::build(const QList<QCLDevice> &devices, const QString &options)
 {
     QVarLengthArray<cl_device_id> devs;
     foreach (QCLDevice dev, devices) {
-        if (dev.id())
-            devs.append(dev.id());
+        if (dev.deviceId())
+            devs.append(dev.deviceId());
     }
     cl_int error;
     if (devs.isEmpty()) {
@@ -192,12 +192,12 @@ QString QCLProgram::log() const
     for (int index = 0; index < devs.size(); ++index) {
         size_t size = 0;
         if (clGetProgramBuildInfo
-                (m_id, devs[index].id(), CL_PROGRAM_BUILD_LOG,
+                (m_id, devs[index].deviceId(), CL_PROGRAM_BUILD_LOG,
                  0, 0, &size) != CL_SUCCESS || !size)
             continue;
         QVarLengthArray<char> buf(size);
         if (clGetProgramBuildInfo
-                (m_id, devs[index].id(), CL_PROGRAM_BUILD_LOG,
+                (m_id, devs[index].deviceId(), CL_PROGRAM_BUILD_LOG,
                  size, buf.data(), 0) != CL_SUCCESS || !size)
             continue;
         log += QString::fromLatin1(buf.constData(), size);

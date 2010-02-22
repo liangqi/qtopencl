@@ -68,7 +68,7 @@ public:
 
     bool isNull() const { return m_id == 0; }
 
-    cl_program id() const { return m_id; }
+    cl_program programId() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
     bool build(const QString &options = QString());

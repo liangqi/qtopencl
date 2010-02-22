@@ -63,11 +63,11 @@ public:
     QCLImage2D(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
     QCLImage2D(const QCLImage2D &other)
-        : QCLMemoryObject(other.context(), other.id()) {}
+        : QCLMemoryObject(other.context(), other.memoryId()) {}
 
     QCLImage2D &operator=(const QCLImage2D &other)
     {
-        setId(other.context(), other.id());
+        setId(other.context(), other.memoryId());
         return *this;
     }
 
@@ -128,11 +128,11 @@ public:
     QCLImage3D(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
     QCLImage3D(const QCLImage3D &other)
-        : QCLMemoryObject(other.context(), other.id()) {}
+        : QCLMemoryObject(other.context(), other.memoryId()) {}
 
     QCLImage3D &operator=(const QCLImage3D &other)
     {
-        setId(other.context(), other.id());
+        setId(other.context(), other.memoryId());
         return *this;
     }
 

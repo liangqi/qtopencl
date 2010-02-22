@@ -131,7 +131,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
 {
     Q_D(QCLTexture2D);
     Q_ASSERT(context && size.width() > 0 && size.height() > 0);
-    Q_ASSERT(id() == 0);    // Must not be created already.
+    Q_ASSERT(memoryId() == 0);    // Must not be created already.
 
     // Create the texture in the GL context.
     GLuint textureId;
@@ -159,7 +159,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
             return false;
         }
         d->setContextAndId(QGLContext::currentContext(), textureId);
-        setId(image.context(), image.id());
+        setId(image.context(), image.memoryId());
         d->size = size;
         d->directRender = true;
         return true;
@@ -176,7 +176,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
         return false;
     }
     d->setContextAndId(QGLContext::currentContext(), textureId);
-    setId(image.context(), image.id());
+    setId(image.context(), image.memoryId());
     d->size = size;
     d->directRender = false;
     return true;

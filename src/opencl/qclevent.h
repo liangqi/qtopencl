@@ -64,7 +64,7 @@ public:
 
     bool isNull() const { return m_id == 0; }
 
-    cl_event id() const { return m_id; }
+    cl_event eventId() const { return m_id; }
 
     bool isQueued() const { return status() == CL_QUEUED; }
     bool isSubmitted() const { return status() == CL_SUBMITTED; }
@@ -139,7 +139,7 @@ inline bool QCLEvent::operator!=(const QCLEvent &other) const
 
 inline bool QCLEventList::contains(const QCLEvent &event) const
 {
-    return m_events.contains(event.id());
+    return m_events.contains(event.eventId());
 }
 
 inline const cl_event *QCLEventList::eventData() const

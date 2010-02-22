@@ -62,7 +62,7 @@ public:
 
     bool isNull() const { return m_id == 0; }
 
-    cl_sampler id() const { return m_id; }
+    cl_sampler samplerId() const { return m_id; }
 
     bool operator==(const QCLSampler &other) const;
     bool operator!=(const QCLSampler &other) const;

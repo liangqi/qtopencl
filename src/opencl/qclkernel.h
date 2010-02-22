@@ -84,7 +84,7 @@ public:
     bool operator==(const QCLKernel &other) const;
     bool operator!=(const QCLKernel &other) const;
 
-    cl_kernel id() const;
+    cl_kernel kernelId() const;
     QCLContext *context() const;
 
     QCLProgram program() const;
