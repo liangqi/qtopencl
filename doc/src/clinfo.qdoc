@@ -91,12 +91,12 @@ OpenCL Devices:
     Float Support     : InfinityNaN RoundNearest
     Double Support    : No
     Half Float Support: No
-    Image Support     : true
+    Image Support     : 2D, 3D
     Max 2D Image Size : 8192x8192
-    Max 3D Image      : 2048x2048x2048
     Max Samplers      : 16
     Max Read Images   : 128
     Max Write Images  : 8
+    Max 3D Image      : 2048x2048x2048
     Writable 3D Images: false
     Has Compiler      : true
     Native Kernels    : false

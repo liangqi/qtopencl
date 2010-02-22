@@ -334,18 +334,30 @@ int QCLDevice::maximumWorkItemsPerGroup() const
 }
 
 /*!
-    Returns true if this device has image support; false otherwise.
+    Returns true if this device has 2D image support; false otherwise.
 */
-bool QCLDevice::hasImages() const
+bool QCLDevice::hasImage2D() const
 {
     return qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT);
+}
+
+/*!
+    Returns true if this device has 3D image support; false otherwise.
+*/
+bool QCLDevice::hasImage3D() const
+{
+    if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
+        return false;
+    return qt_cl_paramSize(m_id, CL_DEVICE_IMAGE3D_MAX_WIDTH) != 0 ||
+           qt_cl_paramSize(m_id, CL_DEVICE_IMAGE3D_MAX_HEIGHT) != 0 ||
+           qt_cl_paramSize(m_id, CL_DEVICE_IMAGE3D_MAX_DEPTH) != 0;
 }
 
 /*!
     Returns true if this device supports writing to 3D images
     via the \c{cl_khr_3d_image_writes} extension; false otherwise.
 */
-bool QCLDevice::hasWritable3DImages() const
+bool QCLDevice::hasWritableImage3D() const
 {
     return extensions().contains
         (QLatin1String("cl_khr_3d_image_writes"), Qt::CaseInsensitive);
@@ -355,7 +367,7 @@ bool QCLDevice::hasWritable3DImages() const
     Returns the maximum size of 2D images that are supported
     by this device; or an empty QSize if images are not supported.
 
-    \sa maximumImage3DSize(), hasImages()
+    \sa maximumImage3DSize(), hasImage2D()
 */
 QSize QCLDevice::maximumImage2DSize() const
 {
@@ -369,7 +381,7 @@ QSize QCLDevice::maximumImage2DSize() const
     Returns the maximum size of 3D images that are supported
     by this device; or a (0, 0, 0) if images are not supported.
 
-    \sa maximumImage2DSize(), hasImages()
+    \sa maximumImage2DSize(), hasImage3D()
 */
 QCLWorkSize QCLDevice::maximumImage3DSize() const
 {
@@ -383,8 +395,6 @@ QCLWorkSize QCLDevice::maximumImage3DSize() const
 /*!
     Returns the maximum number of image samplers that can be used
     in a kernel at one time; 0 if images are not supported.
-
-    \sa hasImages()
 */
 int QCLDevice::maximumSamplers() const
 {
@@ -397,7 +407,7 @@ int QCLDevice::maximumSamplers() const
     Returns the maximum number of image objects that can be
     read simultaneously by a kernel; 0 if images are not supported.
 
-    \sa maximumWriteImages(), hasImages()
+    \sa maximumWriteImages()
 */
 int QCLDevice::maximumReadImages() const
 {
@@ -410,7 +420,7 @@ int QCLDevice::maximumReadImages() const
     Returns the maximum number of image objects that can be
     written simultaneously by a kernel; 0 if images are not supported.
 
-    \sa maximumReadImages(), hasImages()
+    \sa maximumReadImages()
 */
 int QCLDevice::maximumWriteImages() const
 {

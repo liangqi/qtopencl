@@ -89,8 +89,9 @@ public:
     QCLWorkSize maximumWorkItemSize() const;
     int maximumWorkItemsPerGroup() const;
 
-    bool hasImages() const;
-    bool hasWritable3DImages() const;
+    bool hasImage2D() const;
+    bool hasImage3D() const;
+    bool hasWritableImage3D() const;
     QSize maximumImage2DSize() const;
     QCLWorkSize maximumImage3DSize() const;
     int maximumSamplers() const;

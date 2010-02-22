@@ -136,21 +136,29 @@ int main(int argc, char *argv[])
         printFloatCapabilities(dev.doubleCapabilities());
         printf("    Half Float Support:");
         printFloatCapabilities(dev.halfFloatCapabilities());
-        printf("    Image Support     : %s\n",
-               dev.hasImages() ? "true" : "false");
-        if (dev.hasImages()) {
+        if (dev.hasImage2D()) {
+            if (dev.hasImage3D())
+                printf("    Image Support     : 2D, 3D\n");
+            else
+                printf("    Image Support     : 2D\n");
+        } else {
+            printf("    Image Support     : No\n");
+        }
+        if (dev.hasImage2D()) {
             QSize size2d = dev.maximumImage2DSize();
             printf("    Max 2D Image Size : %dx%d\n",
                    size2d.width(), size2d.height());
+            printf("    Max Samplers      : %d\n", dev.maximumSamplers());
+            printf("    Max Read Images   : %d\n", dev.maximumReadImages());
+            printf("    Max Write Images  : %d\n", dev.maximumWriteImages());
+        }
+        if (dev.hasImage3D()) {
             QCLWorkSize size3d = dev.maximumImage3DSize();
             printf("    Max 3D Image      : %ux%ux%u\n",
                    uint(size3d.width()), uint(size3d.height()),
                    uint(size3d.depth()));
-            printf("    Max Samplers      : %d\n", dev.maximumSamplers());
-            printf("    Max Read Images   : %d\n", dev.maximumReadImages());
-            printf("    Max Write Images  : %d\n", dev.maximumWriteImages());
             printf("    Writable 3D Images: %s\n",
-                   dev.hasWritable3DImages() ? "true" : "false");
+                   dev.hasWritableImage3D() ? "true" : "false");
         }
         printf("    Has Compiler      : %s\n",
                dev.hasCompiler() ? "true" : "false");
