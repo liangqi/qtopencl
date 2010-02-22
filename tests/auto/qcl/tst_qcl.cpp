@@ -56,6 +56,7 @@ public:
 
 private slots:
     void initTestCase();
+    void checkProfile();
     void buildProgram();
     void argumentPassing();
     void vectorBuffer();
@@ -69,6 +70,21 @@ private:
 void tst_QCL::initTestCase()
 {
     QVERIFY(context.create());
+}
+
+// Checks that the OpenCL implementation supports either
+// FULL_PROFILE or EMBEDDED_PROFILE and that the device and
+// platform are consistent.
+void tst_QCL::checkProfile()
+{
+    QCLDevice device = context.defaultDevice();
+    QCLPlatform platform = device.platform();
+    QVERIFY((device.isFullProfile() && !device.isEmbeddedProfile()) ||
+            (!device.isFullProfile() && device.isEmbeddedProfile()));
+    QVERIFY((platform.isFullProfile() && !platform.isEmbeddedProfile()) ||
+            (!platform.isFullProfile() && platform.isEmbeddedProfile()));
+    QVERIFY(device.isFullProfile() == platform.isFullProfile());
+    QVERIFY(device.isEmbeddedProfile() == platform.isEmbeddedProfile());
 }
 
 // Build the OpenCL program code we will be using for the rest of the tests.

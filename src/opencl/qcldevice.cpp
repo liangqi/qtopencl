@@ -143,6 +143,23 @@ static QString qt_cl_paramString(cl_device_id id, cl_device_info name)
     return QString::fromLatin1(buf.data());
 }
 
+static bool qt_cl_isParamString
+    (cl_device_id id, cl_device_info name, const char *str)
+{
+    size_t len = qstrlen(str);
+    size_t size;
+    if (clGetDeviceInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+        return false;
+    if (size <= len)
+        return false;
+    QVarLengthArray<char> buf(size);
+    if (clGetDeviceInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
+        return false;
+    if (qstrncmp(buf.constData(), str, len) != 0)
+        return false;
+    return buf[len] == '\0';
+}
+
 /*!
     Returns the type of this device.  It is possible for a device
     to have more than one type.
@@ -736,8 +753,30 @@ int QCLDevice::maximumParameterBytes() const
 }
 
 /*!
+    Returns true if profile() is \c FULL_PROFILE; false otherwise.
+
+    \sa isEmbeddedProfile()
+*/
+bool QCLDevice::isFullProfile() const
+{
+    return qt_cl_isParamString(m_id, CL_DEVICE_PROFILE, "FULL_PROFILE");
+}
+
+/*!
+    Returns true if profile() is \c EMBEDDED_PROFILE; false otherwise.
+
+    \sa isFullProfile()
+*/
+bool QCLDevice::isEmbeddedProfile() const
+{
+    return qt_cl_isParamString(m_id, CL_DEVICE_PROFILE, "EMBEDDED_PROFILE");
+}
+
+/*!
     Returns the profile that is implemented by this OpenCL device,
     usually \c FULL_PROFILE or \c EMBEDDED_PROFILE.
+
+    \sa isFullProfile(), isEmbeddedProfile()
 */
 QString QCLDevice::profile() const
 {

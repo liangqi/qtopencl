@@ -144,6 +144,9 @@ public:
     int minimumAlignment() const;
     int maximumParameterBytes() const;
 
+    bool isFullProfile() const;
+    bool isEmbeddedProfile() const;
+
     QString profile() const;
     QString version() const;
     QString driverVersion() const;

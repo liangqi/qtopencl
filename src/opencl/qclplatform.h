@@ -61,6 +61,9 @@ public:
 
     bool isNull() const { return m_id == 0; }
 
+    bool isFullProfile() const;
+    bool isEmbeddedProfile() const;
+
     QString profile() const;
     QString version() const;
     QString name() const;

@@ -81,9 +81,48 @@ static QString qt_cl_platform_string(cl_platform_id id, cl_platform_info name)
     return QString::fromLatin1(buf.data());
 }
 
+static bool qt_cl_is_platform
+    (cl_platform_id id, cl_platform_info name, const char *str)
+{
+    size_t len = qstrlen(str);
+    size_t size;
+    if (clGetPlatformInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+        return false;
+    if (size <= len)
+        return false;
+    QVarLengthArray<char> buf(size);
+    if (clGetPlatformInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
+        return false;
+    if (qstrncmp(buf.constData(), str, len) != 0)
+        return false;
+    return buf[len] == '\0';
+}
+
+/*!
+    Returns true if profile() is \c FULL_PROFILE; false otherwise.
+
+    \sa isEmbeddedProfile()
+*/
+bool QCLPlatform::isFullProfile() const
+{
+    return qt_cl_is_platform(m_id, CL_PLATFORM_PROFILE, "FULL_PROFILE");
+}
+
+/*!
+    Returns true if profile() is \c EMBEDDED_PROFILE; false otherwise.
+
+    \sa isFullProfile()
+*/
+bool QCLPlatform::isEmbeddedProfile() const
+{
+    return qt_cl_is_platform(m_id, CL_PLATFORM_PROFILE, "EMBEDDED_PROFILE");
+}
+
 /*!
     Returns the profile that is implemented by this OpenCL platform,
     usually \c FULL_PROFILE or \c EMBEDDED_PROFILE.
+
+    \sa isFullProfile(), isEmbeddedProfile()
 */
 QString QCLPlatform::profile() const
 {
