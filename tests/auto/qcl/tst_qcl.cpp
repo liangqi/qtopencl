@@ -59,6 +59,7 @@ private slots:
     void buildProgram();
     void argumentPassing();
     void vectorBuffer();
+    void eventProfiling();
 
 private:
     QCLContext context;
@@ -223,6 +224,34 @@ void tst_QCL::vectorBuffer()
     QVERIFY(vector1.memoryId() == 0);
     QVERIFY(vector1.context() == 0);
     QVERIFY(!vector1.isMapped());
+}
+
+void tst_QCL::eventProfiling()
+{
+    QCLCommandQueue queue = context.defaultCommandQueue();
+    QVERIFY(!queue.isProfilingEnabled());
+    queue.setProfilingEnabled(true);
+    QVERIFY(queue.isProfilingEnabled());
+
+    QCLVector<float> vector1 = context.createVector<float>(20000);
+    for (int index = 0; index < vector1.size(); ++index)
+        vector1[index] = float(index);
+    vector1.unmap();
+
+    QCLKernel addToVector = program.createKernel("addToVector");
+    addToVector.setGlobalWorkSize(vector1.size());
+    QCLEvent event = addToVector(vector1, 42.0f);
+
+    event.waitForFinished();
+
+    // The following tests assume that device time is monotonicly increasing.
+    QVERIFY(event.finishTime() != 0);
+    QVERIFY(event.submitTime() >= event.queueTime());
+    QVERIFY(event.runTime() >= event.submitTime());
+    QVERIFY(event.finishTime() >= event.runTime());
+
+    queue.setProfilingEnabled(false);
+    QVERIFY(!queue.isProfilingEnabled());
 }
 
 QTEST_MAIN(tst_QCL)
