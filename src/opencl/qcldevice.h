@@ -154,6 +154,8 @@ public:
     QString vendor() const;
     QStringList extensions() const;
 
+    bool hasExtension(const char *name) const;
+
     cl_device_id deviceId() const { return m_id; }
 
     static QList<QCLDevice> devices(QCLDevice::DeviceTypes types = All);

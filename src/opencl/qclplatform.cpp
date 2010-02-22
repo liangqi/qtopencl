@@ -156,10 +156,39 @@ QString QCLPlatform::vendor() const
 
 /*!
     Returns a list of the extensions supported by this OpenCL platform.
+
+    \sa hasExtension()
 */
 QStringList QCLPlatform::extensions() const
 {
     return qt_cl_platform_string(m_id, CL_PLATFORM_EXTENSIONS).simplified().split(QChar(' '));
+}
+
+// Defined in qcldevice.cpp.
+bool qt_cl_has_extension(const char *list, size_t listLen, const char *name);
+
+/*!
+    Returns this if this platform has an extension called \a name;
+    false otherwise.
+
+    This function is more efficient than checking for \a name
+    in the return value from extensions(), if the caller is only
+    interested in a single extension.  Use extensions() to check
+    for several extensions at once.
+
+    \sa extensions()
+*/
+bool QCLPlatform::hasExtension(const char *name) const
+{
+    size_t size;
+    if (clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS,
+                          0, 0, &size) != CL_SUCCESS)
+        return false;
+    QVarLengthArray<char> buf(size);
+    if (clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS, size,
+                          buf.data(), &size) != CL_SUCCESS)
+        return false;
+    return qt_cl_has_extension(buf.constData(), size, name);
 }
 
 /*!

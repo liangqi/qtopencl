@@ -250,8 +250,7 @@ bool QCLDevice::hasOutOfOrderExecution() const
 */
 bool QCLDevice::hasDouble() const
 {
-    return extensions().contains
-        (QLatin1String("cl_khr_fp64"), Qt::CaseInsensitive);
+    return hasExtension("cl_khr_fp64");
 }
 
 /*!
@@ -266,8 +265,7 @@ bool QCLDevice::hasDouble() const
 */
 bool QCLDevice::hasHalfFloat() const
 {
-    return extensions().contains
-        (QLatin1String("cl_khr_fp16"), Qt::CaseInsensitive);
+    return hasExtension("cl_khr_fp16");
 }
 
 /*!
@@ -376,8 +374,7 @@ bool QCLDevice::hasImage3D() const
 */
 bool QCLDevice::hasWritableImage3D() const
 {
-    return extensions().contains
-        (QLatin1String("cl_khr_3d_image_writes"), Qt::CaseInsensitive);
+    return hasExtension("cl_khr_3d_image_writes");
 }
 
 /*!
@@ -822,10 +819,59 @@ QString QCLDevice::vendor() const
 
 /*!
     Returns a list of the extensions supported by this OpenCL device.
+
+    \sa hasExtension()
 */
 QStringList QCLDevice::extensions() const
 {
     return qt_cl_paramString(m_id, CL_DEVICE_EXTENSIONS).simplified().split(QChar(' '));
+}
+
+bool qt_cl_has_extension(const char *list, size_t listLen, const char *name)
+{
+    size_t nameLen = qstrlen(name);
+    size_t tempLen;
+    while (listLen > 0) {
+        if (*list == '\0') {
+            break;
+        } else if (*list == ' ') {
+            ++list;
+            --listLen;
+            continue;
+        }
+        tempLen = 0;
+        while (tempLen < listLen &&
+                    list[tempLen] != ' ' && list[tempLen] != '\0')
+            ++tempLen;
+        if (nameLen == tempLen && !qstrnicmp(list, name, nameLen))
+            return true;
+        list += tempLen;
+        listLen -= tempLen;
+    }
+    return false;
+}
+
+/*!
+    Returns this if this device has an extension called \a name;
+    false otherwise.
+
+    This function is more efficient than checking for \a name
+    in the return value from extensions(), if the caller is only
+    interested in a single extension.  Use extensions() to check
+    for several extensions at once.
+
+    \sa extensions()
+*/
+bool QCLDevice::hasExtension(const char *name) const
+{
+    size_t size;
+    if (clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, 0, 0, &size) != CL_SUCCESS)
+        return false;
+    QVarLengthArray<char> buf(size);
+    if (clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, size,
+                        buf.data(), &size) != CL_SUCCESS)
+        return false;
+    return qt_cl_has_extension(buf.constData(), size, name);
 }
 
 /*!

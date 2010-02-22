@@ -70,6 +70,8 @@ public:
     QString vendor() const;
     QStringList extensions() const;
 
+    bool hasExtension(const char *name) const;
+
     cl_platform_id platformId() const { return m_id; }
 
     static QList<QCLPlatform> platforms();
