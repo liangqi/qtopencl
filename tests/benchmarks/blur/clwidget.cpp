@@ -16,16 +16,6 @@ CLWidget::CLWidget(QWidget *parent)
 {
     if (!context.create())
         qFatal("Could not create OpenCL context");
-
-    srcImages[0] = QImage(QLatin1String(":/images/accessories-calculator.png"));
-    srcImages[1] = QImage(QLatin1String(":/images/accessories-text-editor.png"));
-    srcImages[2] = QImage(QLatin1String(":/images/help-browser.png"));
-    srcImages[3] = QImage(QLatin1String(":/images/internet-group-chat.png"));
-    srcImages[4] = QImage(QLatin1String(":/images/internet-mail.png"));
-    srcImages[5] = QImage(QLatin1String(":/images/internet-web-browser.png"));
-    srcImages[6] = QImage(QLatin1String(":/images/office-calendar.png"));
-    srcImages[7] = QImage(QLatin1String(":/images/system-users.png"));
-    srcImages[8] = QImage(QLatin1String(":/images/qt-logo.png"));
 }
 
 bool CLWidget::contextCreated()
@@ -47,15 +37,43 @@ void CLWidget::setup( int radius ) {
     horizontalGaussianKernel = program.createKernel("hgaussian");
     verticalGaussianKernel = program.createKernel("vgaussian");
 
-    QSize adjustedSize = srcImages[0].size()
-                         + QSize((radius + 1) * 2, (radius + 1) * 2);
+    srcImages[0] = QImage(QLatin1String(":/images/accessories-calculator.png"));
+    srcImages[1] = QImage(QLatin1String(":/images/accessories-text-editor.png"));
+    srcImages[2] = QImage(QLatin1String(":/images/help-browser.png"));
+    srcImages[3] = QImage(QLatin1String(":/images/internet-group-chat.png"));
+    srcImages[4] = QImage(QLatin1String(":/images/internet-mail.png"));
+    srcImages[5] = QImage(QLatin1String(":/images/internet-web-browser.png"));
+    srcImages[6] = QImage(QLatin1String(":/images/office-calendar.png"));
+    srcImages[7] = QImage(QLatin1String(":/images/system-users.png"));
+    srcImages[8] = QImage(QLatin1String(":/images/qt-logo.png"));
+
 
     // Adjust for the best work size on the kernel.
     QCLWorkSize bestSize = horizontalGaussianKernel.bestLocalWorkSizeImage2D();
+
+    QSize largestSize;
+    for(int i = 0; i < 9; ++i)
+    {
+        largestSize = largestSize.expandedTo(srcImages[i].size());
+    }
+
+    QSize adjustedSize = largestSize + QSize((radius + 1) * 2, (radius + 1) * 2);
     adjustedSize = QSize(roundUp(adjustedSize.width(), bestSize.width()),
                          roundUp(adjustedSize.height(), bestSize.height()));
 
     for (int index = 0; index < 9; ++index) {
+        // Adjust for the best work size on the kernel.
+
+        QImage resizedSource(adjustedSize, QImage::Format_ARGB32);
+        resizedSource.fill(0);
+        QPainter p(&resizedSource);
+        QPoint topLeft = QPoint(
+                (resizedSource.width() - srcImages[index].width()) / 2,
+                (resizedSource.height() - srcImages[index].height()) / 2);
+        p.drawImage( topLeft , srcImages[index] );
+        p.end();
+        srcImages[index] = resizedSource;
+
         srcImageBuffers[index] = context.createImage2DCopy(srcImages[index], QCL::ReadOnly);
         tmpImageBuffers[index] = context.createImage2DDevice(QImage::Format_ARGB32, adjustedSize, QCL::ReadWrite);
 
@@ -123,10 +141,9 @@ void CLWidget::paintEvent(QPaintEvent *)
             QPointF dest(x * 100 + (100 - dstImages[index].width()) / 2,
                          y * 100 + (100 - dstImages[index].height()) / 2);
 
-            // This could potentially be read directly into the backingstore
-            // instead of copied repeatedly
+            // Extra copy here could potentially be eliminated
             dstImageBuffers[index].read(&(dstImages[index]));
-            painter.drawImage(dest, dstImages[index], dstImages[index].rect());
+            painter.drawImage(dest, dstImages[index]);
         }
     }
 
