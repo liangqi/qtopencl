@@ -43,10 +43,10 @@
 #define IMAGE_H
 
 #include <QtGui/qimage.h>
-#include <QtCore/qmetatype.h>
 #include <QtOpenGL/qgl.h>
 
 class Palette;
+class QPainter;
 
 class Image
 {
@@ -54,38 +54,21 @@ public:
     Image(int width, int height);
     virtual ~Image();
 
-    // QMetaType::Float for 32-bit IEEE precision.
-    // QMetaType::Double for 64-bit IEEE precision.
-    // QMetaType::User for arbitrary precision.
-    virtual QMetaType::Type precision() const = 0;
-
-    QImage image() const { return img; }
-
     virtual GLuint textureId() { return 0; }
     virtual void initialize() {}
 
     QRectF region() const { return rgn; }
-    void setRegion(const QRectF &value)
-        { rgn = value; regionChanged = true; }
+    void setRegion(const QRectF &value) { rgn = value; }
     void setRegion(qreal centerx, qreal centery, qreal diameterx);
 
-    void forceUpdate() { regionChanged = true; }
-
-    void generate(int maxIterations, const Palette &palette);
+    virtual void generate(int maxIterations, const Palette &palette) = 0;
+    virtual void paint(QPainter *painter, const QRect& rect) = 0;
 
     static Image *createImage(int width, int height);
 
 protected:
-    virtual void generateIterationData
-        (int maxIterations, const QRectF &region) = 0;
-    virtual void generateImage
-        (QImage *image, int maxIterations, const QRgb *colors) = 0;
-
-private:
-    QImage img;
+    int wid, ht;
     QRectF rgn;
-    bool regionChanged;
-    int lastIterations;
 };
 
 #endif

@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "imagecl.h"
+#include "palette.h"
 #include <QtCore/qvarlengtharray.h>
 #include <QtGui/qcolor.h>
 
@@ -55,7 +56,6 @@ public:
     QCLContextGL *glContext;
     QCLProgram program;
     QCLKernel mandelbrot;
-    QCLKernel colorize;
 };
 
 void ImageCLContext::init(bool useGL)
@@ -78,8 +78,6 @@ void ImageCLContext::init(bool useGL)
         (QLatin1String(":/mandelbrot.cl"));
     mandelbrot = program.createKernel("mandelbrot");
     mandelbrot.setLocalWorkSize(mandelbrot.bestLocalWorkSizeImage2D());
-    colorize = program.createKernel("colorize");
-    colorize.setLocalWorkSize(colorize.bestLocalWorkSizeImage2D());
 }
 
 ImageCLContext::~ImageCLContext()
@@ -91,7 +89,8 @@ Q_GLOBAL_STATIC(ImageCLContext, image_context)
 
 ImageCL::ImageCL(int width, int height)
     : Image(width, height)
-    , wid(width), ht(height)
+    , img(width, height, QImage::Format_RGB32)
+    , lastIterations(-1)
     , initialized(false)
 {
 }
@@ -109,17 +108,6 @@ void ImageCL::init(bool useGL)
     // Initialize the context for GL or non-GL.
     ImageCLContext *ctx = image_context();
     ctx->init(useGL);
-
-    // Create an OpenCL buffer to hold the raw iteration count data.
-    // The buffer lives on the OpenCL device and does not need to
-    // be accessed by the host.
-    data = ctx->context->createBufferDevice
-        (wid * ht * sizeof(uint), QCL::ReadWrite);
-}
-
-QMetaType::Type ImageCL::precision() const
-{
-    return QMetaType::Float;
 }
 
 GLuint ImageCL::textureId()
@@ -140,45 +128,39 @@ void ImageCL::initialize()
 
 bool ImageCL::hasOpenCL()
 {
-    // See if we have a GPU amongst the OpenCL devices.
-    return !QCLDevice::devices(QCLDevice::GPU).isEmpty();
+    return !QCLDevice::devices(QCLDevice::Default).isEmpty();
 }
 
-void ImageCL::generateIterationData
-    (int maxIterations, const QRectF &region)
+void ImageCL::generate(int maxIterations, const Palette &palette)
 {
+    QRectF region = rgn;
+
     init();
 
     ImageCLContext *ctx = image_context();
     QCLKernel mandelbrot = ctx->mandelbrot;
 
-    mandelbrot.setGlobalWorkSize(wid, ht);
-    QCLEvent event = mandelbrot
-        (data, float(region.x()), float(region.y()),
-         float(region.width()), float(region.height()),
-         wid, ht, maxIterations);
-    event.waitForFinished();
-}
-
-void ImageCL::generateImage
-    (QImage *image, int maxIterations, const QRgb *colors)
-{
-    ImageCLContext *ctx = image_context();
-    QCLKernel colorize = ctx->colorize;
-
     // Upload the color table into a buffer in the device.
-    QCLBuffer colorBuffer = ctx->context->createBufferDevice
-        (maxIterations * sizeof(float) * 4, QCL::ReadOnly);
-    QVarLengthArray<float> floatColors;
-    for (int index = 0; index < maxIterations; ++index) {
-        QColor color(colors[index]);
-        floatColors.append(float(color.redF()));
-        floatColors.append(float(color.greenF()));
-        floatColors.append(float(color.blueF()));
-        floatColors.append(float(color.alphaF()));
+    if (colorBuffer.isNull() || lastIterations != maxIterations) {
+        QVector<QRgb> colors = palette.createTable(maxIterations);
+        if (lastIterations != maxIterations)
+            colorBuffer = QCLBuffer();
+        if (colorBuffer.isNull()) {
+            colorBuffer = ctx->context->createBufferDevice
+                (maxIterations * sizeof(float) * 4, QCL::ReadOnly);
+        }
+        QVarLengthArray<float> floatColors;
+        for (int index = 0; index < maxIterations; ++index) {
+            QColor color(colors[index]);
+            floatColors.append(float(color.redF()));
+            floatColors.append(float(color.greenF()));
+            floatColors.append(float(color.blueF()));
+            floatColors.append(float(color.alphaF()));
+        }
+        colorBuffer.write(floatColors.constData(),
+                          maxIterations * sizeof(float) * 4);
+        lastIterations = maxIterations;
     }
-    colorBuffer.write(floatColors.constData(),
-                      maxIterations * sizeof(float) * 4);
 
     if (!textureBuffer.textureId()) {
         // Create a buffer for the image in the OpenCL device.
@@ -187,26 +169,49 @@ void ImageCL::generateImage
                 (QImage::Format_ARGB32, QSize(wid, ht), QCL::WriteOnly);
         }
 
-        // Execute the "colorize" kernel.
-        colorize.setGlobalWorkSize(wid, ht);
-        QCLEvent event = colorize
-            (data, imageBuffer, colorBuffer, wid, maxIterations);
-
-        // Copy the OpenCL image buffer into the host image.
-        imageBuffer.read(image);
+        // Execute the "mandelbrot" kernel.
+        mandelbrot.setGlobalWorkSize(wid, ht);
+        mandelbrot(imageBuffer, float(region.x()), float(region.y()),
+                   float(region.width()), float(region.height()),
+                   wid, ht, maxIterations, colorBuffer);
     } else {
         // Finish previous GL operations on the texture.
-        glFinish();
+        if (ctx->glContext->supportsObjectSharing())
+            glFinish();
 
         // Acquire the GL texture object.
         textureBuffer.acquireGL();
 
-        // Execute the "colorize" kernel.
-        colorize.setGlobalWorkSize(wid, ht);
-        colorize(data, textureBuffer, colorBuffer, wid, maxIterations);
+        // Execute the "mandelbrot" kernel.
+        mandelbrot.setGlobalWorkSize(wid, ht);
+        mandelbrot(textureBuffer, float(region.x()), float(region.y()),
+                   float(region.width()), float(region.height()),
+                   wid, ht, maxIterations, colorBuffer);
 
         // Release the GL texture object and wait for it complete.
         // After the release is complete, the texture can be used by GL.
         textureBuffer.releaseGL();
     }
+}
+
+// Define this to directly map the image when drawing it.
+// This may be faster or slower than reading the full QImage
+// back from the GPU depending upon the system configuration.
+//#define MAP_QIMAGE 1
+
+void ImageCL::paint(QPainter *painter, const QRect& rect)
+{
+#ifndef MAP_QIMAGE
+    imageBuffer.read(&img);
+    painter->drawImage(rect, img);
+#else
+    // Map the QCLImage2D and turn it into an in-place QImage for drawing.
+    int bytesPerLine;
+    void *mapped = imageBuffer.map
+        (QRect(0, 0, wid, ht), QCL::ReadOnly, &bytesPerLine);
+    QImage image(reinterpret_cast<const uchar *>(mapped),
+                 wid, ht, bytesPerLine, QImage::Format_RGB32);
+    painter->drawImage(rect, image);
+    imageBuffer.unmap(mapped);
+#endif
 }

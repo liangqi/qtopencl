@@ -43,9 +43,13 @@
 #define VIEWGL_H
 
 #include <QtOpenGL/qgl.h>
+#include <QtCore/qdatetime.h>
 
 class Image;
 class Palette;
+class Zoom;
+class QTimer;
+class QGLShaderProgram;
 
 class ViewGL : public QGLWidget
 {
@@ -61,13 +65,19 @@ protected:
     void resizeGL(int width, int height);
     void initializeGL();
     void paintGL();
+    void keyPressEvent(QKeyEvent *);
 
 private:
+    QTimer *timer;
     Image *image;
     Palette *palette;
     qreal offset;
     qreal step;
     GLuint textureId;
+    Zoom *zoom;
+    int frames;
+    QTime fpsBase;
+    QGLShaderProgram *program;
 };
 
 #endif

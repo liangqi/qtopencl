@@ -47,9 +47,7 @@
 #include <QtCore/qdebug.h>
 
 Image::Image(int width, int height)
-    : img(width, height, QImage::Format_RGB32)
-    , regionChanged(true)
-    , lastIterations(-1)
+    : wid(width), ht(height)
 {
     setRegion(-0.7f, 0.0f, 3.0769f);
 }
@@ -61,11 +59,10 @@ Image::~Image()
 // Set a region based on its center and diameter in the x direction.
 void Image::setRegion(qreal centerx, qreal centery, qreal diameterx)
 {
-    qreal diametery = diameterx * img.height() / img.width();
+    qreal diametery = diameterx * ht / wid;
     rgn = QRectF(centerx - diameterx * 0.5f,
                  centery - diametery * 0.5f,
                  diameterx, diametery);
-    regionChanged = true;
 }
 
 Image *Image::createImage(int width, int height)
@@ -74,25 +71,4 @@ Image *Image::createImage(int width, int height)
         return new ImageCL(width, height);
     else
         return new ImageNative(width, height);
-}
-
-void Image::generate(int maxIterations, const Palette& palette)
-{
-    Q_ASSERT(maxIterations <= 65535);
-
-    // If the parameters have changed, then regenerate the index data.
-    if (regionChanged || maxIterations != lastIterations) {
-        //QTime time;
-        //time.start();
-        generateIterationData(maxIterations, rgn);
-        regionChanged = false;
-        lastIterations = maxIterations;
-        //qDebug() << "Mandelbrot:" << rgn
-        //         << "iterations =" << maxIterations
-        //         << "elapsed =" << time.elapsed() << "ms";
-    }
-
-    // Colorize the index data to create the final image.
-    QVector<QRgb> colors = palette.createTable(maxIterations);
-    generateImage(&img, maxIterations, colors.constData());
 }

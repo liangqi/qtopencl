@@ -39,11 +39,12 @@
 **
 ****************************************************************************/
 
-__kernel void mandelbrot(__global __write_only int *data,
+__kernel void mandelbrot(__write_only image2d_t image,
                          const float regionx, const float regiony,
                          const float regionwidth, const float regionheight,
                          const int pixelwidth, const int pixelheight,
-                         const int maxIterations)
+                         const int maxIterations,
+                         __global __read_only float4 *colors)
 {
     int xpixel = get_global_id(0);
     int ypixel = get_global_id(1);
@@ -62,7 +63,7 @@ __kernel void mandelbrot(__global __write_only int *data,
         x = xtemp;
         ++iteration;
     }
-    int pos = ypixel * pixelwidth + xpixel;
+    int2 pos = (int2)(xpixel, ypixel);
     if (iteration < (maxIterations - 1)) {
         // Use the Normalized Iteration Count Algorithm
         // to compute an interpolation value between two
@@ -71,30 +72,11 @@ __kernel void mandelbrot(__global __write_only int *data,
         const float loglogb = log(log(2.0f));
         const float invlog2 = 1.0f / log(2.0f);
         float v = (loglogb - log(log(sqrt(x * x + y * y)))) * invlog2;
-        int fraction = (int)(v * 65535.0f);
-        data[pos] = (iteration << 16) + fraction;
-    } else {
-        data[pos] = (iteration << 16);
-    }
-}
-
-__kernel void colorize(__global __read_only int *data,
-                       __write_only image2d_t image,
-                       __global __read_only float4 *colors,
-                       const int pixelwidth,
-                       const int maxIterations)
-{
-    int xpixel = get_global_id(0);
-    int ypixel = get_global_id(1);
-    int pos = ypixel * pixelwidth + xpixel;
-    int iteration = (data[pos] >> 16);
-    if (iteration < (maxIterations - 1)) {
-        float v = (data[pos] & 0xFFFF) / 65535.0f;
         float4 color = mix(colors[iteration], colors[iteration + 1], v);
-        write_imagef(image, (int2)(xpixel, ypixel), color);
+        write_imagef(image, pos, color);
     } else if (iteration < maxIterations) {
-        write_imagef(image, (int2)(xpixel, ypixel), colors[iteration]);
+        write_imagef(image, pos, colors[iteration]);
     } else {
-        write_imagef(image, (int2)(xpixel, ypixel), (float4)(0, 0, 0, 1));
+        write_imagef(image, pos, (float4)(0, 0, 0, 1));
     }
 }

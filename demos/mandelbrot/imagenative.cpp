@@ -40,7 +40,9 @@
 ****************************************************************************/
 
 #include "imagenative.h"
+#include "palette.h"
 #include <QtCore/qmath.h>
+#include <QtGui/qpainter.h>
 
 // Define the floating-point precision to use for calculations.
 //typedef double mreal;
@@ -48,7 +50,7 @@ typedef float mreal;
 
 ImageNative::ImageNative(int width, int height)
     : Image(width, height)
-    , data(width, height, QImage::Format_RGB32)
+    , img(width, height, QImage::Format_RGB32)
 {
 }
 
@@ -56,36 +58,23 @@ ImageNative::~ImageNative()
 {
 }
 
-// QMetaType::Float for 32-bit IEEE precision.
-// QMetaType::Double for 64-bit IEEE precision.
-// QMetaType::User for arbitrary precision.
-QMetaType::Type ImageNative::precision() const
-{
-    if (sizeof(mreal) == sizeof(float))
-        return QMetaType::Float;
-    else
-        return QMetaType::Double;
-}
-
 // Algorithm from: http://en.wikipedia.org/wiki/Mandelbrot_set
-// This generates uint values for each pixel.  The top 16 bits
-// contain the iteration count, and the bottom 16 bits contains
-// an interpolation value for creating gradients between colors.
-void ImageNative::generateIterationData
-    (int maxIterations, const QRectF &region)
+void ImageNative::generate(int maxIterations, const Palette &palette)
 {
-    int width = data.width();
-    int height = data.height();
-    mreal xstep = region.width() / width;
-    mreal ystep = region.height() / height;
-    mreal yin = region.y();
-    uint *line = reinterpret_cast<uint *>(data.bits());
-    int stride = data.bytesPerLine() / sizeof(uint);
+    QVector<QRgb> cols = palette.createTable(maxIterations);
+    const QRgb *colors = cols.constData();
+    int width = img.width();
+    int height = img.height();
+    mreal xstep = rgn.width() / width;
+    mreal ystep = rgn.height() / height;
+    mreal yin = rgn.y();
+    QRgb *line = reinterpret_cast<QRgb *>(img.bits());
+    int stride = img.bytesPerLine() / sizeof(QRgb);
     line += stride * (height - 1);  // flip y axis so y = 1 is at top.
     mreal loglogb = log(log(2.0));
     mreal invlog2 = 1.0 / log(2.0);
     for (int ypos = 0; ypos < height; ++ypos, yin += ystep) {
-        mreal xin = region.x();
+        mreal xin = rgn.x();
         for (int xpos = 0; xpos < width; ++xpos, xin += xstep) {
             // Find the color to use with the "escape time" algorithm.
             int iteration = 0;
@@ -107,41 +96,26 @@ void ImageNative::generateIterationData
                 // adjacent colors for a continuous tone image.
                 // From: http://math.unipa.it/~grim/Jbarrallo.PDF
                 mreal v = (loglogb - log(log(sqrt(x * x + y * y)))) * invlog2;
-                int fraction = int(v * 65535.0f);
-                line[xpos] = (iteration << 16) + fraction;
+                QRgb color1 = colors[iteration];
+                QRgb color2 = colors[iteration + 1];
+                int red = int((qRed(color2) - qRed(color1)) * v) +
+                          qRed(color1);
+                int green = int((qGreen(color2) - qGreen(color1)) * v) +
+                            qGreen(color1);
+                int blue = int((qBlue(color2) - qBlue(color1)) * v) +
+                           qBlue(color1);
+                line[xpos] = qRgb(red, green, blue);
+            } else if (iteration < maxIterations) {
+                line[xpos] = colors[iteration];
             } else {
-                line[xpos] = (iteration << 16);
+                line[xpos] = qRgb(0, 0, 0);
             }
         }
         line -= stride;
     }
 }
 
-void ImageNative::generateImage
-    (QImage *image, int maxIterations, const QRgb *colors)
+void ImageNative::paint(QPainter *painter, const QRect& rect)
 {
-    QRgb *dst = reinterpret_cast<uint *>(image->bits());
-    const uint *src = reinterpret_cast<uint *>(data.bits());
-    uint count = image->width() * image->height();
-    while (count-- > 0) {
-        int iteration = (src[0] >> 16);
-        if (iteration < (maxIterations - 1)) {
-            qreal v = (src[0] & 0xFFFF) / 65535.0f;
-            QRgb color1 = colors[iteration];
-            QRgb color2 = colors[iteration + 1];
-            int red = int((qRed(color2) - qRed(color1)) * v) +
-                      qRed(color1);
-            int green = int((qGreen(color2) - qGreen(color1)) * v) +
-                        qGreen(color1);
-            int blue = int((qBlue(color2) - qBlue(color1)) * v) +
-                       qBlue(color1);
-            dst[0] = qRgb(red, green, blue);
-        } else if (iteration < maxIterations) {
-            dst[0] = colors[iteration];
-        } else {
-            dst[0] = qRgb(0, 0, 0);
-        }
-        ++src;
-        ++dst;
-    }
+    painter->drawImage(rect, img);
 }

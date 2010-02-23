@@ -43,10 +43,12 @@
 #define VIEW_H
 
 #include <QtGui/qwidget.h>
+#include <QtCore/qdatetime.h>
 
 class Image;
 class Palette;
 class Zoom;
+class QTimer;
 
 class View : public QWidget
 {
@@ -57,18 +59,20 @@ public:
 
 private slots:
     void animate();
-    void printFps();
 
 protected:
     void paintEvent(QPaintEvent *);
+    void keyPressEvent(QKeyEvent *);
 
 private:
+    QTimer *timer;
     Image *image;
     Palette *palette;
     qreal offset;
     qreal step;
     Zoom *zoom;
     int frames;
+    QTime fpsBase;
 };
 
 #endif

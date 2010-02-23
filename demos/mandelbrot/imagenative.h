@@ -50,15 +50,11 @@ public:
     ImageNative(int width, int height);
     virtual ~ImageNative();
 
-    virtual QMetaType::Type precision() const;
+    virtual void generate(int maxIterations, const Palette &palette);
+    virtual void paint(QPainter *painter, const QRect& rect);
 
-protected:
-    QImage data;
-
-    void generateIterationData
-        (int maxIterations, const QRectF &region);
-    void generateImage
-        (QImage *image, int maxIterations, const QRgb *colors);
+private:
+    QImage img;
 };
 
 #endif

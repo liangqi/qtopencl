@@ -131,7 +131,7 @@ GoldenGradientZoom::GoldenGradientZoom()
     // http://commons.wikimedia.org/wiki/File:Mandelbrot_sequence_new.gif
     double centerx = -0.743643887037158704752191506114774;
     double centery = 0.131825904205311970493132056385139;
-    double diameter = 2.0;
+    double diameter = 4.0;
     addStep(centerx, centery, diameter, 200);
     addStep(centerx, centery, diameter / 2, 200);
     addStep(centerx, centery, diameter / 4, 500);
@@ -147,4 +147,7 @@ GoldenGradientZoom::GoldenGradientZoom()
     addStep(centerx, centery, diameter / 4096, 2000);
     addStep(centerx, centery, diameter / 8192, 2000);
     addStep(centerx, centery, diameter / 16384, 2000);
+    addStep(centerx, centery, diameter / 32768, 2000);
+    addStep(centerx, centery, diameter / 65536, 2000);
+    addStep(centerx, centery, diameter / 131072, 2000);
 }

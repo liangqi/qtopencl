@@ -52,24 +52,23 @@ public:
     ImageCL(int width, int height);
     virtual ~ImageCL();
 
-    virtual QMetaType::Type precision() const;
     virtual GLuint textureId();
     virtual void initialize();
 
     static bool hasOpenCL();
 
+    virtual void generate(int maxIterations, const Palette &palette);
+    virtual void paint(QPainter *painter, const QRect& rect);
+
 protected:
-    int wid, ht;
-    QCLBuffer data;
+    QImage img;
     QCLImage2D imageBuffer;
     QCLTexture2D textureBuffer;
+    QCLBuffer colorBuffer;
+    int lastIterations;
     bool initialized;
 
     void init(bool useGL = false);
-    void generateIterationData
-        (int maxIterations, const QRectF &region);
-    void generateImage
-        (QImage *image, int maxIterations, const QRgb *colors);
 };
 
 #endif

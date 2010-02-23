@@ -42,31 +42,50 @@
 #include "viewgl.h"
 #include "image.h"
 #include "palette.h"
+#include "zoom.h"
 #include <QtGui/qpainter.h>
+#include <QtGui/qevent.h>
 #include <QtCore/qtimer.h>
+
+#if defined(QT_OPENGL_ES_2)
+#define VIEW_USE_SHADERS 1
+#endif
+
+#ifdef VIEW_USE_SHADERS
+#include <QtOpenGL/qglshaderprogram.h>
+#endif
 
 ViewGL::ViewGL(QWidget *parent)
     : QGLWidget(parent)
 {
+    setAutoFillBackground(false);
     setMinimumSize(768, 512);
     setMaximumSize(768, 512);
 
     palette = new Palette();
-    palette->setStandardPalette(Palette::Blue);
+    palette->setStandardPalette(Palette::EarthSky);
     offset = 0.0f;
-    step = 0.05f;
+    step = 0.005f;
+
+    zoom = new GoldenGradientZoom();
 
     image = 0;
 
-    QTimer *timer = new QTimer(this);
+    timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
-    timer->start(50);
+    timer->start(0);
+
+    frames = 0;
+    fpsBase.start();
+
+    program = 0;
 }
 
 ViewGL::~ViewGL()
 {
     delete palette;
     delete image;
+    delete zoom;
 }
 
 void ViewGL::resizeGL(int width, int height)
@@ -79,11 +98,44 @@ void ViewGL::initializeGL()
     image = Image::createImage(768, 512);
     textureId = image->textureId();
     image->generate(200, *palette);
+
+#ifdef VIEW_USE_SHADERS
+    static char const vertexShader[] =
+        "attribute highp vec4 vertex;\n"
+        "attribute highp vec4 texcoord;\n"
+        "varying highp vec4 qTexCoord;\n"
+        "void main(void)\n"
+        "{\n"
+        "    gl_Position = vertex;\n"
+        "    qTexCoord = texcoord;\n"
+        "}\n";
+    static char const fragmentShader[] =
+        "uniform sampler2D tex;\n"
+        "varying highp vec4 qTexCoord;\n"
+        "void main(void)\n"
+        "{\n"
+        "    gl_FragColor = texture2D(tex, qTexCoord.st);\n"
+        "}\n";
+
+    program = new QGLShaderProgram(this);
+    program->addShaderFromSourceCode(QGLShader::Vertex, vertexShader);
+    program->addShaderFromSourceCode(QGLShader::Fragment, fragmentShader);
+    program->bindAttributeLocation("vertex", 0);
+    program->bindAttributeLocation("texcoord", 1);
+    program->link();
+#endif
 }
 
 void ViewGL::paintGL()
 {
-#if !defined(QT_OPENGL_ES_2) // TODO: OpenGL/ES 2.0 support
+    static GLfloat const vertices[] = {
+        -1, -1, 1, -1, 1, 1, -1, 1
+    };
+    static GLfloat const texCoords[] = {
+        0, 1, 1, 1, 1, 0, 0, 0
+    };
+
+#if !defined(VIEW_USE_SHADERS)
     glBindTexture(GL_TEXTURE_2D, textureId);
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -92,13 +144,6 @@ void ViewGL::paintGL()
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    static GLfloat const vertices[] = {
-        -1, -1, 1, -1, 1, 1, -1, 1
-    };
-    static GLfloat const texCoords[] = {
-        0, 0, 1, 0, 1, 1, 0, 1
-    };
 
     glVertexPointer(2, GL_FLOAT, 0, vertices);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
@@ -114,11 +159,56 @@ void ViewGL::paintGL()
 
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
+#else
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    program->bind();
+    program->enableAttributeArray(0);
+    program->enableAttributeArray(1);
+    program->setUniformValue("tex", 0);
+
+    program->setAttributeArray(0, vertices, 2);
+    program->setAttributeArray(1, texCoords, 2);
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    program->disableAttributeArray(0);
+    program->disableAttributeArray(1);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 #endif
+
+    if (timer->isActive()) {
+        int ms = fpsBase.elapsed();
+        if (ms >= 100) {
+            QPainter painter(this);
+            QString fps = QString::number(frames * 1000.0 / ms) +
+                          QLatin1String(" fps");
+            painter.setPen(Qt::white);
+            painter.drawText(rect(), fps);
+        }
+    }
+}
+
+void ViewGL::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space) {
+        if (timer->isActive()) {
+            timer->stop();
+        } else {
+            timer->start();
+            fpsBase.start();
+            frames = 0;
+        }
+        updateGL();
+    }
+    QGLWidget::keyPressEvent(event);
 }
 
 void ViewGL::animate()
 {
+    if (!image)
+        return;
     if (step > 0) {
         offset += step;
         if (offset >= 1.0f) {
@@ -132,8 +222,7 @@ void ViewGL::animate()
             step = -step;
         }
     }
-    palette->setOffset(offset);
-    //image->forceUpdate();
-    image->generate(200, *palette);
+    zoom->generate(image, offset, *palette);
     updateGL();
+    ++frames;
 }

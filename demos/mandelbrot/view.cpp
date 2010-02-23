@@ -44,6 +44,7 @@
 #include "palette.h"
 #include "zoom.h"
 #include <QtGui/qpainter.h>
+#include <QtGui/qevent.h>
 #include <QtCore/qtimer.h>
 
 View::View(QWidget *parent)
@@ -53,28 +54,22 @@ View::View(QWidget *parent)
     setMaximumSize(768, 512);
 
     palette = new Palette();
-    //palette->setStandardPalette(Palette::Blue);
-    //palette->setStandardPalette(Palette::Fire);
     palette->setStandardPalette(Palette::EarthSky);
     offset = 0.0f;
     step = 0.005f;
 
-    //zoom = new WikipediaZoom();
     zoom = new GoldenGradientZoom();
 
     image = Image::createImage(768, 512);
     image->initialize();
     image->generate(200, *palette);
 
-    QTimer *timer = new QTimer(this);
+    timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer->start(0);
 
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(printFps()));
-    timer->start(5000);
-
     frames = 0;
+    fpsBase.start();
 }
 
 View::~View()
@@ -87,10 +82,31 @@ View::~View()
 void View::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    QImage img = image->image();
-    painter.drawImage((width() - img.width()) / 2,
-                      (height() - img.height()) / 2,
-                      img);
+    image->paint(&painter, rect());
+    if (timer->isActive()) {
+        int ms = fpsBase.elapsed();
+        if (ms >= 100) {
+            QString fps = QString::number(frames * 1000.0 / ms) +
+                          QLatin1String(" fps");
+            painter.setPen(Qt::white);
+            painter.drawText(rect(), fps);
+        }
+    }
+}
+
+void View::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space) {
+        if (timer->isActive()) {
+            timer->stop();
+        } else {
+            timer->start();
+            fpsBase.start();
+            frames = 0;
+        }
+        update();
+    }
+    QWidget::keyPressEvent(event);
 }
 
 void View::animate()
@@ -108,16 +124,7 @@ void View::animate()
             step = -step;
         }
     }
-    //palette->setOffset(offset);
-    //image->forceUpdate();
-    //image->generate(200, *palette);
     zoom->generate(image, offset, *palette);
     update();
     ++frames;
-}
-
-void View::printFps()
-{
-    qDebug("%g fps", frames / 5.0f);
-    frames = 0;
 }
