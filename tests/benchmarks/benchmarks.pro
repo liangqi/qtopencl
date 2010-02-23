@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = mandelbrot
+SUBDIRS = mandelbrot \
+          blur
