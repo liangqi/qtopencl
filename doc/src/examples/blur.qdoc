@@ -92,10 +92,16 @@
     \snippet blur/blurwidget.cpp 4
 
     The last step of the initialization phase is to create the two
-    kernels for the horizontal and vertical passes and set the OpenCL
-    global work sizes to the size of the images:
+    kernels for the horizontal and vertical passes, set the OpenCL
+    global work sizes to the size of the image, and set the local
+    work sizes to the best sizes for 2D image processing:
 
     \snippet blur/blurwidget.cpp 5
+
+    Local work sizes break the image processing problem up into
+    smaller chunks, usually 8x8 in size.  These chunks can be
+    processed more efficiently than linearly scanning the rows
+    of the image in order.
 
     When the program receives a paint event, we calculate the Gaussian
     weights and offsets for the blur radius and upload them to the GPU:

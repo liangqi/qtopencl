@@ -33,6 +33,15 @@ bool CLWidget::contextCreated()
     return context.isCreated();
 }
 
+static inline int roundUp(int value, int to)
+{
+    int remainder = value % to;
+    if (remainder)
+        return value - remainder + to;
+    else
+        return value;
+}
+
 void CLWidget::setup( int radius ) {
     program = context.buildProgramFromSourceFile(QLatin1String(":/blur.cl"));
     horizontalGaussianKernel = program.createKernel("hgaussian");
@@ -40,6 +49,11 @@ void CLWidget::setup( int radius ) {
 
     QSize adjustedSize = srcImages[0].size()
                          + QSize((radius + 1) * 2, (radius + 1) * 2);
+
+    // Adjust for the best work size on the kernel.
+    QCLWorkSize bestSize = horizontalGaussianKernel.bestLocalWorkSizeImage2D();
+    adjustedSize = QSize(roundUp(adjustedSize.width(), bestSize.width()),
+                         roundUp(adjustedSize.height(), bestSize.height()));
 
     for (int index = 0; index < 9; ++index) {
         srcImageBuffers[index] = context.createImage2DCopy(srcImages[index], QCL::ReadOnly);
@@ -51,6 +65,8 @@ void CLWidget::setup( int radius ) {
 
     horizontalGaussianKernel.setGlobalWorkSize(adjustedSize);
     verticalGaussianKernel.setGlobalWorkSize(adjustedSize);
+    horizontalGaussianKernel.setLocalWorkSize(bestSize);
+    verticalGaussianKernel.setLocalWorkSize(bestSize);
 
     QVector<qreal> components;
     qreal sigma = radius / 1.65;

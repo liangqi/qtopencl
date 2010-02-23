@@ -102,15 +102,22 @@ void tst_Mandelbrot::plain_data()
     QTest::addColumn<qreal>("centerx");
     QTest::addColumn<qreal>("centery");
     QTest::addColumn<qreal>("diameter");
+    QTest::addColumn<int>("workSize");
 
     // Defines some of the steps in the 14-step Mandelbrot zoom at
     // http://commons.wikimedia.org/wiki/Mandelbrot_set
     QTest::newRow("full")
-        << qreal(-0.7f) << qreal(0.0f) << qreal(3.0769f);
+        << qreal(-0.7f) << qreal(0.0f) << qreal(3.0769f) << 0;
     QTest::newRow("zoom1")
-        << qreal(-0.87591f) << qreal(0.20464f) << qreal(0.53184f);
+        << qreal(-0.87591f) << qreal(0.20464f) << qreal(0.53184f) << 0;
     QTest::newRow("zoom2")
-        << qreal(-0.759856f) << qreal(0.125547f) << qreal(0.051579f);
+        << qreal(-0.759856f) << qreal(0.125547f) << qreal(0.051579f) << 0;
+    QTest::newRow("full_8x8")
+        << qreal(-0.7f) << qreal(0.0f) << qreal(3.0769f) << 8;
+    QTest::newRow("zoom1_8x8")
+        << qreal(-0.87591f) << qreal(0.20464f) << qreal(0.53184f) << 8;
+    QTest::newRow("zoom2_8x8")
+        << qreal(-0.759856f) << qreal(0.125547f) << qreal(0.051579f) << 8;
 }
 void tst_Mandelbrot::plain()
 {
@@ -174,6 +181,7 @@ void tst_Mandelbrot::openclPerPixel()
     QFETCH(qreal, centerx);
     QFETCH(qreal, centery);
     QFETCH(qreal, diameter);
+    QFETCH(int, workSize);
 
     QVERIFY(!perPixelKernel.isNull());
 
@@ -183,6 +191,7 @@ void tst_Mandelbrot::openclPerPixel()
     QCLBuffer data = context.createBufferDevice
         (Test_Width * Test_Height * sizeof(int), QCL::WriteOnly);
     perPixelKernel.setGlobalWorkSize(Test_Width, Test_Height);
+    perPixelKernel.setLocalWorkSize(workSize, workSize);
 
     QCLBuffer colors = context.createBufferCopy
         (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
@@ -208,6 +217,7 @@ void tst_Mandelbrot::openclPerPixelHost()
     QFETCH(qreal, centerx);
     QFETCH(qreal, centery);
     QFETCH(qreal, diameter);
+    QFETCH(int, workSize);
 
     QVERIFY(!perPixelKernel.isNull());
 
@@ -217,6 +227,7 @@ void tst_Mandelbrot::openclPerPixelHost()
     QCLBuffer data = context.createBufferHost
         (0, Test_Width * Test_Height * sizeof(int), QCL::WriteOnly);
     perPixelKernel.setGlobalWorkSize(Test_Width, Test_Height);
+    perPixelKernel.setLocalWorkSize(workSize, workSize);
 
     QCLBuffer colors = context.createBufferCopy
         (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
@@ -246,6 +257,7 @@ void tst_Mandelbrot::openclPerGroup()
     QFETCH(qreal, centerx);
     QFETCH(qreal, centery);
     QFETCH(qreal, diameter);
+    QFETCH(int, workSize);
 
     QVERIFY(!perGroupKernel.isNull());
 
@@ -255,6 +267,7 @@ void tst_Mandelbrot::openclPerGroup()
     QCLBuffer data = context.createBufferDevice
         (Test_Width * Test_Height * sizeof(int), QCL::WriteOnly);
     perGroupKernel.setGlobalWorkSize(Test_Width / 16, Test_Height / 16);
+    perGroupKernel.setLocalWorkSize(workSize, workSize);
 
     QCLBuffer colors = context.createBufferCopy
         (rgbColors.constData(), sizeof(QRgb) * Test_MaxIterations,
@@ -281,6 +294,7 @@ void tst_Mandelbrot::openclImage()
     QFETCH(qreal, centerx);
     QFETCH(qreal, centery);
     QFETCH(qreal, diameter);
+    QFETCH(int, workSize);
 
     QVERIFY(!imageKernel.isNull());
 
@@ -292,6 +306,7 @@ void tst_Mandelbrot::openclImage()
     QCLImage2D data = context.createImage2DDevice
         (format, QSize(Test_Width, Test_Height), QCL::WriteOnly);
     imageKernel.setGlobalWorkSize(Test_Width, Test_Height);
+    imageKernel.setLocalWorkSize(workSize, workSize);
 
     QCLBuffer colorBuffer = context.createBufferCopy
         (floatColors.constData(), sizeof(float) * 4 * Test_MaxIterations,

@@ -77,7 +77,9 @@ void ImageCLContext::init(bool useGL)
     program = context->buildProgramFromSourceFile
         (QLatin1String(":/mandelbrot.cl"));
     mandelbrot = program.createKernel("mandelbrot");
+    mandelbrot.setLocalWorkSize(mandelbrot.bestLocalWorkSizeImage2D());
     colorize = program.createKernel("colorize");
+    colorize.setLocalWorkSize(colorize.bestLocalWorkSizeImage2D());
 }
 
 ImageCLContext::~ImageCLContext()

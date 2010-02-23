@@ -104,6 +104,9 @@ public:
     void setLocalWorkSize(size_t width, size_t height);
     void setLocalWorkSize(size_t width, size_t height, size_t depth);
 
+    QCLWorkSize bestLocalWorkSizeImage2D() const;
+    QCLWorkSize bestLocalWorkSizeImage3D() const;
+
     void setArg(int index, cl_int value);
     void setArg(int index, cl_uint value);
     void setArg(int index, cl_long value);

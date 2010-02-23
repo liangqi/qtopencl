@@ -79,9 +79,11 @@ BlurWidget::BlurWidget(QWidget *parent)
 //! [5]
     hgaussian = program.createKernel("hgaussian");
     hgaussian.setGlobalWorkSize(img.size());
+    hgaussian.setLocalWorkSize(hgaussian.bestLocalWorkSizeImage2D());
 
     vgaussian = program.createKernel("vgaussian");
     vgaussian.setGlobalWorkSize(img.size());
+    vgaussian.setLocalWorkSize(vgaussian.bestLocalWorkSizeImage2D());
 //! [5]
 
     QTimer *timer = new QTimer(this);

@@ -441,6 +441,30 @@ void QCLKernel::setLocalWorkSize(const QCLWorkSize &size)
 }
 
 /*!
+    Returns the recommended best local work size for 2D image processing
+    on this kernel.  Default value is 8x8.
+
+    \sa bestLocalWorkSizeImage3D()
+*/
+QCLWorkSize QCLKernel::bestLocalWorkSizeImage2D() const
+{
+    // TODO - need some way to determine this from the driver.
+    return QCLWorkSize(8, 8);
+}
+
+/*!
+    Returns the recommended best local work size for 3D image processing
+    on this kernel.  Default value is 8x8x8.
+
+    \sa bestLocalWorkSizeImage2D()
+*/
+QCLWorkSize QCLKernel::bestLocalWorkSizeImage3D() const
+{
+    // TODO - need some way to determine this from the driver.
+    return QCLWorkSize(8, 8, 8);
+}
+
+/*!
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
