@@ -120,11 +120,13 @@ static void qt_clgl_context_notify(const char *errinfo,
     QGLContext.  Returns false if there is no OpenGL context current or
     the OpenCL context could not be created for some reason.
 
+    This function will first try to create a QCLDevice::GPU device,
+    and will then fall back to QCLDevice::Default if a GPU is not found.
+
     \sa supportsObjectSharing()
 */
 bool QCLContextGL::create()
 {
-#ifndef QT_NO_CL_OPENGL
     Q_D(QCLContextGL);
 
     // Bail out if the context already exists.
@@ -141,10 +143,20 @@ bool QCLContextGL::create()
     // Find the first gpu device.
     QCLPlatform plat = platform();
     QList<QCLDevice> devices;
-    if (plat.isNull())
+    cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+    if (plat.isNull()) {
         devices = QCLDevice::devices(QCLDevice::GPU);
-    else
+        if (devices.isEmpty()) {
+            devices = QCLDevice::devices(QCLDevice::Default);
+            deviceType = CL_DEVICE_TYPE_DEFAULT;
+        }
+    } else {
         devices = QCLDevice::devices(QCLDevice::GPU, plat);
+        if (devices.isEmpty()) {
+            devices = QCLDevice::devices(QCLDevice::Default, plat);
+            deviceType = CL_DEVICE_TYPE_DEFAULT;
+        }
+    }
     if (devices.isEmpty()) {
         qWarning() << "QCLContextGL::create: no gpu devices found";
         setLastError(CL_DEVICE_NOT_FOUND);
@@ -164,8 +176,7 @@ bool QCLContextGL::create()
     bool hasSharing = false;
 #if defined(__APPLE__) || defined(__MACOSX)
 #if 0   // CGL not fully supported yet
-    bool appleSharing = extensions.contains
-        (QLatin1String("cl_apple_gl_sharing"), Qt::CaseInsensitive);
+    bool appleSharing = gpu.hasExtension("cl_apple_gl_sharing");
     if (appleSharing) {
         CGLContextObj cglContext = CGLGetCurrentContext();
         CGLShareGroupObj cglShareGroup = CGLGetShareGroup(cglContext);
@@ -175,8 +186,7 @@ bool QCLContextGL::create()
     }
 #endif
 #else
-    bool khrSharing = extensions.contains
-        (QLatin1String("cl_khr_gl_sharing"), Qt::CaseInsensitive);
+    bool khrSharing = gpu.hasExtension("cl_khr_gl_sharing");
 #if defined(QT_OPENGL_ES_2) || defined(QT_OPENGL_ES)
     if (khrSharing) {
         properties.append(CL_EGL_DISPLAY_KHR);
@@ -208,11 +218,11 @@ bool QCLContextGL::create()
     cl_int error;
     if (!properties.isEmpty()) {
         id = clCreateContextFromType
-            (properties.data(), CL_DEVICE_TYPE_GPU,
+            (properties.data(), deviceType,
              qt_clgl_context_notify, 0, &error);
     } else {
         id = clCreateContextFromType
-            (0, CL_DEVICE_TYPE_GPU, qt_clgl_context_notify, 0, &error);
+            (0, deviceType, qt_clgl_context_notify, 0, &error);
     }
     setLastError(error);
     if (id == 0) {
@@ -224,11 +234,6 @@ bool QCLContextGL::create()
         clReleaseContext(id);   // setContextId() adds an extra reference.
     }
     return id != 0;
-#else
-    // OpenCL-OpenGL sharing is not supported, so just open
-    // the OpenCL device normally with no sharing.
-    return QCLContext::create();
-#endif
 }
 
 /*!

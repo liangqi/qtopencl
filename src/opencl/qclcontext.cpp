@@ -159,6 +159,7 @@ static void qt_cl_context_notify(const char *errinfo,
 /*!
     Creates a new OpenCL context that matches platform() and
     \a type.  Does nothing if the context has already been created.
+    The default value for \a type is QCLDevice::Default.
 
     Returns true if the context was created; false otherwise.
     On error, the status can be retrieved by calling lastError().

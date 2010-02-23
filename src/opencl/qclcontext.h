@@ -75,7 +75,7 @@ public:
     QCLPlatform platform() const;
     void setPlatform(const QCLPlatform &platform);
 
-    bool create(QCLDevice::DeviceTypes type = QCLDevice::GPU);
+    bool create(QCLDevice::DeviceTypes type = QCLDevice::Default);
     bool create(const QList<QCLDevice> &devices);
     void release();
 
