@@ -47,6 +47,7 @@
 // TODO: remove the dependency on <QtOpenGL/qgl.h>
 #include <QtOpenGL/qgl.h>
 #if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenGL/OpenGL.h>
 #include <OpenCL/cl_platform.h>
 #include <OpenCL/cl.h>
 #include <OpenCL/cl_gl.h>
