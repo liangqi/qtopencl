@@ -39,36 +39,46 @@
 **
 ****************************************************************************/
 
-#ifndef VIEW_H
-#define VIEW_H
+#ifndef ZOOM_H
+#define ZOOM_H
 
-#include <QtGui/qwidget.h>
+#include <QtCore/qlist.h>
 
 class Image;
 class Palette;
-class Zoom;
 
-class View : public QWidget
+class Zoom
 {
-    Q_OBJECT
 public:
-    View(QWidget *parent = 0);
-    ~View();
+    Zoom();
+    virtual ~Zoom();
 
-private slots:
-    void animate();
-    void printFps();
+    void addStep(double centerx, double centery,
+                 double hdiameter, int iterations);
 
-protected:
-    void paintEvent(QPaintEvent *);
+    void generate(Image *image, qreal value, const Palette& palette);
 
 private:
-    Image *image;
-    Palette *palette;
-    qreal offset;
-    qreal step;
-    Zoom *zoom;
-    int frames;
+    struct ZoomStep
+    {
+        double centerx, centery;
+        double hdiameter;
+        int iterations;
+    };
+
+    QList<ZoomStep> steps;
+};
+
+class WikipediaZoom : public Zoom
+{
+public:
+    WikipediaZoom();
+};
+
+class GoldenGradientZoom : public Zoom
+{
+public:
+    GoldenGradientZoom();
 };
 
 #endif

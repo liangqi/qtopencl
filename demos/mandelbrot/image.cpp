@@ -82,14 +82,14 @@ void Image::generate(int maxIterations, const Palette& palette)
 
     // If the parameters have changed, then regenerate the index data.
     if (regionChanged || maxIterations != lastIterations) {
-        QTime time;
-        time.start();
+        //QTime time;
+        //time.start();
         generateIterationData(maxIterations, rgn);
         regionChanged = false;
         lastIterations = maxIterations;
-        qDebug() << "Mandelbrot:" << rgn
-                 << "iterations =" << maxIterations
-                 << "elapsed =" << time.elapsed() << "ms";
+        //qDebug() << "Mandelbrot:" << rgn
+        //         << "iterations =" << maxIterations
+        //         << "elapsed =" << time.elapsed() << "ms";
     }
 
     // Colorize the index data to create the final image.

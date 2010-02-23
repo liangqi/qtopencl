@@ -48,7 +48,7 @@ __kernel void mandelbrot(__global __write_only int *data,
     int xpixel = get_global_id(0);
     int ypixel = get_global_id(1);
     float xin = regionx + xpixel * regionwidth / pixelwidth;
-    float yin = regiony + ypixel * regionheight / pixelheight;
+    float yin = regiony + (pixelheight - 1 - ypixel) * regionheight / pixelheight;
     int iteration = 0;
     float x = 0;
     float y = 0;

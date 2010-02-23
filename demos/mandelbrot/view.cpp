@@ -42,6 +42,7 @@
 #include "view.h"
 #include "image.h"
 #include "palette.h"
+#include "zoom.h"
 #include <QtGui/qpainter.h>
 #include <QtCore/qtimer.h>
 
@@ -52,9 +53,14 @@ View::View(QWidget *parent)
     setMaximumSize(768, 512);
 
     palette = new Palette();
-    palette->setStandardPalette(Palette::Blue);
+    //palette->setStandardPalette(Palette::Blue);
+    //palette->setStandardPalette(Palette::Fire);
+    palette->setStandardPalette(Palette::EarthSky);
     offset = 0.0f;
-    step = 0.05f;
+    step = 0.005f;
+
+    //zoom = new WikipediaZoom();
+    zoom = new GoldenGradientZoom();
 
     image = Image::createImage(768, 512);
     image->initialize();
@@ -62,13 +68,20 @@ View::View(QWidget *parent)
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
-    timer->start(50);
+    timer->start(0);
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(printFps()));
+    timer->start(5000);
+
+    frames = 0;
 }
 
 View::~View()
 {
     delete palette;
     delete image;
+    delete zoom;
 }
 
 void View::paintEvent(QPaintEvent *)
@@ -95,8 +108,16 @@ void View::animate()
             step = -step;
         }
     }
-    palette->setOffset(offset);
+    //palette->setOffset(offset);
     //image->forceUpdate();
-    image->generate(200, *palette);
+    //image->generate(200, *palette);
+    zoom->generate(image, offset, *palette);
     update();
+    ++frames;
+}
+
+void View::printFps()
+{
+    qDebug("%g fps", frames / 5.0f);
+    frames = 0;
 }

@@ -14,13 +14,15 @@ SOURCES += main.cpp \
            imagecl.cpp \
            imagenative.cpp \
            view.cpp \
-           viewgl.cpp
+           viewgl.cpp \
+           zoom.cpp
 HEADERS += palette.h \
            image.h \
            imagecl.h \
            imagenative.h \
            view.h \
-           viewgl.h
+           viewgl.h \
+           zoom.h
 RESOURCES += mandelbrot.qrc
 
 LIBS += -L../../lib -L../../bin
