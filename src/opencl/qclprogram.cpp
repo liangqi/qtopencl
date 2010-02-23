@@ -206,6 +206,84 @@ QString QCLProgram::log() const
 }
 
 /*!
+    Returns the list of devices that this program is associated with.
+
+    \sa binaries()
+*/
+QList<QCLDevice> QCLProgram::devices() const
+{
+    QList<QCLDevice> list;
+    cl_uint size;
+    if (clGetProgramInfo(m_id, CL_PROGRAM_NUM_DEVICES,
+                         sizeof(size), &size, 0) != CL_SUCCESS || size == 0)
+        return list;
+    QVarLengthArray<cl_device_id> buf(size);
+    if (clGetProgramInfo
+            (m_id, CL_PROGRAM_DEVICES,
+             size * sizeof(cl_device_id), buf.data(), 0) != CL_SUCCESS)
+        return list;
+    for (int index = 0; index < buf.size(); ++index)
+        list.append(QCLDevice(buf[index]));
+    return list;
+}
+
+/*!
+    Returns the source code that was specified when this program
+    was created.
+
+    \sa QCLContext::createProgramFromSourceCode(), binaries()
+*/
+QByteArray QCLProgram::sourceCode() const
+{
+    size_t size;
+    if (clGetProgramInfo(m_id, CL_PROGRAM_SOURCE, 0, 0, &size) != CL_SUCCESS)
+        return QByteArray();
+    QVarLengthArray<char> buf(size);
+    if (clGetProgramInfo
+            (m_id, CL_PROGRAM_SOURCE, size, buf.data(), &size) != CL_SUCCESS)
+        return QByteArray();
+    if (size > 0 && buf[size - 1] == '\0')
+        return QByteArray(buf.constData(), size - 1);
+    else
+        return QByteArray(buf.constData(), size);
+}
+
+/*!
+    Returns a list of binaries for this program for each of the devices().
+
+    \sa devices(), sourceCode()
+*/
+QList<QByteArray> QCLProgram::binaries() const
+{
+    QList<QByteArray> bins;
+
+    // Get the number of devices for which we may have binaries.
+    cl_uint size;
+    if (clGetProgramInfo(m_id, CL_PROGRAM_NUM_DEVICES,
+                         sizeof(size), &size, 0) != CL_SUCCESS || size == 0)
+        return bins;
+
+    // Query the binary sizes.
+    QVarLengthArray<size_t> binSizes(size);
+    if (clGetProgramInfo
+            (m_id, CL_PROGRAM_BINARY_SIZES,
+             size * sizeof(size_t), binSizes.data(), 0) != CL_SUCCESS)
+        return bins;
+
+    // Allocate memory for each of the binaries.
+    QVarLengthArray<unsigned char *> binPtrs;
+    for (cl_uint dev = 0; dev < size; ++dev) {
+        bins.append(QByteArray(int(binSizes[dev]), '\0'));
+        binPtrs.append(reinterpret_cast<unsigned char *>(bins[dev].data()));
+    }
+
+    // Fetch the binaries.
+    clGetProgramInfo(m_id, CL_PROGRAM_BINARIES,
+                     size * sizeof(unsigned char *), binPtrs.data(), 0);
+    return bins;
+}
+
+/*!
     Creates a kernel for the entry point associated with \a name
     in this program.
 

@@ -76,6 +76,10 @@ public:
 
     QString log() const;
 
+    QList<QCLDevice> devices() const;
+    QByteArray sourceCode() const;
+    QList<QByteArray> binaries() const;
+
     QCLKernel createKernel(const char *name) const;
     QCLKernel createKernel(const QByteArray &name) const;
     QCLKernel createKernel(const QString &name) const;
