@@ -76,13 +76,13 @@ public:
     tst_Blur()
     {
         view = 0;
-        widget = 0;
+        pixmapFilterWidget = 0;
         clwidget = 0;
     }
     virtual ~tst_Blur()
     {
         delete view;
-        delete widget;
+        delete pixmapFilterWidget;
         delete clwidget;
     }
 
@@ -93,12 +93,19 @@ private slots:
     void blur();
 
     void openCLBlurAnimated();
+
+    void animatedGraphicsEffectBlur_data();
+    void animatedGraphicsEffectBlur();
+
+    void pixmapFilterAnimatedBlur_data();
+    void pixmapFilterAnimatedBlur();
+
 private:
     void qPixmapFilterBlurFilter(int hint, int radius);
     void qGraphicsEffectBlur(int hint, int radius);
     void openCLBlur(int hint, int radius);
 
-    PixmapFilterWidget *widget;
+    PixmapFilterWidget *pixmapFilterWidget;
     GraphicsEffectView *view;
     CLWidget* clwidget;
 };
@@ -107,11 +114,11 @@ private:
 void tst_Blur::initTestCase()
 {
     // Pixmap Filter setup
-    widget = new PixmapFilterWidget();
-    widget->setFixedSize(300, 300);
-    widget->show();
+    pixmapFilterWidget = new PixmapFilterWidget();
+    pixmapFilterWidget->setFixedSize(300, 300);
+    pixmapFilterWidget->show();
 #ifdef Q_WS_X11
-    qt_x11_wait_for_window_manager(widget);
+    qt_x11_wait_for_window_manager(pixmapFilterWidget);
 #endif
 
     // GraphicsView Setup
@@ -127,7 +134,7 @@ void tst_Blur::initTestCase()
     clwidget->setFixedSize(300,300);
     clwidget->show();
 #ifdef Q_WS_X11
-    qt_x11_wait_for_window_manager(widget);
+    qt_x11_wait_for_window_manager(clwidget);
 #endif
 
     QTest::qWait(200);
@@ -251,18 +258,18 @@ void tst_Blur::qPixmapFilterBlurFilter(int hint, int radius)
     filter.setRadius(radius);
 
     int pixmapOffset = -1;
-    widget->setPixmapOffset(-1);
+    pixmapFilterWidget->setPixmapOffset(-1);
 
     QBENCHMARK {
         QEventLoop eventLoop;
-        widget->setFilter(&filter);
-        widget->setEventLoop(&eventLoop);
-        widget->update();
+        pixmapFilterWidget->setFilter(&filter);
+        pixmapFilterWidget->setEventLoop(&eventLoop);
+        pixmapFilterWidget->update();
         eventLoop.exec();
     }
 
-    widget->setPixmapOffset(-1);
-    widget->setFilter(0);
+    pixmapFilterWidget->setPixmapOffset(-1);
+    pixmapFilterWidget->setFilter(0);
 
 }
 
@@ -328,9 +335,95 @@ void tst_Blur::openCLBlurAnimated()
             };
         }
     }
-    qWarning() << "33 frames rendered";
+    qWarning() << "divide by 33";
 }
 
+void tst_Blur::animatedGraphicsEffectBlur_data()
+{
+    QTest::addColumn<int>("hint");
+    QTest::newRow("performance") << int(QGraphicsBlurEffect::PerformanceHint);
+    QTest::newRow("quality") << int(QGraphicsBlurEffect::QualityHint);
+}
+
+// Test the performance of animating a blur from 0 to 16 and back.
+void tst_Blur::animatedGraphicsEffectBlur()
+{
+    QFETCH(int, hint);
+
+    for (int index = 0; index < 9; ++index) {
+        QGraphicsBlurEffect *effect = new QGraphicsBlurEffect();
+        effect->setBlurHints(QGraphicsBlurEffect::BlurHints(hint));
+        view->setItemEffect(index, effect);
+    }
+
+    // Note: divide reported msec value by 33 to get per-frame msec value.
+    QBENCHMARK {
+        for (int radius = 0; radius <= 16; ++radius) {
+            QEventLoop eventLoop;
+            for (int index = 0; index < 9; ++index) {
+                QGraphicsBlurEffect *blur =
+                    qobject_cast<QGraphicsBlurEffect *>
+                        (view->itemEffect(index));
+                blur->setBlurRadius(radius);
+            }
+            view->setEventLoop(&eventLoop);
+            view->updateScene();
+            eventLoop.exec();
+        }
+        for (int radius = 15; radius >= 0; --radius) {
+            QEventLoop eventLoop;
+            for (int index = 0; index < 9; ++index) {
+                QGraphicsBlurEffect *blur =
+                    qobject_cast<QGraphicsBlurEffect *>
+                        (view->itemEffect(index));
+                blur->setBlurRadius(radius);
+            }
+            view->setEventLoop(&eventLoop);
+            view->updateScene();
+            eventLoop.exec();
+        }
+    }
+    qWarning() << "divide by 33";
+}
+
+void tst_Blur::pixmapFilterAnimatedBlur_data()
+{
+    QTest::addColumn<int>("hint");
+    QTest::newRow("performance") << int(QGraphicsBlurEffect::PerformanceHint |
+                                        QGraphicsBlurEffect::AnimationHint);
+    QTest::newRow("quality") << int(QGraphicsBlurEffect::QualityHint |
+                                    QGraphicsBlurEffect::AnimationHint);
+}
+
+// Test the performance of animating a blur from 0 to 16 and back.
+void tst_Blur::pixmapFilterAnimatedBlur()
+{
+    QFETCH(int, hint);
+
+    QPixmapBlurFilter filter;
+    filter.setBlurHints(QGraphicsBlurEffect::BlurHints(hint));
+
+    // Note: divide reported msec value by 33 to get per-frame msec value.
+    QBENCHMARK {
+        for (int radius = 0; radius <= 16; ++radius) {
+            QEventLoop eventLoop;
+            filter.setRadius(radius);
+            pixmapFilterWidget->setFilter(&filter);
+            pixmapFilterWidget->setEventLoop(&eventLoop);
+            pixmapFilterWidget->update();
+            eventLoop.exec();
+        }
+        for (int radius = 15; radius >= 0; --radius) {
+            QEventLoop eventLoop;
+            filter.setRadius(radius);
+            pixmapFilterWidget->setFilter(&filter);
+            pixmapFilterWidget->setEventLoop(&eventLoop);
+            pixmapFilterWidget->update();
+            eventLoop.exec();
+        }
+    }
+    qWarning() << "divide by 33";
+}
 QTEST_MAIN(tst_Blur)
 
 #include "tst_blur.moc"
