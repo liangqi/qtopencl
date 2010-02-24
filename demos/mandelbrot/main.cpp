@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
         view.show();
         return app.exec();
     } else {
+        if (QApplication::arguments().contains(QLatin1String("-native")))
+            ImageCL::disableCL();
         View view;
         view.show();
         return app.exec();

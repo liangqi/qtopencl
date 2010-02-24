@@ -56,6 +56,7 @@ public:
     virtual void initialize();
 
     static bool hasOpenCL();
+    static void disableCL();
 
     virtual void generate(int maxIterations, const Palette &palette);
     virtual void paint(QPainter *painter, const QRect& rect);

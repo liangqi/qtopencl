@@ -126,9 +126,18 @@ void ImageCL::initialize()
     init(false);
 }
 
+static bool openclDisabled = false;
+
 bool ImageCL::hasOpenCL()
 {
+    if (openclDisabled)
+        return false;
     return !QCLDevice::devices(QCLDevice::Default).isEmpty();
+}
+
+void ImageCL::disableCL()
+{
+    openclDisabled = true;
 }
 
 void ImageCL::generate(int maxIterations, const Palette &palette)
