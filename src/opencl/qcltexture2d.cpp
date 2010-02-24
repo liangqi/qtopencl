@@ -42,6 +42,10 @@
 #include "qcltexture2d.h"
 #include "qclcontextgl.h"
 #include "qcl_glproxy_p.h"
+#if QT_VERSION >= 0x040700 && !defined(QT_OPENGL_ES)
+#include <QtOpenGL/qglbuffer.h>
+#define USE_PIXEL_UNPACK_BUFFERS 1
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -70,16 +74,25 @@ public:
         : context(0)
         , textureId(0)
         , directRender(false)
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+        , pixelBuffer(0)
+#endif
     {
     }
     ~QCLTexture2DPrivate()
     {
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+        delete pixelBuffer;
+#endif
     }
 
     const QGLContext *context;
     GLuint textureId;
     QSize size;
     bool directRender;
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+    QGLBuffer *pixelBuffer;
+#endif
 
     void setContextAndId(const QGLContext *ctx, GLuint id);
 
@@ -165,14 +178,32 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
         return true;
     }
 
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+    // Create a pixel unpack buffer for downloading image data
+    // out of OpenCL and uploading it into OpenGL.
+    d->pixelBuffer = new QGLBuffer(QGLBuffer::PixelUnpackBuffer);
+    d->pixelBuffer->setUsagePattern(QGLBuffer::DynamicDraw);
+    if (d->pixelBuffer->create()) {
+        d->pixelBuffer->bind();
+        d->pixelBuffer->allocate(size.width() * size.height() * 4);
+        d->pixelBuffer->release();
+    } else {
+        delete d->pixelBuffer;
+        d->pixelBuffer = 0;
+    }
+#endif
+
     // Create a 2D image in the OpenCL device for rendering with OpenCL.
-    // TODO: use pixel unpack buffers on the texture if available.
     QCLImage2D image = context->createImage2DDevice
         (QCLImageFormat(QCLImageFormat::Order_RGBA,
                         QCLImageFormat::Type_Normalized_UInt8),
          size, QCL::WriteOnly);
     if (image.isNull()) {
         glDeleteTextures(1, &textureId);
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+        delete d->pixelBuffer;
+        d->pixelBuffer = 0;
+#endif
         return false;
     }
     d->setContextAndId(QGLContext::currentContext(), textureId);
@@ -213,6 +244,10 @@ void QCLTexture2D::destroy()
         if (oldContext)
             oldContext->makeCurrent();
     }
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+    delete d->pixelBuffer;
+    d->pixelBuffer = 0;
+#endif
     d->context = 0;
     d->textureId = 0;
     d->size = QSize();
@@ -256,7 +291,28 @@ void QCLTexture2D::releaseGL()
     context()->marker().waitForFinished();
 
     // Upload the contents of the OpenCL buffer into the texture.
-    void *ptr = map(QRect(QPoint(0, 0), d->size), QCL::ReadOnly);
+    void *ptr;
+#ifdef USE_PIXEL_UNPACK_BUFFERS
+    if (d->pixelBuffer) {
+        d->pixelBuffer->bind();
+        ptr = d->pixelBuffer->map(QGLBuffer::ReadWrite);
+        if (ptr) {
+            read(ptr, QRect(QPoint(0, 0), d->size), d->size.width() * 4);
+            d->pixelBuffer->unmap();
+            glBindTexture(GL_TEXTURE_2D, d->textureId);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+                            d->size.width(), d->size.height(),
+                            GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            d->pixelBuffer->release();
+            return;
+        }
+        // Pixel buffer cannot be mapped, so it is of no use to us.
+        d->pixelBuffer->release();
+        delete d->pixelBuffer;
+        d->pixelBuffer = 0;
+    }
+#endif
+    ptr = map(QRect(QPoint(0, 0), d->size), QCL::ReadOnly);
     glBindTexture(GL_TEXTURE_2D, d->textureId);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                     d->size.width(), d->size.height(),
