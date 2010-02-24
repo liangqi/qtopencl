@@ -50,7 +50,7 @@ public:
     ImageCLContext() : context(0), glContext(0) {}
     ~ImageCLContext();
 
-    void init(bool useGL);
+    void init(bool useGL, int wid, int ht);
 
     QCLContext *context;
     QCLContextGL *glContext;
@@ -58,7 +58,7 @@ public:
     QCLKernel mandelbrot;
 };
 
-void ImageCLContext::init(bool useGL)
+void ImageCLContext::init(bool useGL, int wid, int ht)
 {
     if (context)
         return;
@@ -77,6 +77,7 @@ void ImageCLContext::init(bool useGL)
     program = context->buildProgramFromSourceFile
         (QLatin1String(":/mandelbrot.cl"));
     mandelbrot = program.createKernel("mandelbrot");
+    mandelbrot.setGlobalWorkSize(wid, ht);
     mandelbrot.setLocalWorkSize(mandelbrot.bestLocalWorkSizeImage2D());
 }
 
@@ -107,7 +108,7 @@ void ImageCL::init(bool useGL)
 
     // Initialize the context for GL or non-GL.
     ImageCLContext *ctx = image_context();
-    ctx->init(useGL);
+    ctx->init(useGL, wid, ht);
 }
 
 GLuint ImageCL::textureId()
@@ -179,7 +180,6 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
         }
 
         // Execute the "mandelbrot" kernel.
-        mandelbrot.setGlobalWorkSize(wid, ht);
         mandelbrot(imageBuffer, float(region.x()), float(region.y()),
                    float(region.width()), float(region.height()),
                    wid, ht, maxIterations, colorBuffer);
@@ -192,7 +192,6 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
         textureBuffer.acquireGL();
 
         // Execute the "mandelbrot" kernel.
-        mandelbrot.setGlobalWorkSize(wid, ht);
         mandelbrot(textureBuffer, float(region.x()), float(region.y()),
                    float(region.width()), float(region.height()),
                    wid, ht, maxIterations, colorBuffer);
