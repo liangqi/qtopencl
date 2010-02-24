@@ -32,11 +32,8 @@ static inline int roundUp(int value, int to)
         return value;
 }
 
-void CLWidget::setup( int radius ) {
-    program = context.buildProgramFromSourceFile(QLatin1String(":/blur.cl"));
-    horizontalGaussianKernel = program.createKernel("hgaussian");
-    verticalGaussianKernel = program.createKernel("vgaussian");
-
+void CLWidget::populateSourceImages()
+{
     srcImages[0] = QImage(QLatin1String(":/images/accessories-calculator.png"));
     srcImages[1] = QImage(QLatin1String(":/images/accessories-text-editor.png"));
     srcImages[2] = QImage(QLatin1String(":/images/help-browser.png"));
@@ -47,24 +44,21 @@ void CLWidget::setup( int radius ) {
     srcImages[7] = QImage(QLatin1String(":/images/system-users.png"));
     srcImages[8] = QImage(QLatin1String(":/images/qt-logo.png"));
 
-
-    // Adjust for the best work size on the kernel.
-    QCLWorkSize bestSize = horizontalGaussianKernel.bestLocalWorkSizeImage2D();
-
-    QSize largestSize;
+    largestSourceImageSize = QSize();
     for(int i = 0; i < 9; ++i)
     {
-        largestSize = largestSize.expandedTo(srcImages[i].size());
+        largestSourceImageSize = largestSourceImageSize.expandedTo(srcImages[i].size());
     }
+}
 
-    QSize adjustedSize = largestSize + QSize((radius + 1) * 2, (radius + 1) * 2);
-    adjustedSize = QSize(roundUp(adjustedSize.width(), bestSize.width()),
-                         roundUp(adjustedSize.height(), bestSize.height()));
-
+void CLWidget::adjustSourceImageSizes(QSize newSize)
+{
     for (int index = 0; index < 9; ++index) {
         // Adjust for the best work size on the kernel.
 
-        QImage resizedSource(adjustedSize, QImage::Format_ARGB32);
+        if(srcImages[index].size() == newSize)
+            continue;
+        QImage resizedSource(newSize, QImage::Format_ARGB32);
         resizedSource.fill(0);
         QPainter p(&resizedSource);
         QPoint topLeft = QPoint(
@@ -73,6 +67,29 @@ void CLWidget::setup( int radius ) {
         p.drawImage( topLeft , srcImages[index] );
         p.end();
         srcImages[index] = resizedSource;
+    }
+}
+
+void CLWidget::setup( int maxRadius ) {
+    program = context.buildProgramFromSourceFile(QLatin1String(":/blur.cl"));
+    horizontalGaussianKernel = program.createKernel("hgaussian");
+    verticalGaussianKernel = program.createKernel("vgaussian");
+
+    populateSourceImages();
+
+    // Adjust for the best work size on the kernel.
+    QCLWorkSize bestSize = horizontalGaussianKernel.bestLocalWorkSizeImage2D();
+
+
+    QSize adjustedSize = largestSourceImageSize + QSize((maxRadius + 1) * 2, (maxRadius + 1) * 2);
+    adjustedSize = QSize(roundUp(adjustedSize.width(), bestSize.width()),
+                         roundUp(adjustedSize.height(), bestSize.height()));
+
+
+    adjustSourceImageSizes(adjustedSize);
+
+    for (int index = 0; index < 9; ++index) {
+        // Adjust for the best work size on the kernel.
 
         srcImageBuffers[index] = context.createImage2DCopy(srcImages[index], QCL::ReadOnly);
         tmpImageBuffers[index] = context.createImage2DDevice(QImage::Format_ARGB32, adjustedSize, QCL::ReadWrite);
@@ -86,6 +103,14 @@ void CLWidget::setup( int radius ) {
     horizontalGaussianKernel.setLocalWorkSize(bestSize);
     verticalGaussianKernel.setLocalWorkSize(bestSize);
 
+    weightsBuffer = context.createVector<float>(100);
+    offsetsBuffer = context.createVector<float>(100);
+};
+
+void CLWidget::startBlur(int radius)
+{
+    // build weights and offset vectors
+    // (Would this be faster on the gpu?)
     QVector<qreal> components;
     qreal sigma = radius / 1.65;
     qreal sum = 0;
@@ -110,12 +135,6 @@ void CLWidget::setup( int radius ) {
         weights.append(components[components.size() - 1]);
     }
 
-    weightsBuffer = context.createVector<float>(100);
-    offsetsBuffer = context.createVector<float>(100);
-};
-
-void CLWidget::startBlur()
-{
     // Upload the weights and offsets into OpenCL.
     offsetsBuffer.write(offsets);
     weightsBuffer.write(weights);

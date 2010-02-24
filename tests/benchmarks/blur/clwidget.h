@@ -13,10 +13,13 @@ public:
     bool contextCreated();
     void setEventLoop(QEventLoop *loop) { eventLoop = loop; }
     void setup(int radius);
-    void startBlur();
+    void startBlur(int radius);
 
 protected:
     void paintEvent(QPaintEvent *);
+
+    void populateSourceImages();
+    void adjustSourceImageSizes(QSize newSize);
 
 private:
     QEventLoop *eventLoop;
@@ -27,7 +30,7 @@ private:
     QCLKernel verticalGaussianKernel;
 
     QImage srcImages[9];
-    QImage dstImages[9];
+    QImage dstImages[9 * 15];
     QCLImage2D srcImageBuffers[9];
     QCLImage2D tmpImageBuffers[9];
     QCLImage2D dstImageBuffers[9];
@@ -37,6 +40,7 @@ private:
     QCLVector<float> weightsBuffer;
     QCLVector<float> offsetsBuffer;
 
+    QSize largestSourceImageSize;
 
     // old variables
 //    QImage dstImage;

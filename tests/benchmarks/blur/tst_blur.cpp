@@ -92,6 +92,7 @@ private slots:
     void blur_data();
     void blur();
 
+    void openCLBlurAnimated();
 private:
     void qPixmapFilterBlurFilter(int hint, int radius);
     void qGraphicsEffectBlur(int hint, int radius);
@@ -291,10 +292,43 @@ void tst_Blur::openCLBlur(int hint, int radius)
     QBENCHMARK {
         QEventLoop eventLoop;
         clwidget->setEventLoop(&eventLoop);
-        clwidget->startBlur();
+        clwidget->startBlur(radius);
         clwidget->update();
         eventLoop.exec();
     }
+}
+
+void tst_Blur::openCLBlurAnimated()
+{
+    int startRadius = 0;
+    int finishRadius = 16;
+    bool animateUnblur = true;
+    clwidget->setup(qMax(startRadius, finishRadius));
+
+    int d = startRadius < finishRadius? 1 : -1;
+    QBENCHMARK {
+        for(int i = startRadius; i != finishRadius + d; i += d)
+        {
+            QEventLoop eventLoop;
+            clwidget->setEventLoop(&eventLoop);
+            clwidget->startBlur(i);
+            clwidget->update();
+            eventLoop.exec();
+        };
+        if(animateUnblur)
+        {
+            d = -d;
+            for(int i = finishRadius + d; i != startRadius + d; i += d)
+            {
+                QEventLoop eventLoop;
+                clwidget->setEventLoop(&eventLoop);
+                clwidget->startBlur(i);
+                clwidget->update();
+                eventLoop.exec();
+            };
+        }
+    }
+    qWarning() << "33 frames rendered";
 }
 
 QTEST_MAIN(tst_Blur)
