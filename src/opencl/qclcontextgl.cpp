@@ -54,6 +54,10 @@
 #endif
 #endif
 
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <CGLDevice.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 /*!
