@@ -51,12 +51,14 @@ int main(int argc, char *argv[])
     if (QApplication::arguments().contains(QLatin1String("-opengl")) &&
             ImageCL::hasOpenCL()) {
         ViewGL view;
+        view.resize(768, 512);
         view.show();
         return app.exec();
     } else {
         if (QApplication::arguments().contains(QLatin1String("-native")))
             ImageCL::disableCL();
         View view;
+        view.resize(768, 512);
         view.show();
         return app.exec();
     }

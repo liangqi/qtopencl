@@ -59,10 +59,12 @@ public:
 
 private slots:
     void animate();
+    void performResize();
 
 protected:
     void paintEvent(QPaintEvent *);
     void keyPressEvent(QKeyEvent *);
+    void resizeEvent(QResizeEvent *);
 
 private:
     QTimer *timer;
@@ -73,6 +75,8 @@ private:
     Zoom *zoom;
     int frames;
     QTime fpsBase;
+    QTimer *resizeTimer;
+    bool firstResize;
 };
 
 #endif

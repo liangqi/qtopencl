@@ -60,8 +60,10 @@ public:
 
 void ImageCLContext::init(bool useGL, int wid, int ht)
 {
-    if (context)
+    if (context) {
+        mandelbrot.setGlobalWorkSize(wid, ht);
         return;
+    }
 
     if (useGL) {
         glContext = new QCLContextGL();
@@ -207,11 +209,11 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
 // back from the GPU depending upon the system configuration.
 //#define MAP_QIMAGE 1
 
-void ImageCL::paint(QPainter *painter, const QRect& rect)
+void ImageCL::paint(QPainter *painter, const QPoint& point)
 {
 #ifndef MAP_QIMAGE
     imageBuffer.read(&img);
-    painter->drawImage(rect, img);
+    painter->drawImage(point, img);
 #else
     // Map the QCLImage2D and turn it into an in-place QImage for drawing.
     int bytesPerLine;
@@ -219,7 +221,7 @@ void ImageCL::paint(QPainter *painter, const QRect& rect)
         (QRect(0, 0, wid, ht), QCL::ReadOnly, &bytesPerLine);
     QImage image(reinterpret_cast<const uchar *>(mapped),
                  wid, ht, bytesPerLine, QImage::Format_RGB32);
-    painter->drawImage(rect, image);
+    painter->drawImage(point, image);
     imageBuffer.unmap(mapped);
 #endif
 }

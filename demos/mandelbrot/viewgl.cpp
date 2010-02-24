@@ -59,8 +59,6 @@ ViewGL::ViewGL(QWidget *parent)
     : QGLWidget(parent)
 {
     setAutoFillBackground(false);
-    setMinimumSize(768, 512);
-    setMaximumSize(768, 512);
 
     palette = new Palette();
     palette->setStandardPalette(Palette::EarthSky);
@@ -74,6 +72,12 @@ ViewGL::ViewGL(QWidget *parent)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer->start(0);
+
+    resizeTimer = new QTimer(this);
+    resizeTimer->setSingleShot(true);
+    connect(resizeTimer, SIGNAL(timeout()), this, SLOT(performResize()));
+    resizeTimer->start(0);
+    firstResize = true;
 
     frames = 0;
     fpsBase.start();
@@ -95,9 +99,13 @@ void ViewGL::resizeGL(int width, int height)
 
 void ViewGL::initializeGL()
 {
-    image = Image::createImage(768, 512);
-    textureId = image->textureId();
-    image->generate(200, *palette);
+    if (!image) {
+        int wid = (width() + 15) & ~15;
+        int ht = (height() + 15) & ~15;
+
+        image = Image::createImage(wid, ht);
+        textureId = image->textureId();
+    }
 
 #ifdef VIEW_USE_SHADERS
     static char const vertexShader[] =
@@ -128,6 +136,9 @@ void ViewGL::initializeGL()
 
 void ViewGL::paintGL()
 {
+    if (!image)
+        return;
+
     static GLfloat const vertices[] = {
         -1, -1, 1, -1, 1, 1, -1, 1
     };
@@ -205,6 +216,13 @@ void ViewGL::keyPressEvent(QKeyEvent *event)
     QGLWidget::keyPressEvent(event);
 }
 
+void ViewGL::resizeEvent(QResizeEvent *event)
+{
+    if (!firstResize)
+        resizeTimer->start(100);
+    QGLWidget::resizeEvent(event);
+}
+
 void ViewGL::animate()
 {
     if (!image)
@@ -225,4 +243,23 @@ void ViewGL::animate()
     zoom->generate(image, offset, *palette);
     updateGL();
     ++frames;
+}
+
+void ViewGL::performResize()
+{
+    firstResize = false;
+
+    int wid = (width() + 15) & ~15;
+    int ht = (height() + 15) & ~15;
+
+    if (!image || image->size() != QSize(wid, ht)) {
+        delete image;
+        image = Image::createImage(wid, ht);
+        textureId = image->textureId();
+
+        fpsBase.start();
+        frames = 0;
+
+        animate();
+    }
 }

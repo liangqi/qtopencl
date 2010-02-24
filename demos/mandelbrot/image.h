@@ -57,12 +57,14 @@ public:
     virtual GLuint textureId() { return 0; }
     virtual void initialize() {}
 
+    QSize size() const { return QSize(wid, ht); }
+
     QRectF region() const { return rgn; }
     void setRegion(const QRectF &value) { rgn = value; }
     void setRegion(qreal centerx, qreal centery, qreal diameterx);
 
     virtual void generate(int maxIterations, const Palette &palette) = 0;
-    virtual void paint(QPainter *painter, const QRect& rect) = 0;
+    virtual void paint(QPainter *painter, const QPoint& point) = 0;
 
     static Image *createImage(int width, int height);
 

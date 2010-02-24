@@ -60,12 +60,14 @@ public:
 
 private slots:
     void animate();
+    void performResize();
 
 protected:
     void resizeGL(int width, int height);
     void initializeGL();
     void paintGL();
     void keyPressEvent(QKeyEvent *);
+    void resizeEvent(QResizeEvent *);
 
 private:
     QTimer *timer;
@@ -78,6 +80,8 @@ private:
     int frames;
     QTime fpsBase;
     QGLShaderProgram *program;
+    QTimer *resizeTimer;
+    bool firstResize;
 };
 
 #endif

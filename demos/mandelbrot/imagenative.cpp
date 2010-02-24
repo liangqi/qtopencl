@@ -115,7 +115,7 @@ void ImageNative::generate(int maxIterations, const Palette &palette)
     }
 }
 
-void ImageNative::paint(QPainter *painter, const QRect& rect)
+void ImageNative::paint(QPainter *painter, const QPoint& point)
 {
-    painter->drawImage(rect, img);
+    painter->drawImage(point, img);
 }

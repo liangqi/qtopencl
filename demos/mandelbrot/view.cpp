@@ -50,9 +50,6 @@
 View::View(QWidget *parent)
     : QWidget(parent)
 {
-    setMinimumSize(768, 512);
-    setMaximumSize(768, 512);
-
     palette = new Palette();
     palette->setStandardPalette(Palette::EarthSky);
     offset = 0.0f;
@@ -60,13 +57,17 @@ View::View(QWidget *parent)
 
     zoom = new GoldenGradientZoom();
 
-    image = Image::createImage(768, 512);
-    image->initialize();
-    image->generate(200, *palette);
+    image = 0;
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer->start(0);
+
+    resizeTimer = new QTimer(this);
+    resizeTimer->setSingleShot(true);
+    connect(resizeTimer, SIGNAL(timeout()), this, SLOT(performResize()));
+    resizeTimer->start(0);
+    firstResize = true;
 
     frames = 0;
     fpsBase.start();
@@ -81,8 +82,13 @@ View::~View()
 
 void View::paintEvent(QPaintEvent *)
 {
+    if (!image)
+        return;
     QPainter painter(this);
-    image->paint(&painter, rect());
+    QSize imgSize = image->size();
+    int x = (width() - imgSize.width()) / 2;
+    int y = (height() - imgSize.height()) / 2;
+    image->paint(&painter, QPoint(x, y));
     if (timer->isActive()) {
         int ms = fpsBase.elapsed();
         if (ms >= 100) {
@@ -109,8 +115,17 @@ void View::keyPressEvent(QKeyEvent *event)
     QWidget::keyPressEvent(event);
 }
 
+void View::resizeEvent(QResizeEvent *event)
+{
+    if (!firstResize)
+        resizeTimer->start(100);
+    QWidget::resizeEvent(event);
+}
+
 void View::animate()
 {
+    if (!image)
+        return;
     if (step > 0) {
         offset += step;
         if (offset >= 1.0f) {
@@ -127,4 +142,23 @@ void View::animate()
     zoom->generate(image, offset, *palette);
     update();
     ++frames;
+}
+
+void View::performResize()
+{
+    firstResize = false;
+
+    int wid = (width() + 15) & ~15;
+    int ht = (height() + 15) & ~15;
+
+    if (!image || image->size() != QSize(wid, ht)) {
+        delete image;
+        image = Image::createImage(wid, ht);
+        image->initialize();
+
+        fpsBase.start();
+        frames = 0;
+
+        animate();
+    }
 }

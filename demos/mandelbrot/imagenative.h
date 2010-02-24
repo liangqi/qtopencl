@@ -51,7 +51,7 @@ public:
     virtual ~ImageNative();
 
     virtual void generate(int maxIterations, const Palette &palette);
-    virtual void paint(QPainter *painter, const QRect& rect);
+    virtual void paint(QPainter *painter, const QPoint& point);
 
 private:
     QImage img;

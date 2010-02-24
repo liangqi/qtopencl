@@ -59,7 +59,7 @@ public:
     static void disableCL();
 
     virtual void generate(int maxIterations, const Palette &palette);
-    virtual void paint(QPainter *painter, const QRect& rect);
+    virtual void paint(QPainter *painter, const QPoint& point);
 
 protected:
     QImage img;
