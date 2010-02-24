@@ -257,7 +257,6 @@ void tst_Blur::qPixmapFilterBlurFilter(int hint, int radius)
     filter.setBlurHints(QGraphicsBlurEffect::BlurHints(hint));
     filter.setRadius(radius);
 
-    int pixmapOffset = -1;
     pixmapFilterWidget->setPixmapOffset(-1);
 
     QBENCHMARK {
@@ -294,6 +293,7 @@ void tst_Blur::qGraphicsEffectBlur(int hint, int radius)
 // Test the performance of the opencl blur.
 void tst_Blur::openCLBlur(int hint, int radius)
 {
+    Q_UNUSED(hint);
     clwidget->setup(radius);
 
     QBENCHMARK {
