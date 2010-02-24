@@ -101,20 +101,49 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \fn QCLImageFormat::QCLImageFormat(QCLImageFormat::ChannelOrder order, QCLImageFormat::ChannelType type)
-
     Constructs an OpenCL image format descriptor from \a order and \a type.
+
+    This constructor will infer the closest matching QImage format
+    to return from toQImageFormat(), which may be QImage::Format_Invalid
+    if \a order and \a type do not correspond to a QImage format.
 */
+QCLImageFormat::QCLImageFormat
+    (QCLImageFormat::ChannelOrder order, QCLImageFormat::ChannelType type)
+{
+    m_format.image_channel_order = order;
+    m_format.image_channel_data_type = type;
+    m_qformat = QImage::Format_Invalid;
+    if (order == Order_RGB) {
+        if (type == Type_Normalized_565)
+            m_qformat = QImage::Format_RGB16;
+        else if (type == Type_Normalized_555)
+            m_qformat = QImage::Format_RGB555;
+        else if (type == Type_Normalized_UInt8)
+            m_qformat = QImage::Format_RGB888;
+    } else if (order == Order_BGRA && type == Type_Normalized_UInt8) {
+        if (QSysInfo::ByteOrder == QSysInfo::LittleEndian)
+            m_qformat = QImage::Format_ARGB32;
+    } else if (order == Order_ARGB && type == Type_Normalized_UInt8) {
+        if (QSysInfo::ByteOrder != QSysInfo::LittleEndian)
+            m_qformat = QImage::Format_ARGB32;
+    } else if (order == Order_A) {
+        // We assume that Indexed8 images are alpha maps for font glyphs.
+        m_qformat = QImage::Format_Indexed8;
+    }
+}
+
 
 /*!
     Constructs an OpenCL image format descriptor that is equivalent to
     the specified QImage \a format.  If the \a format does not have
     an OpenCL equivalent, the descriptor will be set to null.
 
-    \sa isNull()
+    \sa isNull(), toQImageFormat()
 */
 QCLImageFormat::QCLImageFormat(QImage::Format format)
 {
+    m_qformat = format;
+
     switch (format) {
     case QImage::Format_Indexed8:
         // We assume that Indexed8 images are alpha maps for font glyphs.
@@ -153,6 +182,7 @@ QCLImageFormat::QCLImageFormat(QImage::Format format)
         // Everything else is null.
         m_format.image_channel_order = 0;
         m_format.image_channel_data_type = 0;
+        m_qformat = QImage::Format_Invalid;
         break;
     }
 }
@@ -198,30 +228,10 @@ QCLImageFormat::QCLImageFormat(QImage::Format format)
 */
 
 /*!
+    \fn QImage::Format QCLImageFormat::toQImageFormat() const
+
     Returns the nearest QImage format to this OpenCL image format;
     QImage::Format_Invalid if there is no corresponding QImage format.
 */
-QImage::Format QCLImageFormat::toQImageFormat() const
-{
-    if (m_format.image_channel_order == Order_RGB) {
-        if (m_format.image_channel_data_type == Type_Normalized_565)
-            return QImage::Format_RGB16;
-        else if (m_format.image_channel_data_type == Type_Normalized_555)
-            return QImage::Format_RGB555;
-        else if (m_format.image_channel_data_type == Type_Normalized_UInt8)
-            return QImage::Format_RGB888;
-    } else if (m_format.image_channel_order == Order_BGRA &&
-               m_format.image_channel_data_type == Type_Normalized_UInt8) {
-        if (QSysInfo::ByteOrder == QSysInfo::LittleEndian)
-            return QImage::Format_ARGB32;
-    } else if (m_format.image_channel_order == Order_ARGB &&
-               m_format.image_channel_data_type == Type_Normalized_UInt8) {
-        if (QSysInfo::ByteOrder != QSysInfo::LittleEndian)
-            return QImage::Format_ARGB32;
-    } else if (m_format.image_channel_order == Order_A) {
-        return QImage::Format_Indexed8;
-    }
-    return QImage::Format_Invalid;
-}
 
 QT_END_NAMESPACE

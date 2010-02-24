@@ -102,10 +102,11 @@ public:
     bool operator==(const QCLImageFormat &other);
     bool operator!=(const QCLImageFormat &other);
 
-    QImage::Format toQImageFormat() const;
+    QImage::Format toQImageFormat() const { return m_qformat; }
 
 private:
     cl_image_format m_format;
+    QImage::Format m_qformat;
 
     friend class QCLContext;
 };
@@ -114,19 +115,14 @@ inline QCLImageFormat::QCLImageFormat()
 {
     m_format.image_channel_order = 0;
     m_format.image_channel_data_type = 0;
-}
-
-inline QCLImageFormat::QCLImageFormat
-    (QCLImageFormat::ChannelOrder order, QCLImageFormat::ChannelType type)
-{
-    m_format.image_channel_order = order;
-    m_format.image_channel_data_type = type;
+    m_qformat = QImage::Format_Invalid;
 }
 
 inline bool QCLImageFormat::isNull() const
 {
     return m_format.image_channel_order == 0 &&
-           m_format.image_channel_data_type == 0;
+           m_format.image_channel_data_type == 0 &&
+           m_qformat == QImage::Format_Invalid;
 }
 
 inline QCLImageFormat::ChannelOrder QCLImageFormat::channelOrder() const
@@ -144,7 +140,8 @@ inline bool QCLImageFormat::operator==(const QCLImageFormat &other)
     return m_format.image_channel_order ==
                 other.m_format.image_channel_order &&
            m_format.image_channel_data_type ==
-                other.m_format.image_channel_data_type;
+                other.m_format.image_channel_data_type &&
+           m_qformat == other.m_qformat;
 }
 
 inline bool QCLImageFormat::operator!=(const QCLImageFormat &other)
@@ -152,7 +149,8 @@ inline bool QCLImageFormat::operator!=(const QCLImageFormat &other)
     return m_format.image_channel_order !=
                 other.m_format.image_channel_order ||
            m_format.image_channel_data_type !=
-                other.m_format.image_channel_data_type;
+                other.m_format.image_channel_data_type ||
+           m_qformat != other.m_qformat;
 }
 
 QT_END_NAMESPACE
