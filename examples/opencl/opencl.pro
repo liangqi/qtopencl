@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = vectoradd blur
+SUBDIRS = vectoradd blur pathdrawing
