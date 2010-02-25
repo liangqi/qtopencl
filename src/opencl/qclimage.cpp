@@ -44,6 +44,9 @@
 #include "qclcontext.h"
 #include "qcl_gl_p.h"
 #include <QtGui/qpainter.h>
+#include <QtGui/qpaintdevice.h>
+#include <QtGui/private/qpixmap_raster_p.h>
+#include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -668,6 +671,59 @@ QImage QCLImage2D::toQImage(bool cached)
     }
 }
 
+// Returns the surface of a pixmap paint device as a QImage
+// if it is raster-based.
+static QImage *qt_cl_pixmap_image(QPaintDevice *device)
+{
+    QPixmapData *pd = static_cast<QPixmap *>(device)->pixmapData();
+    if (pd->classId() == QPixmapData::RasterClass) {
+        QRasterPixmapData *rpd = static_cast<QRasterPixmapData *>(pd);
+        return rpd->buffer();
+    }
+    return 0;
+}
+
+// Returns the surface of "painter" as a QImage, or null if
+// it is not represented as a QImage.
+static QImage *qt_cl_surface_image(QPainter *painter, QPoint *offset)
+{
+    QPaintDevice *device = painter->device();
+
+    if (device->devType() == QInternal::Image) {
+        *offset = QPoint(0, 0);
+        return static_cast<QImage *>(device);
+    } else if (device->devType() == QInternal::Pixmap) {
+        *offset = QPoint(0, 0);
+        return qt_cl_pixmap_image(device);
+    } else if (device->devType() == QInternal::Widget) {
+        QPaintDevice *redirect = QPainter::redirected(device, offset);
+        if (redirect) {
+            if (redirect->devType() == QInternal::Image)
+                return static_cast<QImage *>(redirect);
+            else if (redirect->devType() == QInternal::Pixmap)
+                return qt_cl_pixmap_image(redirect);
+        }
+    }
+
+    return 0;
+}
+
+// Determine if a QPainter is in a simple state where we
+// can draw into it by direct copying.
+static bool qt_cl_is_painter_simple(QPainter *painter, QPoint *offset)
+{
+    if (painter->hasClipping())
+        return false;
+    const QTransform &transform = painter->transform();
+    if (transform.type() > QTransform::TxTranslate)
+        return false;
+    QPainter::CompositionMode mode = painter->compositionMode();
+    if (mode != QPainter::CompositionMode_SourceOver)
+        return false;
+    *offset += QPoint(transform.dx(), transform.dy());
+    return true;
+}
+
 /*!
     \fn void QCLImage2D::drawImage(QPainter *painter, const QPoint &point, const QRect &subRect, Qt::ImageConversionFlags flags)
 
@@ -682,10 +738,9 @@ QImage QCLImage2D::toQImage(bool cached)
 
     This function is equivalent to calling QPainter::drawImage() on
     the result of toQImage() but it may be implemented more efficiently
-    by directly copying the OpenCL image data to the painting surface,
-    or using GL textures.  If it isn't possible to optimize the draw,
-    this function will be no worse than calling QPainter::drawImage()
-    on the result of toQImage().
+    by directly copying the OpenCL image data to the painting surface.
+    If it isn't possible to optimize the draw, this function will be no
+    worse than calling QPainter::drawImage() on the result of toQImage().
 */
 
 // Define this to map the image into host memory for drawing.
@@ -704,10 +759,9 @@ QImage QCLImage2D::toQImage(bool cached)
 
     This function is equivalent to calling QPainter::drawImage() on
     the result of toQImage() but it may be implemented more efficiently
-    by directly copying the OpenCL image data to the painting surface,
-    or using GL textures.  If it isn't possible to optimize the draw,
-    this function will be no worse than calling QPainter::drawImage()
-    on the result of toQImage().
+    by directly copying the OpenCL image data to the painting surface.
+    If it isn't possible to optimize the draw, this function will be no
+    worse than calling QPainter::drawImage() on the result of toQImage().
 */
 void QCLImage2D::drawImage
     (QPainter *painter, const QRect &targetRect,
@@ -721,18 +775,67 @@ void QCLImage2D::drawImage
     QImage::Format qformat = d->format.toQImageFormat();
     if (qformat == QImage::Format_Invalid)
         return;
-
-    // Convert the OpenCL image into a QImage and draw it normally.
     int wid = width();
     int ht = height();
+
+    // Can we draw directly into the painter's surface as a QImage?
+    QPoint offset;
+    QImage *surfaceImage = qt_cl_surface_image(painter, &offset);
+    if (surfaceImage && qformat == surfaceImage->format() &&
+            !surfaceImage->hasAlphaChannel() &&
+            qt_cl_is_painter_simple(painter, &offset)) {
+        // Normalize the subRect and targetRect.
+        QRect srect, trect;
+        if (!subRect.isValid())
+            srect = QRect(0, 0, wid, ht);
+        else
+            srect = subRect;
+        if (!targetRect.isValid()) {
+            trect = QRect(targetRect.x(), targetRect.y(),
+                          srect.width(), srect.height());
+        } else {
+            trect = targetRect;
+        }
+
+        // Translate the target according to the redirection offset.
+        trect.translate(offset.x(), offset.y());
+
+        // We need the transformation to be 1-to-1, and for the
+        // sub-rectangle to be contained within the source image.
+        if (srect.width() == trect.width() &&
+                srect.height() == trect.height() &&
+                srect.left() >= 0 && srect.top() >= 0 &&
+                srect.right() < wid && srect.bottom() < ht) {
+            // Clip the target rectangle to the surface extents
+            // and modify the source sub-rectangle to match.
+            QRect trect2 = trect.intersected
+                (QRect(0, 0, surfaceImage->width(), surfaceImage->height()));
+            srect.setLeft(srect.left() + trect2.left() - trect.left());
+            srect.setTop(srect.top() + trect2.top() - trect.top());
+            srect.setRight(srect.right() + trect2.right() - trect.right());
+            srect.setBottom(srect.bottom() + trect2.bottom() - trect.bottom());
+            if (!srect.isEmpty()) {
+                uchar *bits = surfaceImage->bits();
+                bits += surfaceImage->bytesPerLine() * trect2.top();
+                bits += surfaceImage->depth() * trect2.left() / 8;
+                read(bits, srect, surfaceImage->bytesPerLine());
+            }
+            return;
+        }
+    }
+
+    // Convert the OpenCL image into a QImage and draw it normally.
 #ifdef QT_CL_MAP_QIMAGE
     int bytesPerLine;
     void *mapped = map(QRect(0, 0, wid, ht), QCL::ReadOnly, &bytesPerLine);
-    QImage image(reinterpret_cast<const uchar *>(mapped),
-                 wid, ht, bytesPerLine, qformat);
-    painter->drawImage(targetRect, image, subRect, flags);
-    unmap(mapped);
-#else
+    if (mapped) {
+        QImage image(reinterpret_cast<const uchar *>(mapped),
+                     wid, ht, bytesPerLine, qformat);
+        painter->drawImage(targetRect, image, subRect, flags);
+        unmap(mapped);
+        return;
+    }
+#endif
     if (d->cachedImage.isNull())
         d->cachedImage = QImage(wid, ht, qformat);
     if (!read(d->cachedImage.bits(),
@@ -740,7 +843,6 @@ void QCLImage2D::drawImage
               d->cachedImage.bytesPerLine()))
         return;
     painter->drawImage(targetRect, d->cachedImage, subRect, flags);
-#endif
 }
 
 /*!
