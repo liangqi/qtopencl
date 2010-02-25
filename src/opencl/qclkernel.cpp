@@ -49,6 +49,7 @@
 #include <QtGui/qvector3d.h>
 #include <QtGui/qvector4d.h>
 #include <QtGui/qmatrix4x4.h>
+#include <QtGui/qcolor.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -576,6 +577,39 @@ void QCLKernel::setArg(int index, const QVector4D &value)
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
+    type \c float4 as is passed the red, green, blue, and
+    alpha components of \a value as floating-point values
+    between 0 and 1.
+*/
+void QCLKernel::setArg(int index, const QColor &value)
+{
+    Q_D(const QCLKernel);
+    float values[4] =
+        {value.redF(), value.greenF(), value.blueF(), value.alphaF()};
+    clSetKernelArg(d->id, index, sizeof(values), values);
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
+    type \c float4 as is passed the red, green, blue, and
+    alpha components of \a value as floating-point values
+    between 0 and 1.
+*/
+void QCLKernel::setArg(int index, Qt::GlobalColor value)
+{
+    Q_D(const QCLKernel);
+    QColor color(value);
+    float values[4] =
+        {color.redF(), color.greenF(), color.blueF(), color.alphaF()};
+    clSetKernelArg(d->id, index, sizeof(values), values);
+}
+
+/*!
+    Sets argument \a index for this kernel to \a value.
+
+    The argument is assumed to have been declared with the
     type \c int2.
 */
 void QCLKernel::setArg(int index, const QPoint &value)
@@ -704,7 +738,7 @@ QCLEvent QCLKernel::run()
          0, d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
          0, 0, &event);
-    context()->reportError("QCLKernel::execute:", error);
+    context()->reportError("QCLKernel::run:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
     else
@@ -733,7 +767,7 @@ QCLEvent QCLKernel::run(const QCLEventList &after)
          0, d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
          after.size(), after.eventData(), &event);
-    context()->reportError("QCLKernel::execute:", error);
+    context()->reportError("QCLKernel::run:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
     else

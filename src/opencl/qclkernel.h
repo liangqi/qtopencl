@@ -66,6 +66,7 @@ class QVector4D;
 class QMatrix4x4;
 class QPoint;
 class QPointF;
+class QColor;
 
 class QCLKernelPrivate;
 
@@ -115,6 +116,8 @@ public:
     void setArg(int index, const QVector2D &value);
     void setArg(int index, const QVector3D &value);
     void setArg(int index, const QVector4D &value);
+    void setArg(int index, const QColor &value);
+    void setArg(int index, Qt::GlobalColor value);
     void setArg(int index, const QPoint &value);
     void setArg(int index, const QPointF &value);
     void setArg(int index, const QMatrix4x4 &value);
