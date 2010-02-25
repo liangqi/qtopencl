@@ -79,9 +79,6 @@ ViewGL::ViewGL(QWidget *parent)
     resizeTimer->start(0);
     firstResize = true;
 
-    frames = 0;
-    fpsBase.start();
-
     program = 0;
 }
 
@@ -190,13 +187,12 @@ void ViewGL::paintGL()
 #endif
 
     if (timer->isActive()) {
-        int ms = fpsBase.elapsed();
-        if (ms >= 100) {
+        qreal fps = frameRate.fps();
+        if (fps > 0.0f) {
             QPainter painter(this);
-            QString fps = QString::number(frames * 1000.0 / ms) +
-                          QLatin1String(" fps");
+            QString str = QString::number(fps) + QLatin1String(" fps");
             painter.setPen(Qt::white);
-            painter.drawText(rect(), fps);
+            painter.drawText(rect(), str);
         }
     }
 }
@@ -206,10 +202,10 @@ void ViewGL::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Space) {
         if (timer->isActive()) {
             timer->stop();
+            frameRate.stop();
         } else {
             timer->start();
-            fpsBase.start();
-            frames = 0;
+            frameRate.start();
         }
         updateGL();
     }
@@ -242,7 +238,7 @@ void ViewGL::animate()
     }
     zoom->generate(image, offset, *palette);
     updateGL();
-    ++frames;
+    frameRate.newFrame();
 }
 
 void ViewGL::performResize()
@@ -257,8 +253,7 @@ void ViewGL::performResize()
         image = Image::createImage(wid, ht);
         textureId = image->textureId();
 
-        fpsBase.start();
-        frames = 0;
+        frameRate.start();
 
         animate();
     }

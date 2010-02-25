@@ -39,48 +39,39 @@
 **
 ****************************************************************************/
 
-#ifndef VIEWGL_H
-#define VIEWGL_H
+#ifndef FRAMERATE_H
+#define FRAMERATE_H
 
-#include <QtOpenGL/qgl.h>
-#include "framerate.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qdatetime.h>
 
-class Image;
-class Palette;
-class Zoom;
 class QTimer;
-class QGLShaderProgram;
 
-class ViewGL : public QGLWidget
+class FrameRate : public QObject
 {
     Q_OBJECT
 public:
-    ViewGL(QWidget *parent = 0);
-    ~ViewGL();
+    FrameRate(QObject *parent = 0);
+    ~FrameRate();
+
+    bool isActive() const { return active; }
+    qreal fps() const;
+
+    void start();
+    void stop();
+    void newFrame() { ++frames; }
 
 private slots:
-    void animate();
-    void performResize();
-
-protected:
-    void resizeGL(int width, int height);
-    void initializeGL();
-    void paintGL();
-    void keyPressEvent(QKeyEvent *);
-    void resizeEvent(QResizeEvent *);
+    void checkPoint();
 
 private:
-    QTimer *timer;
-    Image *image;
-    Palette *palette;
-    qreal offset;
-    qreal step;
-    GLuint textureId;
-    Zoom *zoom;
-    FrameRate frameRate;
-    QGLShaderProgram *program;
-    QTimer *resizeTimer;
-    bool firstResize;
+    bool active;
+    qint64 frames;
+    QTime frameBase;
+    QTimer *checkPointTimer;
+    static const int NumCheckPoints = 5;
+    qint64 checkPoints[NumCheckPoints];
+    QTime checkPointTimes[NumCheckPoints];
 };
 
 #endif

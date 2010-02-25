@@ -10,6 +10,7 @@ INCLUDEPATH += .
 # Input
 SOURCES += main.cpp \
            palette.cpp \
+           framerate.cpp \
            image.cpp \
            imagecl.cpp \
            imagenative.cpp \
@@ -17,6 +18,7 @@ SOURCES += main.cpp \
            viewgl.cpp \
            zoom.cpp
 HEADERS += palette.h \
+           framerate.h \
            image.h \
            imagecl.h \
            imagenative.h \

@@ -39,48 +39,61 @@
 **
 ****************************************************************************/
 
-#ifndef VIEWGL_H
-#define VIEWGL_H
-
-#include <QtOpenGL/qgl.h>
 #include "framerate.h"
+#include <QtCore/qtimer.h>
 
-class Image;
-class Palette;
-class Zoom;
-class QTimer;
-class QGLShaderProgram;
-
-class ViewGL : public QGLWidget
+FrameRate::FrameRate(QObject *parent)
+    : QObject(parent)
 {
-    Q_OBJECT
-public:
-    ViewGL(QWidget *parent = 0);
-    ~ViewGL();
+    checkPointTimer = new QTimer(this);
+    connect(checkPointTimer, SIGNAL(timeout()), this, SLOT(checkPoint()));
+    start();
+}
 
-private slots:
-    void animate();
-    void performResize();
+FrameRate::~FrameRate()
+{
+}
 
-protected:
-    void resizeGL(int width, int height);
-    void initializeGL();
-    void paintGL();
-    void keyPressEvent(QKeyEvent *);
-    void resizeEvent(QResizeEvent *);
+qreal FrameRate::fps() const
+{
+    int ms = frameBase.elapsed();
+    qint64 count = frames;
+    if (checkPoints[0] != -1) {
+        // Adjust the reported value so that we get a running fps
+        // over a 5 second period rather than a fps value measured
+        // from the last time start() was called.  This can help
+        // smooth out ripples in the fps count.
+        count -= checkPoints[0];
+        ms -= frameBase.msecsTo(checkPointTimes[0]);
+    }
+    if (active && ms >= 100)
+        return count * 1000.0f / ms;
+    else
+        return 0.0f;
+}
 
-private:
-    QTimer *timer;
-    Image *image;
-    Palette *palette;
-    qreal offset;
-    qreal step;
-    GLuint textureId;
-    Zoom *zoom;
-    FrameRate frameRate;
-    QGLShaderProgram *program;
-    QTimer *resizeTimer;
-    bool firstResize;
-};
+void FrameRate::start()
+{
+    active = true;
+    frames = 0;
+    frameBase.start();
+    for (int index = 0; index < NumCheckPoints; ++index)
+        checkPoints[index] = -1;
+    checkPointTimer->start(1000);
+}
 
-#endif
+void FrameRate::stop()
+{
+    active = false;
+    checkPointTimer->stop();
+}
+
+void FrameRate::checkPoint()
+{
+    for (int index = 0; index < NumCheckPoints - 1; ++index) {
+        checkPoints[index] = checkPoints[index + 1];
+        checkPointTimes[index] = checkPointTimes[index + 1];
+    }
+    checkPoints[NumCheckPoints - 1] = frames;
+    checkPointTimes[NumCheckPoints - 1] = QTime::currentTime();
+}

@@ -68,9 +68,6 @@ View::View(QWidget *parent)
     connect(resizeTimer, SIGNAL(timeout()), this, SLOT(performResize()));
     resizeTimer->start(0);
     firstResize = true;
-
-    frames = 0;
-    fpsBase.start();
 }
 
 View::~View()
@@ -90,12 +87,11 @@ void View::paintEvent(QPaintEvent *)
     int y = (height() - imgSize.height()) / 2;
     image->paint(&painter, QPoint(x, y));
     if (timer->isActive()) {
-        int ms = fpsBase.elapsed();
-        if (ms >= 100) {
-            QString fps = QString::number(frames * 1000.0 / ms) +
-                          QLatin1String(" fps");
+        qreal fps = frameRate.fps();
+        if (fps > 0.0f) {
+            QString str = QString::number(fps) + QLatin1String(" fps");
             painter.setPen(Qt::white);
-            painter.drawText(rect(), fps);
+            painter.drawText(rect(), str);
         }
     }
 }
@@ -105,10 +101,10 @@ void View::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Space) {
         if (timer->isActive()) {
             timer->stop();
+            frameRate.stop();
         } else {
             timer->start();
-            fpsBase.start();
-            frames = 0;
+            frameRate.start();
         }
         update();
     }
@@ -141,7 +137,7 @@ void View::animate()
     }
     zoom->generate(image, offset, *palette);
     update();
-    ++frames;
+    frameRate.newFrame();
 }
 
 void View::performResize()
@@ -156,8 +152,7 @@ void View::performResize()
         image = Image::createImage(wid, ht);
         image->initialize();
 
-        fpsBase.start();
-        frames = 0;
+        frameRate.start();
 
         animate();
     }

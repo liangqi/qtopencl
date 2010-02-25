@@ -43,7 +43,7 @@
 #define VIEW_H
 
 #include <QtGui/qwidget.h>
-#include <QtCore/qdatetime.h>
+#include "framerate.h"
 
 class Image;
 class Palette;
@@ -73,8 +73,7 @@ private:
     qreal offset;
     qreal step;
     Zoom *zoom;
-    int frames;
-    QTime fpsBase;
+    FrameRate frameRate;
     QTimer *resizeTimer;
     bool firstResize;
 };
