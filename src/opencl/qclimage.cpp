@@ -43,6 +43,7 @@
 #include "qclbuffer.h"
 #include "qclcontext.h"
 #include "qcl_gl_p.h"
+#include <QtGui/qpainter.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -53,47 +54,98 @@ QT_BEGIN_NAMESPACE
     \ingroup opencl
 */
 
-/*!
-    \fn QCLImage2D::QCLImage2D()
+class QCLImage2DPrivate
+{
+public:
+    QCLImage2DPrivate() {}
+    QCLImage2DPrivate(const QCLImage2DPrivate *other)
+        : format(other->format)
+        , cachedImage(other->cachedImage)
+    {
+    }
 
+    void assign(const QCLImage2DPrivate *other)
+    {
+        format = other->format;
+        cachedImage = other->cachedImage;
+    }
+
+    QCLImageFormat format;
+    QImage cachedImage;
+};
+
+/*!
     Constructs a null 2D OpenCL image object.
 */
+QCLImage2D::QCLImage2D()
+    : d_ptr(new QCLImage2DPrivate())
+{
+}
 
 /*!
-    \fn QCLImage2D::QCLImage2D(QCLContext *context, cl_mem id)
-
     Constructs a 2D OpenCL image object that is initialized with the
     native OpenCL identifier \a id, and associates it with \a context.
     This class will take over ownership of \a id and will release
     it in the destructor.
 */
+QCLImage2D::QCLImage2D(QCLContext *context, cl_mem id)
+    : QCLMemoryObject(context, id), d_ptr(new QCLImage2DPrivate())
+{
+    if (id) {
+        cl_image_format iformat;
+        if (clGetImageInfo(id, CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
+                == CL_SUCCESS) {
+            d_ptr->format = QCLImageFormat
+                (QCLImageFormat::ChannelOrder(iformat.image_channel_order),
+                 QCLImageFormat::ChannelType(iformat.image_channel_data_type));
+        }
+    }
+}
 
 /*!
-    \fn QCLImage2D::QCLImage2D(const QCLImage2D &other)
+    \internal
+*/
+QCLImage2D::QCLImage2D(QCLContext *context, cl_mem id,
+                       const QCLImageFormat& format)
+    : QCLMemoryObject(context, id), d_ptr(new QCLImage2DPrivate())
+{
+    d_ptr->format = format;
+}
 
+/*!
     Constructs a copy of \a other.
 */
+QCLImage2D::QCLImage2D(const QCLImage2D &other)
+    : QCLMemoryObject(), d_ptr(new QCLImage2DPrivate(other.d_ptr.data()))
+{
+    setId(other.context(), other.memoryId());
+}
 
 /*!
-    \fn QCLImage2D &QCLImage2D::operator=(const QCLImage2D &other)
+    Destroys this 2D OpenCL image.
+*/
+QCLImage2D::~QCLImage2D()
+{
+}
 
+/*!
     Assigns \a other to this object.
 */
+QCLImage2D &QCLImage2D::operator=(const QCLImage2D &other)
+{
+    if (this != &other) {
+        setId(other.context(), other.memoryId());
+        d_ptr->assign(other.d_ptr.data());
+    }
+    return *this;
+}
 
 /*!
     Returns the format descriptor for this OpenCL image.
 */
 QCLImageFormat QCLImage2D::format() const
 {
-    cl_image_format iformat;
-    if (clGetImageInfo
-            (memoryId(), CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
-                != CL_SUCCESS)
-        return QCLImageFormat();
-    else
-        return QCLImageFormat
-            (QCLImageFormat::ChannelOrder(iformat.image_channel_order),
-             QCLImageFormat::ChannelType(iformat.image_channel_data_type));
+    return d_ptr->format;
 }
 
 static int qt_cl_imageParam(cl_mem id, cl_image_info name)
@@ -585,20 +637,110 @@ QCLEvent QCLImage2D::mapAsync
     as a QImage.  Returns a null QImage if the OpenCL image's
     format cannot be converted into a QImage format.
 
-    \sa read()
+    If \a cached is true (the default), then this will allocate
+    memory for a QImage object internally and return the same
+    object each time.  Otherwise a new QImage object will be created.
+
+    \sa read(), drawImage()
 */
-QImage QCLImage2D::toQImage()
+QImage QCLImage2D::toQImage(bool cached)
 {
     if (!memoryId())
         return QImage();
-    QImage::Format qformat = format().toQImageFormat();
+    Q_D(QCLImage2D);
+    QImage::Format qformat = d->format.toQImageFormat();
     if (qformat == QImage::Format_Invalid)
         return QImage();
-    QImage image(width(), height(), qformat);
-    if (!read(image.bits(), QRect(0, 0, image.width(), image.height()),
-              image.bytesPerLine()))
-        return QImage();
-    return image;
+    if (cached) {
+        if (d->cachedImage.isNull())
+            d->cachedImage = QImage(width(), height(), qformat);
+        if (!read(d->cachedImage.bits(),
+                  QRect(0, 0, d->cachedImage.width(), d->cachedImage.height()),
+                  d->cachedImage.bytesPerLine()))
+            return QImage();
+        return d->cachedImage;
+    } else {
+        QImage image(width(), height(), qformat);
+        if (!read(image.bits(), QRect(0, 0, image.width(), image.height()),
+                  image.bytesPerLine()))
+            return QImage();
+        return image;
+    }
+}
+
+/*!
+    \fn void QCLImage2D::drawImage(QPainter *painter, const QPoint &point, const QRect &subRect, Qt::ImageConversionFlags flags)
+
+    Draws this 2D OpenCL image on \a painter at \a point.
+
+    If \a subRect is null, the entire image is drawn; otherwise only
+    the indicated sub-rectangle of the image will be drawn.
+
+    If scaling is required to transform the image to the \a painter,
+    then \a flags is used to specify how to transform colors during
+    scaling.
+
+    This function is equivalent to calling QPainter::drawImage() on
+    the result of toQImage() but it may be implemented more efficiently
+    by directly copying the OpenCL image data to the painting surface,
+    or using GL textures.  If it isn't possible to optimize the draw,
+    this function will be no worse than calling QPainter::drawImage()
+    on the result of toQImage().
+*/
+
+// Define this to map the image into host memory for drawing.
+// This may be faster or slower than reading the full QImage
+// back from the GPU depending upon the system configuration.
+//#define QT_CL_MAP_QIMAGE 1
+
+/*!
+    Draws this 2D OpenCL image on \a painter, scaled to fit \a targetRect.
+
+    If \a subRect is null, the entire image is drawn; otherwise only
+    the indicated sub-rectangle of the image will be drawn.
+
+    The \a flags are used to specify how to transform colors during
+    scaling.
+
+    This function is equivalent to calling QPainter::drawImage() on
+    the result of toQImage() but it may be implemented more efficiently
+    by directly copying the OpenCL image data to the painting surface,
+    or using GL textures.  If it isn't possible to optimize the draw,
+    this function will be no worse than calling QPainter::drawImage()
+    on the result of toQImage().
+*/
+void QCLImage2D::drawImage
+    (QPainter *painter, const QRect &targetRect,
+     const QRect &subRect, Qt::ImageConversionFlags flags)
+{
+    Q_D(QCLImage2D);
+
+    // Bail out if the OpenCL image doesn't have a drawable format.
+    if (isNull())
+        return;
+    QImage::Format qformat = d->format.toQImageFormat();
+    if (qformat == QImage::Format_Invalid)
+        return;
+
+    // Convert the OpenCL image into a QImage and draw it normally.
+    int wid = width();
+    int ht = height();
+#ifdef QT_CL_MAP_QIMAGE
+    int bytesPerLine;
+    void *mapped = map(QRect(0, 0, wid, ht), QCL::ReadOnly, &bytesPerLine);
+    QImage image(reinterpret_cast<const uchar *>(mapped),
+                 wid, ht, bytesPerLine, qformat);
+    painter->drawImage(targetRect, image, subRect, flags);
+    unmap(mapped);
+#else
+    if (d->cachedImage.isNull())
+        d->cachedImage = QImage(wid, ht, qformat);
+    if (!read(d->cachedImage.bits(),
+              QRect(0, 0, d->cachedImage.width(), d->cachedImage.height()),
+              d->cachedImage.bytesPerLine()))
+        return;
+    painter->drawImage(targetRect, d->cachedImage, subRect, flags);
+#endif
 }
 
 /*!

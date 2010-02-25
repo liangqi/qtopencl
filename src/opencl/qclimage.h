@@ -53,23 +53,20 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
+class QCLImage2DPrivate;
 class QCLImage3D;
 class QCLBuffer;
+class QPainter;
 
 class Q_CL_EXPORT QCLImage2D : public QCLMemoryObject
 {
 public:
-    QCLImage2D() {}
-    QCLImage2D(QCLContext *context, cl_mem id)
-        : QCLMemoryObject(context, id) {}
-    QCLImage2D(const QCLImage2D &other)
-        : QCLMemoryObject(other.context(), other.memoryId()) {}
+    QCLImage2D();
+    QCLImage2D(QCLContext *context, cl_mem id);
+    QCLImage2D(const QCLImage2D &other);
+    ~QCLImage2D();
 
-    QCLImage2D &operator=(const QCLImage2D &other)
-    {
-        setId(other.context(), other.memoryId());
-        return *this;
-    }
+    QCLImage2D &operator=(const QCLImage2D &other);
 
     QCLImageFormat format() const;
 
@@ -118,7 +115,23 @@ public:
                       const QCLEventList &after = QCLEventList(),
                       int *bytesPerLine = 0);
 
-    QImage toQImage();
+    QImage toQImage(bool cached = true);
+
+    void drawImage(QPainter *painter, const QPoint &point,
+                   const QRect &subRect = QRect(),
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
+    void drawImage(QPainter *painter, const QRect &targetRect,
+                   const QRect &subRect = QRect(),
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
+
+private:
+    QScopedPointer<QCLImage2DPrivate> d_ptr;
+
+    Q_DECLARE_PRIVATE(QCLImage2D)
+
+    QCLImage2D(QCLContext *context, cl_mem id, const QCLImageFormat& format);
+
+    friend class QCLContext;
 };
 
 class Q_CL_EXPORT QCLImage3D : public QCLMemoryObject
@@ -128,7 +141,7 @@ public:
     QCLImage3D(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
     QCLImage3D(const QCLImage3D &other)
-        : QCLMemoryObject(other.context(), other.memoryId()) {}
+        : QCLMemoryObject() { setId(other.context(), other.memoryId()); }
 
     QCLImage3D &operator=(const QCLImage3D &other)
     {
@@ -190,6 +203,13 @@ public:
          const QCLEventList &after = QCLEventList(),
          int *bytesPerLine = 0, int *bytesPerSlice = 0);
 };
+
+inline void QCLImage2D::drawImage
+    (QPainter *painter, const QPoint &point,
+     const QRect &subRect, Qt::ImageConversionFlags flags)
+{
+    drawImage(painter, QRect(point.x(), point.y(), -1, -1), subRect, flags);
+}
 
 QT_END_NAMESPACE
 

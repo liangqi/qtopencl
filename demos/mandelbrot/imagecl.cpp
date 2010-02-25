@@ -178,7 +178,7 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
         // Create a buffer for the image in the OpenCL device.
         if (imageBuffer.isNull()) {
             imageBuffer = ctx->context->createImage2DDevice
-                (QImage::Format_ARGB32, QSize(wid, ht), QCL::WriteOnly);
+                (QImage::Format_RGB32, QSize(wid, ht), QCL::WriteOnly);
         }
 
         // Execute the "mandelbrot" kernel.
@@ -204,24 +204,7 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
     }
 }
 
-// Define this to directly map the image when drawing it.
-// This may be faster or slower than reading the full QImage
-// back from the GPU depending upon the system configuration.
-//#define MAP_QIMAGE 1
-
 void ImageCL::paint(QPainter *painter, const QPoint& point)
 {
-#ifndef MAP_QIMAGE
-    imageBuffer.read(&img);
-    painter->drawImage(point, img);
-#else
-    // Map the QCLImage2D and turn it into an in-place QImage for drawing.
-    int bytesPerLine;
-    void *mapped = imageBuffer.map
-        (QRect(0, 0, wid, ht), QCL::ReadOnly, &bytesPerLine);
-    QImage image(reinterpret_cast<const uchar *>(mapped),
-                 wid, ht, bytesPerLine, QImage::Format_RGB32);
-    painter->drawImage(point, image);
-    imageBuffer.unmap(mapped);
-#endif
+    imageBuffer.drawImage(painter, point);
 }

@@ -739,7 +739,7 @@ QCLImage2D QCLContext::createImage2DDevice
          0, &error);
     reportError("QCLContext::createImage2DDevice:", error);
     if (mem)
-        return QCLImage2D(this, mem);
+        return QCLImage2D(this, mem, format);
     else
         return QCLImage2D();
 }
@@ -775,7 +775,7 @@ QCLImage2D QCLContext::createImage2DHost
          data, &error);
     reportError("QCLContext::createImage2DHost:", error);
     if (mem)
-        return QCLImage2D(this, mem);
+        return QCLImage2D(this, mem, format);
     else
         return QCLImage2D();
 }
@@ -817,7 +817,7 @@ QCLImage2D QCLContext::createImage2DHost(QImage *image, QCL::Access access)
          image->bits(), &error);
     reportError("QCLContext::createImage2DHost:", error);
     if (mem)
-        return QCLImage2D(this, mem);
+        return QCLImage2D(this, mem, format);
     else
         return QCLImage2D();
 }
