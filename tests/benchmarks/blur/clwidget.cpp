@@ -160,9 +160,7 @@ void CLWidget::paintEvent(QPaintEvent *)
             QPointF dest(x * 100 + (100 - dstImages[index].width()) / 2,
                          y * 100 + (100 - dstImages[index].height()) / 2);
 
-            // Extra copy here could potentially be eliminated
-            dstImageBuffers[index].read(&(dstImages[index]));
-            painter.drawImage(dest, dstImages[index]);
+            dstImageBuffers[index].drawImage(&painter, dest.toPoint());
         }
     }
 
