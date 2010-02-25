@@ -51,6 +51,7 @@
 #include <OpenCL/cl_platform.h>
 #include <OpenCL/cl.h>
 #include <OpenCL/cl_gl.h>
+#include <CGLDevice.h>
 #else
 #include <CL/cl_platform.h>
 #include <CL/cl.h>
