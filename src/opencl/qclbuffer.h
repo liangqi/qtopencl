@@ -62,7 +62,7 @@ public:
     QCLBuffer(QCLContext *context, cl_mem id)
         : QCLMemoryObject(context, id) {}
     QCLBuffer(const QCLBuffer &other)
-        : QCLMemoryObject(other.context(), other.memoryId()) {}
+        : QCLMemoryObject() { setId(other.context(), other.memoryId()); }
 
     QCLBuffer &operator=(const QCLBuffer &other)
     {
