@@ -50,6 +50,8 @@
 View::View(QWidget *parent)
     : QWidget(parent)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
+
     palette = new Palette();
     palette->setStandardPalette(Palette::EarthSky);
     offset = 0.0f;
