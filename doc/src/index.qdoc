@@ -93,6 +93,7 @@
         <li><a href="vectoradd.html">Vector Addition</a></li>
         <li><a href="blur.html">Gaussian Blur</a></li>
         <li><a href="mandelbrot.html">Mandelbrot Viewer</a></li>
+        <li><a href="bezierpatch.html">Bezier Patch</a></li>
         </ul>
         </td>
         <td valign="top">

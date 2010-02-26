@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BezierMainWindow</string>
+   <string>Bezier Patch</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
