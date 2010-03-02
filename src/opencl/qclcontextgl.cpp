@@ -90,8 +90,6 @@ QCLContextGL::~QCLContextGL()
 {
 }
 
-#ifndef QT_NO_CL_OPENGL
-
 extern "C" {
 
 static void qt_clgl_context_notify(const char *errinfo,
@@ -106,8 +104,6 @@ static void qt_clgl_context_notify(const char *errinfo,
 }
 
 };
-
-#endif
 
 #define CL_GL_CONTEXT_KHR           0x2008
 #define CL_EGL_DISPLAY_KHR          0x2009
@@ -171,9 +167,10 @@ bool QCLContextGL::create()
         properties.append(cl_context_properties(plat.platformId()));
     }
 
+    bool hasSharing = false;
+#ifndef QT_NO_CL_OPENGL
     // Determine what kind of OpenCL-OpenGL sharing we have and enable it.
     QStringList extensions = gpu.extensions();
-    bool hasSharing = false;
 #if defined(__APPLE__) || defined(__MACOSX)
     bool appleSharing = gpu.hasExtension("cl_apple_gl_sharing");
     if (appleSharing) {
@@ -210,6 +207,7 @@ bool QCLContextGL::create()
         qWarning() << "QCLContextGL::create: do not know how to enable sharing";
 #endif
 #endif
+#endif // !QT_NO_CL_OPENGL
 
     // Create the OpenCL context.
     cl_context id;
