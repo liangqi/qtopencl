@@ -6,7 +6,8 @@ INCLUDEPATH += .
 # Input
 SOURCES += main.cpp \
            blurwidget.cpp
-HEADERS += blurwidget.h
+HEADERS += blurwidget.h \
+           blurtable.h
 RESOURCES += blur.qrc
 
 LIBS += -L../../../lib -L../../../bin

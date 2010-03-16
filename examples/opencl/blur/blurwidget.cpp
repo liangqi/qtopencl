@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "blurwidget.h"
+#include "blurtable.h"
 #include <QtCore/qvector.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qtimer.h>
@@ -95,55 +96,21 @@ BlurWidget::~BlurWidget()
 {
 }
 
-static const qreal Q_2PI = qreal(6.28318530717958647693); // 2*pi
-
-static inline qreal gaussian(qreal dx, qreal sigma)
-{
-    return exp(-dx * dx / (2 * sigma * sigma)) / (Q_2PI * sigma * sigma);
-}
-
 void BlurWidget::paintEvent(QPaintEvent *)
 {
-    // Calculate the Gaussian blur weights and offsets.
-    QVector<qreal> components;
-//! [6a]
-    QVector<float> offsets;
-    QVector<float> weights;
-//! [6a]
-    qreal sigma = radius / 1.65;
-    qreal sum = 0;
-    for (int i = -radius; i <= radius; ++i) {
-        qreal value = gaussian(i, sigma);
-        components.append(value);
-        sum += value;
-    }
-    for (int i = 0; i < components.size(); ++i)
-        components[i] /= sum;
-    for (int i = 0; i < components.size() - 1; i += 2) {
-        qreal weight = components[i] + components[i + 1];
-        qreal offset = i - radius + components[i + 1] / weight;
-        offsets.append(offset);
-        weights.append(weight);
-    }
-    // odd size ?
-    if (components.size() & 1) {
-        offsets.append(radius);
-        weights.append(components[components.size() - 1]);
-    }
-
     QTime time;
     time.start();
 
     // Upload the weights and offsets into OpenCL.
-//! [6b]
-    offsetsBuffer.write(offsets);
-    weightsBuffer.write(weights);
-//! [6b]
+//! [6]
+    offsetsBuffer.write(blurOffsets[radius], blurSizes[radius]);
+    weightsBuffer.write(blurWeights[radius], blurSizes[radius]);
+//! [6]
 
     // Execute the horizontal and vertical Gaussian kernels.
 //! [7]
-    hgaussian(srcImageBuffer, tmpImageBuffer, weightsBuffer, offsetsBuffer, weights.size());
-    vgaussian(tmpImageBuffer, dstImageBuffer, weightsBuffer, offsetsBuffer, weights.size());
+    hgaussian(srcImageBuffer, tmpImageBuffer, weightsBuffer, offsetsBuffer, blurSizes[radius]);
+    vgaussian(tmpImageBuffer, dstImageBuffer, weightsBuffer, offsetsBuffer, blurSizes[radius]);
 //! [7]
 
     // Read back the destination image into host memory and draw it.

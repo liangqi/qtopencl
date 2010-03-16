@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = clinfo
+SUBDIRS = clinfo mkblurtable
