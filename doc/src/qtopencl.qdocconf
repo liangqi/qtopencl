@@ -16,7 +16,7 @@ examples.fileextensions = "*.cpp *.h *.js *.xq *.svg *.xml *.ui *.qrc *.txt *.cl
 outputdir               = $DESTDIR
 base                    = file:$DESTDIR
 defines                 = 
-extraimages.HTML        = qt-logo qtopencl-logo
+extraimages.HTML        = qt-logo qtopencl-logo gradient
 
 HTML.stylesheets        = classic.css
 HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
