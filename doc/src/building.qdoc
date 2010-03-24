@@ -45,8 +45,8 @@
 
     \section1 Source Code
 
-    The QtOpenCL source code can be obtained from the internal
-    Qt git server: \l{http://scm.dev.nokia.troll.no/projects/research/repos/opencl}
+    The QtOpenCL source code can be obtained from the external
+    Qt git server: \l{http://qt.gitorious.org/qt-labs/opencl}
 
     See the \l{Contributing to QtOpenCL} page for more information on
     contributing to this project.
@@ -57,6 +57,10 @@
     with Qt 4.6.2.  The main missing feature is support for
     QGLBuffer in the QCLContextGL class.  QGLBuffer implements VBO
     support for QtOpenGL and is in Qt 4.7, but not 4.6.2.
+
+    You will need to build against a developer build of Qt rather
+    than an installed Qt SDK because the QtOpenCL library #include's
+    private headers from the Qt sources.
 
     \section1 Building for Linux
 
@@ -121,6 +125,14 @@
     qmake opencl.pro
     nmake
     \endcode
+
+    \section1 Building the Documentation
+
+    There is a script called \c{mkdocs} in the \c{doc/src} directory
+    that can be used to build the documentation on Linux and MacOSX
+    systems.  The script assumes that the \c{qdoc3} binary from Qt
+    is on the PATH, and places the generated documentation into
+    \c{doc/html}.
 
     \l{index.html}{Return to Home}
 */

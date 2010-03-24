@@ -57,13 +57,10 @@
     \o Interface to standard Qt facilities such as QImage, QPixmap, and
     QtOpenGL to make it very easy to use and generate Qt images and textures
     using OpenCL.
-    \o Provide an extensive unit test suite to not only test QtOpenCL,
-    but to also exercise the underlying OpenCL implementation to check
-    that it properly implements the facilities that Qt needs elsewhere.
-    Ultimately, running the QtOpenCL unit tests on a device should
-    instantly tell us what bugs or boundary cases are present in the
-    vendor-supplied OpenCL implementation.
     \endlist
+
+    The latest version of the QtOpenCL source code can be obtained from
+    the external Qt git server: \l{http://qt.gitorious.org/qt-labs/opencl}
 
     The following pages provide more information about the project:
 

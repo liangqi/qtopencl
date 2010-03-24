@@ -47,7 +47,7 @@
     using OpenCL.
 
     We start by creating a QCLContext object and initializing it for
-    the GPU device:
+    the default OpenCL computing device (usually the GPU):
 
     \snippet vectoradd/vectoradd.cpp 1
 

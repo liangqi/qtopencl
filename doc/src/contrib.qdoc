@@ -49,9 +49,7 @@
     patches, new examples, and major feature development.
 
     Contact Rhys Weatherley in the Brisbane office for more information
-    on how you can contribute to QtOpenCL, or to gain commit rights to
-    the internal git source control server at
-    \l{http://scm.dev.nokia.troll.no/projects/research/repos/opencl}.
+    on how you can contribute to QtOpenCL.
 
     Because QtOpenCL may eventually become part of Qt, all contributions
     need to conform with the
