@@ -184,6 +184,16 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
         d->id = clCreateContextFromType
             (0, cl_device_type(type),
              qt_cl_context_notify, 0, &(d->lastError));
+        if (!d->id && d->lastError == CL_INVALID_PLATFORM) {
+            // Some OpenCL implementations seem to fail if a non-specific
+            // platform is supplied.  Try again with a device instead.
+            QList<QCLDevice> devs = QCLDevice::devices(type);
+            if (!devs.isEmpty()) {
+                cl_device_id dev = devs[0].deviceId();
+                d->id = clCreateContext
+                    (0, 1, &dev, qt_cl_context_notify, 0, &(d->lastError));
+            }
+        }
     }
     d->isCreated = (d->id != 0);
     if (!d->isCreated) {
