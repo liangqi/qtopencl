@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = mandelbrot \
-          blur
+SUBDIRS += mandelbrot
+contains(QT_CONFIG, private_tests): SUBDIRS += blur

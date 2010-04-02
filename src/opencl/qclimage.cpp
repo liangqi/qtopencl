@@ -45,7 +45,9 @@
 #include "qcl_gl_p.h"
 #include <QtGui/qpainter.h>
 #include <QtGui/qpaintdevice.h>
+#ifdef QT_BUILD_INTERNAL
 #include <QtGui/private/qpixmap_raster_p.h>
+#endif
 #include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
@@ -672,15 +674,23 @@ QImage QCLImage2D::toQImage(bool cached)
 }
 
 // Returns the surface of a pixmap paint device as a QImage
-// if it is raster-based.
+// if it is raster-based.  If we have a -developer-build version
+// of Qt, then we can optimize pixmaps and window surfaces from
+// the raster graphics system.  If we don't have a -developer-build
+// version of Qt, then we can only optimize raster window surfaces.
 static QImage *qt_cl_pixmap_image(QPaintDevice *device)
 {
+#ifdef QT_BUILD_INTERNAL
     QPixmapData *pd = static_cast<QPixmap *>(device)->pixmapData();
     if (pd->classId() == QPixmapData::RasterClass) {
         QRasterPixmapData *rpd = static_cast<QRasterPixmapData *>(pd);
         return rpd->buffer();
     }
     return 0;
+#else
+    Q_UNUSED(device);
+    return 0;
+#endif
 }
 
 // Returns the surface of "painter" as a QImage, or null if
