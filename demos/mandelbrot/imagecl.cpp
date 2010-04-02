@@ -191,7 +191,7 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
             glFinish();
 
         // Acquire the GL texture object.
-        textureBuffer.acquireGL();
+        textureBuffer.acquire();
 
         // Execute the "mandelbrot" kernel.
         mandelbrot(textureBuffer, float(region.x()), float(region.y()),
@@ -200,7 +200,7 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
 
         // Release the GL texture object and wait for it complete.
         // After the release is complete, the texture can be used by GL.
-        textureBuffer.releaseGL();
+        textureBuffer.release();
     }
 }
 

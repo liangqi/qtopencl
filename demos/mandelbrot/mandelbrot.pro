@@ -28,4 +28,4 @@ HEADERS += palette.h \
 RESOURCES += mandelbrot.qrc
 
 LIBS += -L../../lib -L../../bin
-include(../../src/opencl/opencl_dep.pri)
+include(../../src/openclgl/openclgl_dep.pri)

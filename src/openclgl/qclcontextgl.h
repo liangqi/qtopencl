@@ -57,7 +57,7 @@ QT_MODULE(CL)
 class QCLContextGLPrivate;
 
 // Note: this class probably should be in the QtOpenGL library.
-class Q_CL_EXPORT QCLContextGL : public QCLContext
+class Q_CLGL_EXPORT QCLContextGL : public QCLContext
 {
 public:
     QCLContextGL();
@@ -98,6 +98,19 @@ public:
     QCLImage2D createRenderbuffer
         (QMacCompatGLuint renderbuffer, QCL::Access access);
 #endif
+
+    static bool isGLBuffer(const QCLBuffer &buffer);
+    static bool isTexture2D(const QCLImage2D &image);
+    static bool isTexture3D(const QCLImage3D &image);
+    static bool isRenderbuffer(const QCLImage2D &image);
+
+    QCLEvent acquire(const QCLMemoryObject &mem);
+    QCLEvent acquire
+        (const QCLMemoryObject &mem, const QCLEventList &after);
+
+    QCLEvent release(const QCLMemoryObject &mem);
+    QCLEvent release
+        (const QCLMemoryObject &mem, const QCLEventList &after);
 
 private:
     QScopedPointer<QCLContextGLPrivate> d_ptr;

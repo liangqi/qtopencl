@@ -77,12 +77,6 @@ public:
     QCLEvent unmapAsync
         (void *ptr, const QCLEventList &after = QCLEventList());
 
-    QCLEvent acquireGL();
-    QCLEvent acquireGL(const QCLEventList &after);
-
-    QCLEvent releaseGL();
-    QCLEvent releaseGL(const QCLEventList &after);
-
     bool operator==(const QCLMemoryObject &other) const;
     bool operator!=(const QCLMemoryObject &other) const;
 

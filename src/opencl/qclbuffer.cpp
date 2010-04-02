@@ -42,7 +42,6 @@
 #include "qclbuffer.h"
 #include "qclimage.h"
 #include "qclcontext.h"
-#include "qcl_gl_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -81,22 +80,6 @@ QT_BEGIN_NAMESPACE
 
     Assigns \a other to this object.
 */
-
-/*!
-    Returns true if this OpenCL buffer object is also an OpenGL
-    buffer object; false otherwise.
-*/
-bool QCLBuffer::isGLBuffer() const
-{
-#ifndef QT_NO_CL_OPENGL
-    cl_gl_object_type objectType;
-    if (clGetGLObjectInfo(memoryId(), &objectType, 0) != CL_SUCCESS)
-        return false;
-    return objectType == CL_GL_OBJECT_BUFFER;
-#else
-    return false;
-#endif
-}
 
 /*!
     Reads \a size bytes from this buffer, starting at \a offset,

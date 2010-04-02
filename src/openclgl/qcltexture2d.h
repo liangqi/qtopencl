@@ -56,7 +56,7 @@ class QCLContextGL;
 class QCLTexture2DPrivate;
 
 // Note: this class probably should be in the QtOpenGL library.
-class Q_CL_EXPORT QCLTexture2D : public QCLImage2D
+class Q_CLGL_EXPORT QCLTexture2D : public QCLImage2D
 {
 public:
     QCLTexture2D();
@@ -66,8 +66,8 @@ public:
     bool create(QCLContextGL *context, int width, int height);
     void destroy();
 
-    void acquireGL();
-    void releaseGL();
+    void acquire();
+    void release();
 
     GLuint textureId() const;
 

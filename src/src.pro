@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = opencl
+SUBDIRS = opencl openclgl

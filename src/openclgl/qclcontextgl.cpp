@@ -515,4 +515,208 @@ QCLImage2D QCLContextGL::createRenderbuffer
 
 #endif
 
+/*!
+    Returns true if the OpenCL \a buffer object is also an OpenGL
+    buffer object; false otherwise.
+*/
+bool QCLContextGL::isGLBuffer(const QCLBuffer &buffer)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo
+            (buffer.memoryId(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_BUFFER;
+#else
+    return false;
+#endif
+}
+
+/*!
+    Returns true if the 2D OpenCL \a image object is also an OpenGL
+    2D texture object; false otherwise.
+
+    \sa isRenderbuffer(), isTexture3D()
+*/
+bool QCLContextGL::isTexture2D(const QCLImage2D &image)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo
+            (image.memoryId(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_TEXTURE2D;
+#else
+    return false;
+#endif
+}
+
+/*!
+    Returns true if the 3D OpenCL \a image object is also an OpenGL
+    3D texture object; false otherwise.
+
+    \sa isTexture2D()
+*/
+bool QCLContextGL::isTexture3D(const QCLImage3D &image)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo
+            (image.memoryId(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_TEXTURE3D;
+#else
+    return false;
+#endif
+}
+
+/*!
+    Returns true if the 2D OpenCL \a image object is also an OpenGL
+    renderbuffer object; false otherwise.
+
+    \sa isTexture2D()
+*/
+bool QCLContextGL::isRenderbuffer(const QCLImage2D &image)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_gl_object_type objectType;
+    if (clGetGLObjectInfo
+            (image.memoryId(), &objectType, 0) != CL_SUCCESS)
+        return false;
+    return objectType == CL_GL_OBJECT_RENDERBUFFER;
+#else
+    return false;
+#endif
+}
+
+/*!
+    Acquires access to the OpenGL object behind the OpenCL memory
+    object \a mem.  This function must be called before performing
+    an OpenCL operation on any OpenGL memory object.
+
+    Returns an event object that can be used to wait for the
+    request to finish.  The request is executed on the active
+    command queue for this context.
+
+    \sa release()
+*/
+QCLEvent QCLContextGL::acquire(const QCLMemoryObject &mem)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_event event;
+    cl_mem id = mem.memoryId();
+    cl_int error = clEnqueueAcquireGLObjects
+        (commandQueue().queueId(), 1, &id, 0, 0, &event);
+    reportError("QCLContextGL::acquire:", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+#else
+    return QCLEvent();
+#endif
+}
+
+/*!
+    \overload
+
+    Acquires access to the OpenGL object behind the OpenCL memory
+    object \a mem.  This function must be called before performing
+    an OpenCL operation on any OpenGL memory object.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.
+
+    Returns an event object that can be used to wait for the
+    request to finish.  The request is executed on the active
+    command queue for this context.
+
+    \sa release()
+*/
+QCLEvent QCLContextGL::acquire
+    (const QCLMemoryObject &mem, const QCLEventList &after)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_event event;
+    cl_mem id = mem.memoryId();
+    cl_int error = clEnqueueAcquireGLObjects
+        (commandQueue().queueId(), 1, &id,
+         after.size(), after.eventData(), &event);
+    reportError("QCLContextGL::acquire(after):", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+#else
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
+}
+
+/*!
+    Releases access to the OpenGL object behind the OpenCL memory
+    object \a mem.  This function must be called after performing
+    an OpenCL operation on any OpenGL memory object, and before
+    performing OpenGL operations on the object.
+
+    Returns an event object that can be used to wait for the
+    request to finish.  The request is executed on the active
+    command queue for this context.
+
+    \sa acquire()
+*/
+QCLEvent QCLContextGL::release(const QCLMemoryObject &mem)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_event event;
+    cl_mem id = mem.memoryId();
+    cl_int error = clEnqueueReleaseGLObjects
+        (commandQueue().queueId(), 1, &id, 0, 0, &event);
+    reportError("QCLContextGL::release:", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+#else
+    return QCLEvent();
+#endif
+}
+
+/*!
+    \overload
+
+    Releases access to the OpenGL object behind the OpenCL memory
+    object \a mem.  This function must be called after performing
+    an OpenCL operation on any OpenGL memory object, and before
+    performing OpenGL operations on the object.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.
+
+    Returns an event object that can be used to wait for the
+    request to finish.  The request is executed on the active
+    command queue for this context.
+
+    \sa acquire()
+*/
+QCLEvent QCLContextGL::release
+    (const QCLMemoryObject &mem, const QCLEventList &after)
+{
+#ifndef QT_NO_CL_OPENGL
+    cl_event event;
+    cl_mem id = mem.memoryId();
+    cl_int error = clEnqueueReleaseGLObjects
+        (commandQueue().queueId(), 1, &id,
+         after.size(), after.eventData(), &event);
+    reportError("QCLContextGL::release(after):", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+#else
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
+}
+
 QT_END_NAMESPACE

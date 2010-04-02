@@ -72,6 +72,7 @@ class QCLTexture2DPrivate : public QObject
 public:
     QCLTexture2DPrivate()
         : context(0)
+        , clContext(0)
         , textureId(0)
         , directRender(false)
 #ifdef USE_PIXEL_UNPACK_BUFFERS
@@ -87,6 +88,7 @@ public:
     }
 
     const QGLContext *context;
+    QCLContextGL *clContext;
     GLuint textureId;
     QSize size;
     bool directRender;
@@ -145,6 +147,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
     Q_D(QCLTexture2D);
     Q_ASSERT(context && size.width() > 0 && size.height() > 0);
     Q_ASSERT(memoryId() == 0);    // Must not be created already.
+    d->clContext = context;
 
     // Create the texture in the GL context.
     GLuint textureId;
@@ -257,24 +260,24 @@ void QCLTexture2D::destroy()
 /*!
     Acquires access to this texture so that OpenCL kernels
     can render into it.  OpenGL cannot use the texture until
-    releaseGL() is called.
+    release() is called.
 
-    \sa releaseGL()
+    \sa release()
 */
-void QCLTexture2D::acquireGL()
+void QCLTexture2D::acquire()
 {
     Q_D(QCLTexture2D);
     if (d->directRender)
-        QCLImage2D::acquireGL().waitForFinished();
+        d->clContext->acquire(*this).waitForFinished();
 }
 
 /*!
     Releases access to this texture so that OpenGL can use it again.
     The textureId() will also be bound to the current OpenGL context.
 
-    \sa acquireGL()
+    \sa acquire()
 */
-void QCLTexture2D::releaseGL()
+void QCLTexture2D::release()
 {
     Q_D(QCLTexture2D);
     if (!d->textureId)
@@ -282,7 +285,7 @@ void QCLTexture2D::releaseGL()
 
     // If we are doing direct rendering, then just release the OpenCL object.
     if (d->directRender) {
-        QCLImage2D::releaseGL().waitForFinished();
+        d->clContext->release(*this).waitForFinished();
         glBindTexture(GL_TEXTURE_2D, d->textureId);
         return;
     }
