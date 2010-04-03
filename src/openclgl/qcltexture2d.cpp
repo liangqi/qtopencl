@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
     \class QCLTexture2D
     \brief The QCLTexture2D class represents a 2D OpenCL texture object.
     \since 4.7
-    \ingroup opencl
+    \ingroup openclgl
 
     Normally applications render into OpenGL textures by calling
     QCLContextGL::createTexture2D() to wrap an existing texture identifier

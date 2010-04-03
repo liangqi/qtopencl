@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCLImageFormat
-    \brief The QCLImageFormat class represents the format of a QCLImage.
+    \brief The QCLImageFormat class represents the format of a QCLImage2D or QCLImage3D.
     \since 4.7
     \ingroup opencl
 */

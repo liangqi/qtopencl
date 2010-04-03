@@ -60,7 +60,7 @@ QT_BEGIN_NAMESPACE
     \class QCLContextGL
     \brief The QCLContextGL class represents an OpenCL context that is suitable for use with OpenGL objects.
     \since 4.7
-    \ingroup opencl
+    \ingroup openclgl
 */
 
 class QCLContextGLPrivate

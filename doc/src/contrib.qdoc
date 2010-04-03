@@ -55,5 +55,9 @@
     need to conform with the
     \l{http://qt.gitorious.org/qt/pages/QtContributionGuidelines}{Qt Contribution Model Guidelines}.
 
+    When reporting bugs, it is recommended that you include the output
+    of the \l{Querying OpenCL Device Capabilities}{clinfo} program
+    in the bug report.
+
     \l{index.html}{Return to Home}.
 */

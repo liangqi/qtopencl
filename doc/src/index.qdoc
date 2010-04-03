@@ -82,6 +82,7 @@
         <ul>
         <li><a href="building.html">Building</a></li>
         <li><a href="clinfo.html">Device Capabilities</a></li>
+        <li><a href="openclgl.html">OpenGL Interoperation</a></li>
         <li><a href="contrib.html">Contributing</a></li>
         </ul>
         </td>
@@ -95,7 +96,8 @@
         </td>
         <td valign="top">
         <ul>
-        <li><a href="opencl.html">QCL Classes</a></li>
+        <li><a href="opencl.html">QCL Core Classes</a></li>
+        <li><a href="openclgl.html">QCL OpenGL Classes</a></li>
         <li><a href="qcl.html">QCL Namespace</a></li>
         </ul>
         </td>

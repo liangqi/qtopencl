@@ -130,6 +130,42 @@
     nmake
     \endcode
 
+    \section1 Checking that QtOpenCL is working
+
+    Once the library has been built, you can check if QtOpenCL
+    is basically working by running the \l{Querying OpenCL Device
+    Capabilities}{clinfo} program, which should print out
+    the capabilities of your OpenCL implementation:
+
+    \code
+    $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+    $ util/clinfo/clinfo
+    Platform ID       : 12289
+    Profile           : FULL_PROFILE
+    Version           : OpenCL 1.0
+    ...
+    \endcode
+
+    The \c{LD_LIBRARY_PATH}, or its equivalent under other operating
+    systems, needs to be set to point at the \c{lib} directory.
+
+    Another way to check that QtOpenCL is working is to run the
+    \l{Vector Addition Example}:
+
+    \code
+    $ examples/opencl/vectoradd/vectoradd
+    Answer is correct: 2048
+    \endcode
+
+    If you get a \c{CL_INVALID_PLATFORM}, \c{CL_INVALID_VALUE},
+    \c{CL_DEVICE_NOT_AVAILABLE}, or similar error, then you may
+    need to modify QCLContext::create() to locate the correct
+    platform or device on your system.
+
+    When reporting bugs, it is recommended that you include the output
+    of the \l{Querying OpenCL Device Capabilities}{clinfo} program
+    in the bug report.
+
     \section1 Building the Documentation
 
     There is a script called \c{mkdocs} in the \c{doc/src} directory
