@@ -58,9 +58,13 @@
     QGLBuffer in the QCLContextGL class.  QGLBuffer implements VBO
     support for QtOpenGL and is in Qt 4.7, but not 4.6.2.
 
-    You will need to build against a developer build of Qt rather
-    than an installed Qt SDK because the QtOpenCL library #include's
-    private headers from the Qt sources.
+    It is recommended that QtOpenCL be built against a developer build
+    of Qt rather than an installed Qt SDK because the QtOpenCL
+    library #include's private headers from the Qt sources.
+    The library can be compiled against a Qt installation that does
+    not have private headers, but the QCLImage2D::drawImage() function
+    will have reduced performance when painting into a raster-based
+    QPixmap.
 
     \section1 Building for Linux
 
