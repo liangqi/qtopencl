@@ -59,6 +59,8 @@ QT_BEGIN_NAMESPACE
     \since 4.7
     \ingroup opencl
 
+    \section1 Executing kernels
+
     QCLKernel corresponds to an instance of an OpenCL kernel, decorated
     with a specific globalWorkSize() and localWorkSize().  It is possible
     to use the same OpenCL kernel with different work sizes by altering
@@ -94,6 +96,15 @@ QT_BEGIN_NAMESPACE
     setArg() and run() calls with kernels that have more than
     10 arguments.
 
+    The following types are handled specially via setArg() and operator()():
+    \c cl_int, \c cl_uint, \c cl_long, \c cl_ulong, \c float,
+    QVector2D, QVector3D, QVector4D, QPointF, QPoint, QMatrix4x4,
+    QCLBuffer, QCLImage2D, QCLImage3D, QCLVector, and QCLSampler.
+    Other argument types must be set explicitly by calling the
+    setArg() override that takes a buffer and size.
+
+    \section1 Asynchronous execution
+
     Note that both run() and operator()() return immediately;
     they will not block until execution is finished.  Both functions
     return a QCLEvent object that can be used to wait for the
@@ -122,14 +133,47 @@ QT_BEGIN_NAMESPACE
     that the QCLBuffer::read() request will not begin execution until the
     kernel execution finishes.
 
-    The following types are handled specially via setArg() and operator()():
-    \c cl_int, \c cl_uint, \c cl_long, \c cl_ulong, \c float,
-    QVector2D, QVector3D, QVector4D, QPointF, QPoint, QMatrix4x4,
-    QCLBuffer, QCLImage2D, QCLImage3D, QCLVector, and QCLSampler.
-    Other argument types must be set explicitly by calling the
-    setArg() override that takes a buffer and size.
+    \section1 Kernels and QtConcurrent
 
-    \sa QCLProgram
+    QtConcurrent::run() can also be used to execute a kernel:
+
+    \code
+    kernel.setGlobalWorkSize(100, 100);
+    QFuture<void> future = QtConcurrent::run(kernel, a1, b1);
+    future.waitForFinished();
+    \endcode
+
+    Note that this will create an extra thread on the main CPU to track
+    the completion of the kernel execution, in addition to the
+    thread on the CPU or GPU that is running the kernel.  The extra
+    thread can be avoided by using QCLEvent instead of QFuture<void>:
+
+    \code
+    kernel.setGlobalWorkSize(100, 100);
+    QCLEvent event = QtConcurrent::run(kernel, a1, b1);
+    event.waitForFinished();
+    \endcode
+
+    Only 5 arguments can be passed to a kernel using
+    QtConcurrent::run(), which is the same as for regular functions
+    and QtConcurrent.  Use run() or operator()() for kernels
+    with more than 5 arguments.
+
+    Because kernels do not have return values, QtConcurrent::run()
+    will always return a QCLEvent when it is used on a kernel, which
+    can be implicitly cast to QFuture<void>.
+
+    The main advantage of QFuture<void> compared to QCLEvent is
+    that it can be used with QFutureWatcher to receive signal
+    notification of when a kernel completes execution:
+
+    \code
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+    watcher->setFuture(QtConcurrent::run(kernel, a1, b1));
+    connect(watcher, SIGNAL(finished()), this, SLOT(eventFinished()));
+    \endcode
+
+    \sa QCLProgram, {OpenCL and QtConcurrent}
 */
 
 class QCLKernelPrivate

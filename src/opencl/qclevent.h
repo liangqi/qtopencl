@@ -81,8 +81,10 @@ public:
     bool operator==(const QCLEvent &other) const;
     bool operator!=(const QCLEvent &other) const;
 
+#if !defined(QT_NO_CONCURRENT)
     QFuture<void> toFuture() const;
     operator QFuture<void>() const;
+#endif
 
 private:
     cl_event m_id;
@@ -120,8 +122,10 @@ public:
 
     void waitForFinished();
 
+#if !defined(QT_NO_CONCURRENT)
     QFuture<void> toFuture() const;
     operator QFuture<void>() const;
+#endif
 
 private:
     QVector<cl_event> m_events;
@@ -135,6 +139,11 @@ inline bool QCLEvent::operator==(const QCLEvent &other) const
 inline bool QCLEvent::operator!=(const QCLEvent &other) const
 {
     return m_id != other.m_id;
+}
+
+inline QCLEvent::operator QFuture<void>() const
+{
+    return toFuture();
 }
 
 inline bool QCLEventList::contains(const QCLEvent &event) const
@@ -169,6 +178,11 @@ inline QCLEventList &QCLEventList::operator<<(const QCLEventList &other)
 {
     append(other);
     return *this;
+}
+
+inline QCLEventList::operator QFuture<void>() const
+{
+    return toFuture();
 }
 
 Q_CL_EXPORT QDebug operator<<(QDebug, const QCLEvent &);

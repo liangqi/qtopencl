@@ -47,6 +47,7 @@
 #include "qclworksize.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qscopedpointer.h>
+#include <QtCore/qtconcurrentrun.h>
 
 QT_BEGIN_HEADER
 
@@ -299,6 +300,47 @@ inline void QCLKernel::setLocalWorkSize(size_t width, size_t height, size_t dept
 {
     setLocalWorkSize(QCLWorkSize(width, height, depth));
 }
+
+#ifndef QT_NO_CONCURRENT
+
+// Convenience function definitions that make it possible to say
+// QtConcurrent::run(kernel, ...) and have it do the right thing.
+namespace QtConcurrent
+{
+
+inline QCLEvent run(QCLKernel &kernel)
+{
+    return kernel();
+}
+template <typename Arg1>
+inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1)
+{
+    return kernel(arg1);
+}
+template <typename Arg1, typename Arg2>
+inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2)
+{
+    return kernel(arg1, arg2);
+}
+template <typename Arg1, typename Arg2, typename Arg3>
+inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3)
+{
+    return kernel(arg1, arg2, arg3);
+}
+template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3, const Arg4 &arg4)
+{
+    return kernel(arg1, arg2, arg3, arg4);
+}
+template <typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
+inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3, const Arg4 &arg4, const Arg5 &arg5)
+{
+    return kernel(arg1, arg2, arg3, arg4, arg5);
+}
+
+} // namespace QtConcurrent
+
+#endif // QT_NO_CONCURRENT
 
 QT_END_NAMESPACE
 

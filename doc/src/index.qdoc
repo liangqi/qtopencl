@@ -83,6 +83,7 @@
         <li><a href="building.html">Building</a></li>
         <li><a href="clinfo.html">Device Capabilities</a></li>
         <li><a href="openclgl.html">OpenGL Interoperation</a></li>
+        <li><a href="concurrent.html">OpenCL and QtConcurrent</a></li>
         <li><a href="contrib.html">Contributing</a></li>
         </ul>
         </td>

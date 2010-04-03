@@ -344,6 +344,8 @@ static void qt_cl_future_wait(cl_event event)
     clReleaseEvent(event);
 }
 
+#if !defined(QT_NO_CONCURRENT)
+
 /*!
     Returns a QFuture object that can be used to track when this
     OpenCL event finishes.
@@ -372,6 +374,16 @@ static void qt_cl_future_wait(cl_event event)
     \code
     watcher->setFuture(event);
     \endcode
+
+    It is also possible to execute a QCLKernel with QtConcurrent::run()
+    and receive notification of the result via QFuture:
+
+    \code
+    QFuture<void> future = QtConcurrent::run(kernel, a1, b1);
+    future.waitForFinished();
+    \endcode
+
+    \sa {Kernels and QtConcurrent}
 */
 QFuture<void> QCLEvent::toFuture() const
 {
@@ -384,15 +396,15 @@ QFuture<void> QCLEvent::toFuture() const
 }
 
 /*!
+    \fn QCLEvent::operator QFuture<void>() const
+
     Equivalent to calling toFuture().
 
     This conversion operator is intended to help with interfacing
     OpenCL to code that uses QtConcurrent.
 */
-QCLEvent::operator QFuture<void>() const
-{
-    return toFuture();
-}
+
+#endif // QT_NO_CONCURRENT
 
 QDebug operator<<(QDebug dbg, const QCLEvent &event)
 {
@@ -717,6 +729,8 @@ static void qt_cl_future_list_wait(QVector<cl_event> events)
         clReleaseEvent(events[index]);
 }
 
+#if !defined(QT_NO_CONCURRENT)
+
 /*!
     Returns a QFuture object that can be used to track when all
     of the events on this list finish.
@@ -762,14 +776,14 @@ QFuture<void> QCLEventList::toFuture() const
 }
 
 /*!
+    \fn QCLEventList::operator QFuture<void>() const
+
     Equivalent to calling toFuture().
 
     This conversion operator is intended to help with interfacing
     OpenCL to code that uses QtConcurrent.
 */
-QCLEventList::operator QFuture<void>() const
-{
-    return toFuture();
-}
+
+#endif // QT_NO_CONCURRENT
 
 QT_END_NAMESPACE
