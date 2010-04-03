@@ -48,6 +48,43 @@ QT_BEGIN_NAMESPACE
     \brief The QCLImageFormat class represents the format of a QCLImage2D or QCLImage3D.
     \since 4.7
     \ingroup opencl
+
+    QImage formats are mapped to OpenCL image formats as follows:
+
+    \table
+    \header \o QImage format \o Channel order \o Channel type
+    \row \o QImage::Format_Indexed8
+         \o Order_A \o Type_Normalized_UInt8
+    \row \o QImage::Format_RGB32
+         \o Order_BGRA or Order_ARGB \o Type_Normalized_UInt8
+    \row \o QImage::Format_ARGB32
+         \o Order_BGRA or Order_ARGB \o Type_Normalized_UInt8
+    \row \o QImage::Format_ARGB32_Premultiplied
+         \o Order_BGRA or Order_ARGB \o Type_Normalized_UInt8
+    \row \o QImage::Format_RGB16
+         \o Order_RGB \o Type_Normalized_565
+    \row \o QImage::Format_RGB555
+         \o Order_RGB \o Type_Normalized_555
+    \row \o QImage::Format_RGB888
+         \o Order_RGB \o Type_Normalized_UInt8
+    \endtable
+
+    Order_BGRA is used on little-endian systems for 32-bit
+    pixel formats, and Order_ARGB on big-endian systems.
+    QImage::Format_Indexed8 is mapped to an alpha-only image
+    format to make it easier to convert font glyphs into
+    OpenCL images.  OpenCL does not otherwise support
+    indexed palettes.  All other formats result in a null
+    QCLImageFormat object.
+
+    It isn't possible to distinguish between QImage::Format_RGB32,
+    QImage::Format_ARGB32, and QImage::Format_ARGB32_Premultiplied
+    based on the OpenCL format parameters.  It is up the OpenCL
+    kernels that operate on the image data to interpret the
+    data appropriately.  If the QCLImageFormat was constructed
+    from a QImage format, then the object will remember whether
+    the format was QImage::Format_RGB32, QImage::Format_ARGB32,
+    or QImage::Format_ARGB32_Premultiplied.
 */
 
 /*!

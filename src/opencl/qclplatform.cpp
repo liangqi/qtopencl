@@ -49,6 +49,37 @@ QT_BEGIN_NAMESPACE
     \brief The QCLPlatform class represents an OpenCL platform definition.
     \since 4.7
     \ingroup opencl
+
+    An OpenCL platform consists of the host CPU plus one or more
+    devices, and manages memory resources and executable kernels.
+
+    The platforms() function can be used to obtain the list of
+    OpenCL platforms that are accessible to the host.  For each
+    platform, QCLDevice::devices() can be used to enumerate the
+    devices that are managed by the platform.
+
+    QCLPlatform functions can be used to query information about
+    the platform:
+
+    \list
+    \o profile() - describes the level of OpenCL support that
+       is available; either \c{FULL_PROFILE} or \c{EMBEDDED_PROFILE}.
+       The isFullProfile() and isEmbeddedProfile() convenience
+       functions can be used to check for specific profile strings.
+    \o version() - version of OpenCL supported by the platform;
+       usually something like \c{OpenCL 1.0}.
+    \o name() - name of the platform.
+    \o vendor() - name of the vendor that created the platform.
+    \o extensions() - list of OpenCL extensions that are supported
+       by the platform.  The hasExtension() function can be used
+       to check for a specific extension.
+    \endlist
+
+    The \l{Querying OpenCL Device Capabilities}{clinfo} utility
+    program can be used to dump all of the platforms that are
+    supported by the system's OpenCL implementation.
+
+    \sa QCLDevice
 */
 
 /*!

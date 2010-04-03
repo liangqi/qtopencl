@@ -49,6 +49,27 @@ QT_BEGIN_NAMESPACE
     \brief The QCLDevice class represents an OpenCL device definition.
     \since 4.7
     \ingroup opencl
+
+    A device is a collection of compute units that can be used by a
+    QCLContext to build programs, execute kernels, and queue
+    commands.
+
+    Devices have an associated deviceType(), which is usually
+    QCLDevice::CPU or QCLDevice::GPU.  CPU devices typically
+    execute on the host CPU.  GPU devices typically execute on
+    the same computational resource as the system's OpenGL
+    implementation, and it may be possible to share OpenGL
+    objects with OpenCL using the facilities of QCLContextGL.
+
+    The devices() function can be used to find all devices of a
+    specific type, optionally constrained by the QCLPlatform
+    they belong to.
+
+    The \l{Querying OpenCL Device Capabilities}{clinfo} utility
+    program can be used to dump all of the devices that are
+    supported by the system's OpenCL implementation.
+
+    \sa QCLPlatform, QCLContext
 */
 
 /*!
