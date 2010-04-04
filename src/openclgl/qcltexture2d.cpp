@@ -169,7 +169,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
     // If the context supports object sharing, then this is really easy.
     if (context->supportsObjectSharing()) {
         QCLImage2D image = context->createTexture2D
-            (GL_TEXTURE_2D, textureId, 0, QCL::WriteOnly);
+            (GL_TEXTURE_2D, textureId, 0, QCLMemoryObject::WriteOnly);
         if (image.isNull()) {
             glDeleteTextures(1, &textureId);
             return false;
@@ -200,7 +200,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
     QCLImage2D image = context->createImage2DDevice
         (QCLImageFormat(QCLImageFormat::Order_RGBA,
                         QCLImageFormat::Type_Normalized_UInt8),
-         size, QCL::WriteOnly);
+         size, QCLMemoryObject::WriteOnly);
     if (image.isNull()) {
         glDeleteTextures(1, &textureId);
 #ifdef USE_PIXEL_UNPACK_BUFFERS
@@ -315,7 +315,7 @@ void QCLTexture2D::release()
         d->pixelBuffer = 0;
     }
 #endif
-    ptr = map(QRect(QPoint(0, 0), d->size), QCL::ReadOnly);
+    ptr = map(QRect(QPoint(0, 0), d->size), QCLMemoryObject::ReadOnly);
     glBindTexture(GL_TEXTURE_2D, d->textureId);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                     d->size.width(), d->size.height(),

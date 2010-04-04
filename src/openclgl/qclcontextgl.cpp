@@ -267,7 +267,7 @@ bool QCLContextGL::supportsObjectSharing() const
 
     This function will only work if supportsObjectSharing() is true.
 */
-QCLBuffer QCLContextGL::createGLBuffer(GLuint bufobj, QCL::Access access)
+QCLBuffer QCLContextGL::createGLBuffer(GLuint bufobj, QCLMemoryObject::Access access)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
@@ -297,7 +297,7 @@ QCLBuffer QCLContextGL::createGLBuffer(GLuint bufobj, QCL::Access access)
 
     This function will only work if supportsObjectSharing() is true.
 */
-QCLBuffer QCLContextGL::createGLBuffer(QGLBuffer *bufobj, QCL::Access access)
+QCLBuffer QCLContextGL::createGLBuffer(QGLBuffer *bufobj, QCLMemoryObject::Access access)
 {
     if (!bufobj)
         return QCLBuffer();
@@ -322,7 +322,7 @@ QCLBuffer QCLContextGL::createGLBuffer(QGLBuffer *bufobj, QCL::Access access)
     \sa createTexture3D(), createRenderbuffer()
 */
 QCLImage2D QCLContextGL::createTexture2D
-    (GLenum type, GLuint texture, GLint mipmapLevel, QCL::Access access)
+    (GLenum type, GLuint texture, GLint mipmapLevel, QCLMemoryObject::Access access)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
@@ -354,7 +354,7 @@ QCLImage2D QCLContextGL::createTexture2D
 
     This function will only work if supportsObjectSharing() is true.
 */
-QCLImage2D QCLContextGL::createTexture2D(GLuint texture, QCL::Access access)
+QCLImage2D QCLContextGL::createTexture2D(GLuint texture, QCLMemoryObject::Access access)
 {
     return createTexture2D(GL_TEXTURE_2D, texture, 0, access);
 }
@@ -375,7 +375,7 @@ QCLImage2D QCLContextGL::createTexture2D(GLuint texture, QCL::Access access)
     \sa createTexture2D()
 */
 QCLImage3D QCLContextGL::createTexture3D
-    (GLenum type, GLuint texture, GLint mipmapLevel, QCL::Access access)
+    (GLenum type, GLuint texture, GLint mipmapLevel, QCLMemoryObject::Access access)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
@@ -407,7 +407,7 @@ QCLImage3D QCLContextGL::createTexture3D
 
     This function will only work if supportsObjectSharing() is true.
 */
-QCLImage3D QCLContextGL::createTexture3D(GLuint texture, QCL::Access access)
+QCLImage3D QCLContextGL::createTexture3D(GLuint texture, QCLMemoryObject::Access access)
 {
     return createTexture3D(GL_TEXTURE_3D, texture, 0, access);
 }
@@ -421,7 +421,7 @@ QCLImage3D QCLContextGL::createTexture3D(GLuint texture, QCL::Access access)
     \sa createTexture2D()
 */
 QCLImage2D QCLContextGL::createRenderbuffer
-    (GLuint renderbuffer, QCL::Access access)
+    (GLuint renderbuffer, QCLMemoryObject::Access access)
 {
 #ifndef QT_NO_CL_OPENGL
     cl_int error = CL_INVALID_CONTEXT;
@@ -457,7 +457,7 @@ void QCLContextGL::reportError(const char *name, cl_int error)
     \internal
 */
 QCLBuffer QCLContextGL::createGLBuffer
-    (QMacCompatGLuint bufobj, QCL::Access access)
+    (QMacCompatGLuint bufobj, QCLMemoryObject::Access access)
 {
     return createGLBuffer(GLuint(bufobj), access);
 }
@@ -467,7 +467,7 @@ QCLBuffer QCLContextGL::createGLBuffer
 */
 QCLImage2D QCLContextGL::createTexture2D
     (QMacCompatGLenum type, QMacCompatGLuint texture,
-     QMacCompatGLint mipmapLevel, QCL::Access access)
+     QMacCompatGLint mipmapLevel, QCLMemoryObject::Access access)
 {
     return createTexture2D(GLenum(type), GLuint(texture),
                            GLint(mipmapLevel), access);
@@ -477,7 +477,7 @@ QCLImage2D QCLContextGL::createTexture2D
     \internal
 */
 QCLImage2D QCLContextGL::createTexture2D
-    (QMacCompatGLuint texture, QCL::Access access)
+    (QMacCompatGLuint texture, QCLMemoryObject::Access access)
 {
     return createTexture2D(GLenum(GL_TEXTURE_2D), GLuint(texture),
                            GLint(0), access);
@@ -488,7 +488,7 @@ QCLImage2D QCLContextGL::createTexture2D
 */
 QCLImage3D QCLContextGL::createTexture3D
     (QMacCompatGLenum type, QMacCompatGLuint texture,
-     QMacCompatGLint mipmapLevel, QCL::Access access)
+     QMacCompatGLint mipmapLevel, QCLMemoryObject::Access access)
 {
     return createTexture3D(GLenum(type), GLuint(texture),
                            GLint(mipmapLevel), access);
@@ -498,7 +498,7 @@ QCLImage3D QCLContextGL::createTexture3D
     \internal
 */
 QCLImage3D QCLContextGL::createTexture3D
-    (QMacCompatGLuint texture, QCL::Access access)
+    (QMacCompatGLuint texture, QCLMemoryObject::Access access)
 {
     return createTexture3D(GLenum(GL_TEXTURE_3D), GLuint(texture),
                            GLint(0), access);
@@ -508,7 +508,7 @@ QCLImage3D QCLContextGL::createTexture3D
     \internal
 */
 QCLImage2D QCLContextGL::createRenderbuffer
-    (QMacCompatGLuint renderbuffer, QCL::Access access)
+    (QMacCompatGLuint renderbuffer, QCLMemoryObject::Access access)
 {
     return createRenderbuffer(GLuint(renderbuffer), access);
 }

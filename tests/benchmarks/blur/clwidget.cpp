@@ -132,11 +132,11 @@ void CLWidget::setup( int maxRadius ) {
     for (int index = 0; index < 9; ++index) {
         // Adjust for the best work size on the kernel.
 
-        srcImageBuffers[index] = context.createImage2DCopy(srcImages[index], QCL::ReadOnly);
-        tmpImageBuffers[index] = context.createImage2DDevice(QImage::Format_ARGB32, adjustedSize, QCL::ReadWrite);
+        srcImageBuffers[index] = context.createImage2DCopy(srcImages[index], QCLMemoryObject::ReadOnly);
+        tmpImageBuffers[index] = context.createImage2DDevice(QImage::Format_ARGB32, adjustedSize, QCLMemoryObject::ReadWrite);
 
         dstImages[index] = QImage(adjustedSize, QImage::Format_ARGB32);
-        dstImageBuffers[index] = context.createImage2DDevice(dstImages[index].format(), dstImages[index].size(), QCL::WriteOnly);
+        dstImageBuffers[index] = context.createImage2DDevice(dstImages[index].format(), dstImages[index].size(), QCLMemoryObject::WriteOnly);
     }
 
     horizontalGaussianKernel.setGlobalWorkSize(adjustedSize);

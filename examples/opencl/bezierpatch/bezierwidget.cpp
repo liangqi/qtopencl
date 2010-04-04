@@ -443,7 +443,7 @@ void BezierWidget::allocVertices()
 
     // Allocate OpenCL buffers of the right size.
     positionBuffer = context.createBufferDevice
-        (num * sizeof(GLfloat) * 4, QCL::WriteOnly);
+        (num * sizeof(GLfloat) * 4, QCLMemoryObject::WriteOnly);
     texCoordBuffer = context.createBufferDevice
-        (num * sizeof(GLfloat) * 2, QCL::WriteOnly);
+        (num * sizeof(GLfloat) * 2, QCLMemoryObject::WriteOnly);
 }

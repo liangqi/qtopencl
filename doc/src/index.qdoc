@@ -99,7 +99,6 @@
         <ul>
         <li><a href="opencl.html">QCL Core Classes</a></li>
         <li><a href="openclgl.html">QCL OpenGL Classes</a></li>
-        <li><a href="qcl.html">QCL Namespace</a></li>
         </ul>
         </td>
         </tr>

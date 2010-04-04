@@ -159,7 +159,7 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
             colorBuffer = QCLBuffer();
         if (colorBuffer.isNull()) {
             colorBuffer = ctx->context->createBufferDevice
-                (maxIterations * sizeof(float) * 4, QCL::ReadOnly);
+                (maxIterations * sizeof(float) * 4, QCLMemoryObject::ReadOnly);
         }
         QVarLengthArray<float> floatColors;
         for (int index = 0; index < maxIterations; ++index) {
@@ -178,7 +178,7 @@ void ImageCL::generate(int maxIterations, const Palette &palette)
         // Create a buffer for the image in the OpenCL device.
         if (imageBuffer.isNull()) {
             imageBuffer = ctx->context->createImage2DDevice
-                (QImage::Format_RGB32, QSize(wid, ht), QCL::WriteOnly);
+                (QImage::Format_RGB32, QSize(wid, ht), QCLMemoryObject::WriteOnly);
         }
 
         // Execute the "mandelbrot" kernel.

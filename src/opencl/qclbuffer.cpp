@@ -386,11 +386,11 @@ QCLEvent QCLBuffer::copyToAsync
 // We use a single enum in the public API for both memory objects
 // and memory mapping, but the values are slightly different in
 // the OpenCL C API.  This function corrects for the difference.
-cl_map_flags qt_cl_map_flags(QCL::Access access)
+cl_map_flags qt_cl_map_flags(QCLMemoryObject::Access access)
 {
-    if (access == QCL::ReadOnly)
+    if (access == QCLMemoryObject::ReadOnly)
         return CL_MAP_READ;
-    else if (access == QCL::WriteOnly)
+    else if (access == QCLMemoryObject::WriteOnly)
         return CL_MAP_WRITE;
     else
         return CL_MAP_READ | CL_MAP_WRITE;
@@ -407,7 +407,7 @@ cl_map_flags qt_cl_map_flags(QCL::Access access)
     \sa mapAsync(), unmap()
 */
 void *QCLBuffer::map
-    (size_t offset, size_t size, QCL::Access access)
+    (size_t offset, size_t size, QCLMemoryObject::Access access)
 {
     cl_int error;
     void *data = clEnqueueMapBuffer
@@ -424,7 +424,7 @@ void *QCLBuffer::map
     the specified \a access mode.  Returns a pointer to the
     mapped region.
 */
-void *QCLBuffer::map(QCL::Access access)
+void *QCLBuffer::map(QCLMemoryObject::Access access)
 {
     return map(0, size(), access);
 }
@@ -447,7 +447,7 @@ void *QCLBuffer::map(QCL::Access access)
 */
 QCLEvent QCLBuffer::mapAsync
     (void **ptr, size_t offset, size_t size,
-     QCL::Access access, const QCLEventList &after)
+     QCLMemoryObject::Access access, const QCLEventList &after)
 {
     cl_int error;
     cl_event event;

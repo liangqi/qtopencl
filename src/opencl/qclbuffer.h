@@ -97,10 +97,10 @@ public:
          const size_t origin[3], const size_t size[3],
          const QCLEventList &after = QCLEventList());
 
-    void *map(size_t offset, size_t size, QCL::Access access);
-    void *map(QCL::Access access);
+    void *map(size_t offset, size_t size, QCLMemoryObject::Access access);
+    void *map(QCLMemoryObject::Access access);
     QCLEvent mapAsync(void **ptr, size_t offset, size_t size,
-                      QCL::Access access,
+                      QCLMemoryObject::Access access,
                       const QCLEventList &after = QCLEventList());
 };
 

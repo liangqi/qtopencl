@@ -69,7 +69,7 @@ void PathWidget::paintEvent(QPaintEvent *)
     if (surfaceImage.isNull()) {
         windowSize = wsize;
         surfaceImage = context.createImage2DDevice
-            (QImage::Format_RGB32, windowSize, QCL::ReadWrite);
+            (QImage::Format_RGB32, windowSize, QCLMemoryObject::ReadWrite);
     }
 
     // Clear to the background color.

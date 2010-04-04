@@ -60,13 +60,13 @@ ImageWidget::ImageWidget(QWidget *parent)
     drawImageKernel.setLocalWorkSize(8, 8);
 
     flower = context.createImage2DCopy
-        (QImage(QLatin1String(":/flower.jpg")), QCL::ReadOnly);
+        (QImage(QLatin1String(":/flower.jpg")), QCLMemoryObject::ReadOnly);
     bg1 = context.createImage2DCopy
-        (QImage(QLatin1String(":/bg1.jpg")), QCL::ReadOnly);
+        (QImage(QLatin1String(":/bg1.jpg")), QCLMemoryObject::ReadOnly);
     beavis = context.createImage2DCopy
-        (QImage(QLatin1String(":/beavis.jpg")), QCL::ReadOnly);
+        (QImage(QLatin1String(":/beavis.jpg")), QCLMemoryObject::ReadOnly);
     qtlogo = context.createImage2DCopy
-        (QImage(QLatin1String(":/qtlogo.png")), QCL::ReadOnly);
+        (QImage(QLatin1String(":/qtlogo.png")), QCLMemoryObject::ReadOnly);
 }
 
 ImageWidget::~ImageWidget()
@@ -82,7 +82,7 @@ void ImageWidget::paintEvent(QPaintEvent *)
     if (surfaceImage.isNull()) {
         windowSize = wsize;
         surfaceImage = context.createImage2DDevice
-            (QImage::Format_RGB32, windowSize, QCL::ReadWrite);
+            (QImage::Format_RGB32, windowSize, QCLMemoryObject::ReadWrite);
     }
 
     // Clear to the background color.

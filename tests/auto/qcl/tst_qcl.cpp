@@ -99,7 +99,7 @@ void tst_QCL::buildProgram()
 void tst_QCL::argumentPassing()
 {
     QCLBuffer buffer = context.createBufferDevice
-        (sizeof(float) * 16, QCL::WriteOnly);
+        (sizeof(float) * 16, QCLMemoryObject::WriteOnly);
     float buf[16];
     cl_int bufi[2];
     cl_uint bufui;

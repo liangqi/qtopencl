@@ -637,7 +637,7 @@ QCLCommandQueue QCLContext::createCommandQueue
 
     \sa createBufferHost(), createBufferCopy(), createVector()
 */
-QCLBuffer QCLContext::createBufferDevice(size_t size, QCL::Access access)
+QCLBuffer QCLContext::createBufferDevice(size_t size, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -664,7 +664,7 @@ QCLBuffer QCLContext::createBufferDevice(size_t size, QCL::Access access)
     \sa createBufferDevice(), createBufferCopy(), createVector()
 */
 QCLBuffer QCLContext::createBufferHost
-    (void *data, size_t size, QCL::Access access)
+    (void *data, size_t size, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -695,7 +695,7 @@ QCLBuffer QCLContext::createBufferHost
     \sa createBufferDevice(), createBufferHost(), createVector()
 */
 QCLBuffer QCLContext::createBufferCopy
-    (const void *data, size_t size, QCL::Access access)
+    (const void *data, size_t size, QCLMemoryObject::Access access)
 {
     Q_ASSERT(data);
     Q_D(QCLContext);
@@ -712,7 +712,7 @@ QCLBuffer QCLContext::createBufferCopy
 }
 
 /*!
-    \fn QCLVector<T> QCLContext::createVector(int size, QCL::Access access)
+    \fn QCLVector<T> QCLContext::createVector(int size, QCLMemoryObject::Access access)
 
     Creates a host-accessible vector of \a size elements of type T
     on this context and returns it.  The elements will be initially in
@@ -739,7 +739,7 @@ QCLBuffer QCLContext::createBufferCopy
     \sa createImage2DHost(), createImage2DCopy()
 */
 QCLImage2D QCLContext::createImage2DDevice
-    (const QCLImageFormat &format, const QSize &size, QCL::Access access)
+    (const QCLImageFormat &format, const QSize &size, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -770,7 +770,7 @@ QCLImage2D QCLContext::createImage2DDevice
 */
 QCLImage2D QCLContext::createImage2DHost
     (const QCLImageFormat &format, void *data, const QSize &size,
-     QCL::Access access, int bytesPerLine)
+     QCLMemoryObject::Access access, int bytesPerLine)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -804,7 +804,7 @@ QCLImage2D QCLContext::createImage2DHost
 
     \sa createImage2DDevice(), createImage2DCopy()
 */
-QCLImage2D QCLContext::createImage2DHost(QImage *image, QCL::Access access)
+QCLImage2D QCLContext::createImage2DHost(QImage *image, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
 
@@ -848,7 +848,7 @@ QCLImage2D QCLContext::createImage2DHost(QImage *image, QCL::Access access)
 */
 QCLImage2D QCLContext::createImage2DCopy
     (const QCLImageFormat &format, const void *data, const QSize &size,
-     QCL::Access access, int bytesPerLine)
+     QCLMemoryObject::Access access, int bytesPerLine)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -879,7 +879,7 @@ QCLImage2D QCLContext::createImage2DCopy
     \sa createImage2DDevice(), createImage2DHost()
 */
 QCLImage2D QCLContext::createImage2DCopy
-    (const QImage &image, QCL::Access access)
+    (const QImage &image, QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
 
@@ -922,7 +922,7 @@ QCLImage2D QCLContext::createImage2DCopy
 */
 QCLImage3D QCLContext::createImage3DDevice
     (const QCLImageFormat &format, int width, int height, int depth,
-     QCL::Access access)
+     QCLMemoryObject::Access access)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;
@@ -955,7 +955,7 @@ QCLImage3D QCLContext::createImage3DDevice
 */
 QCLImage3D QCLContext::createImage3DHost
     (const QCLImageFormat &format, void *data,
-     int width, int height, int depth, QCL::Access access,
+     int width, int height, int depth, QCLMemoryObject::Access access,
      int bytesPerLine, int bytesPerSlice)
 {
     Q_D(QCLContext);
@@ -995,7 +995,7 @@ QCLImage3D QCLContext::createImage3DHost
 QCLImage3D QCLContext::createImage3DCopy
     (const QCLImageFormat &format, const void *data,
      int width, int height, int depth,
-     QCL::Access access, int bytesPerLine, int bytesPerSlice)
+     QCLMemoryObject::Access access, int bytesPerLine, int bytesPerSlice)
 {
     Q_D(QCLContext);
     cl_int error = CL_INVALID_CONTEXT;

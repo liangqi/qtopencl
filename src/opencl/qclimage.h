@@ -105,10 +105,10 @@ public:
         (const QRect &rect, const QCLBuffer &dest, size_t destOffset,
          const QCLEventList &after = QCLEventList());
 
-    void *map(const QRect &rect, QCL::Access access,
+    void *map(const QRect &rect, QCLMemoryObject::Access access,
               int *bytesPerLine = 0);
     QCLEvent mapAsync(void **ptr, const QRect &rect,
-                      QCL::Access access,
+                      QCLMemoryObject::Access access,
                       const QCLEventList &after = QCLEventList(),
                       int *bytesPerLine = 0);
 
@@ -190,11 +190,11 @@ public:
          const QCLEventList &after = QCLEventList());
 
     void *map(const size_t origin[3], const size_t size[3],
-              QCL::Access access,
+              QCLMemoryObject::Access access,
               int *bytesPerLine = 0, int *bytesPerSlice = 0);
     QCLEvent mapAsync
         (void **ptr, const size_t origin[3], const size_t size[3],
-         QCL::Access access,
+         QCLMemoryObject::Access access,
          const QCLEventList &after = QCLEventList(),
          int *bytesPerLine = 0, int *bytesPerSlice = 0);
 };

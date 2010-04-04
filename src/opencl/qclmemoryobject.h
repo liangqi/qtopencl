@@ -42,7 +42,6 @@
 #ifndef QCLMEMORYOBJECT_H
 #define QCLMEMORYOBJECT_H
 
-#include "qclnamespace.h"
 #include "qclevent.h"
 
 QT_BEGIN_HEADER
@@ -63,12 +62,19 @@ protected:
 public:
     virtual ~QCLMemoryObject();
 
+    enum Access
+    {
+        ReadWrite = 0x0001,
+        WriteOnly = 0x0002,
+        ReadOnly  = 0x0004
+    };
+
     bool isNull() const { return m_id == 0; }
 
     cl_mem memoryId() const { return m_id; }
     QCLContext *context() const { return m_context; }
 
-    QCL::Access access() const;
+    QCLMemoryObject::Access access() const;
     cl_mem_flags flags() const;
     void *hostPointer() const;
     size_t size() const;
