@@ -4,8 +4,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 QT += opengl
 
-VPATH += ../../../demos/mandelbrot
-INCLUDEPATH += ../../../demos/mandelbrot
+VPATH += ../mandelbrot
+INCLUDEPATH += ../mandelbrot
 
 # Input
 SOURCES += main.cpp \
@@ -20,5 +20,5 @@ HEADERS += bezierwidget.h \
 RESOURCES += bezierpatch.qrc
 FORMS += beziermainwindow.ui
 
-LIBS += -L../../../lib -L../../../bin
-include(../../../src/opencl/opencl_dep.pri)
+LIBS += -L../../lib -L../../bin
+include(../../src/opencl/opencl_dep.pri)
