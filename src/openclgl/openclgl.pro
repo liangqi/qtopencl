@@ -9,9 +9,9 @@ win32 {
 }
 else:DESTDIR = ../../lib
 
-macx {
-    LIBS += -framework OpenCL
-} else {
+LIBS += -L../../lib -L../../bin
+win32 {
+    LIBS += -lQtOpenCL
     !isEmpty(QMAKE_INCDIR_OPENCL) {
         QMAKE_CXXFLAGS += -I$$QMAKE_INCDIR_OPENCL
     }
@@ -23,6 +23,8 @@ macx {
     } else {
         LIBS += -lOpenCL
     }
+} else {
+    LIBS += -lQtOpenCL
 }
 
 no_cl_gl {

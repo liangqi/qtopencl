@@ -8,9 +8,7 @@ win32 {
 }
 else:DESTDIR = ../../lib
 
-macx {
-    LIBS += -framework OpenCL
-} else {
+win32 {
     !isEmpty(QMAKE_INCDIR_OPENCL) {
         QMAKE_CXXFLAGS += -I$$QMAKE_INCDIR_OPENCL
     }

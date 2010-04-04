@@ -43,7 +43,9 @@
     \page building.html
     \title Building QtOpenCL
 
-    \section1 Source Code
+    \tableofcontents
+
+    \section1 Obtaining the source code
 
     The QtOpenCL source code can be obtained from the external
     Qt git server: \l{http://qt.gitorious.org/qt-labs/opencl}
@@ -54,9 +56,9 @@
     \section1 Required Qt version
 
     It is recommended that you use Qt 4.7, but the library will build
-    with Qt 4.6.2.  The main missing feature is support for
+    with Qt 4.6.  The main missing feature is support for
     QGLBuffer in the QCLContextGL class.  QGLBuffer implements VBO
-    support for QtOpenGL and is in Qt 4.7, but not 4.6.2.
+    support for QtOpenGL and is in Qt 4.7, but not 4.6.
 
     It is recommended that QtOpenCL be built against a developer build
     of Qt rather than an installed Qt SDK because the QtOpenCL
@@ -68,34 +70,47 @@
 
     \section1 Building for Linux
 
-    The simplest way to configure and build the library is as follows:
+    The top-level directory of the source tree contains a configure
+    script that detects the system's OpenCL library and configures
+    the build system of QtOpenCL to use it.  The simplest way to
+    configure and build is as follows:
 
     \code
-    qmake opencl.pro
+    ./configure -qmake path
     make
     \endcode
 
-    Be sure to use the qmake binary from the right version of Qt,
-    especially if you are cross-compiling for a device.
+    The \c{path} should be the complete path to the \c{qmake}
+    binary if it is not on the PATH.  For example:
+
+    \code
+    ./configure -qmake /usr/local/Trolltech/Qt-4.7.0/bin/qmake
+    \endcode
+
+    It is very important that the \c{-qmake} command-line option
+    be supplied if you are cross-compiling for a device because
+    the host system's \c{qmake} will not work.
 
     By default, the build system assumes that the OpenCL headers
     are found in the normal system location for header files
     (usually \c{/usr/include}), and that the library to link against
     is called \c{libOpenCL.so}.  These defaults can be overridden
-    with the following qmake variables:
+    with command-line options to configure:
 
     \list
-    \o \c{QMAKE_INCDIR_OPENCL} - Directory that contains the
+    \o \c{-Idir} - Specify the directory that contains the
     includes \c{<CL/cl.h>}, \c{<CL/cl_gl.h>}, etc.
-    \o \c{QMAKE_LIBDIR_OPENCL} - Directory that contains the
+    \o \c{-Ldir} - Specify the directory that contains the
     \c{libOpenCL.so} library.
-    \o \c{QMAKE_LIBS_OPENCL} - Libraries to add to the link line.
-    e.g. "\c{-lOpenCL -lGLESv2}".  The default value is "\c{-lOpenCL}".
-    \o \c{CONFIG+=no_cl_gl} - The OpenCL library does not have any of
+    \o \c{-lname} - Override the \c{-lOpenCL} default library name.
+    This can also be used to add additional libraries;
+    e.g. "\c{-lOpenCL -lGLESv2}".
+    \o \c{-no-openclgl} - The OpenCL library does not have any of
     the functions that are needed to perform OpenGL interoperation.
     This will cause the sharing functionality of QCLContextGL
     to be disabled.  Applications can still use QCLContextGL,
-    but they will have reduced functionality.
+    but they will have reduced functionality.  Normally this
+    option will be detected automatically by configure.
     \endlist
 
     For example, if your OpenCL library is called \c{libOCL.so}
@@ -104,9 +119,8 @@
     configure as follows:
 
     \code
-    qmake QMAKE_INCDIR_OPENCL=/opt/ocl/include \
-          QMAKE_LIBDIR_OPENCL=/opt/ocl/lib \
-          QMAKE_LIBS_OPENCL="-lOCL" CONFIG+=no_cl_gl
+    ./configure -qmake path -I/opt/ocl/include \
+          -L/opt/ocl/lib -lOCL -no-openclgl
     \endcode
 
     \section1 Building for MacOSX
@@ -114,20 +128,41 @@
     The instructions are similar to Linux:
 
     \code
-    qmake opencl.pro
+    ./configure -qmake path
     make
     \endcode
 
     It is assumed that the "\c{OpenCL}" framework has been installed
-    to provide the OpenCL headers and libraries.
+    to provide the OpenCL headers and libraries.  If the OpenCL
+    headers and libraries are provided by a different framework,
+    it can be specified as follows:
+
+    \code
+    ./configure -qmake path -fw OCL
+    \endcode
 
     \section1 Building for Windows
 
-    The instructions are again:
+    Currently there isn't an equivalent of configure for Windows.
+    The alternative build instructions are as follows:
 
     \code
     qmake opencl.pro
     nmake
+    \endcode
+
+    \section1 Shadow building
+
+    The configure script supports building the QtOpenCL library
+    in a different directory than the source code.  The following
+    example builds the sources from \c{$HOME/sources/opencl}
+    into \c{$HOME/build/opencl}:
+
+    \code
+    mkdir $HOME/build/opencl
+    cd $HOME/build/opencl
+    $HOME/sources/opencl/configure -qmake path
+    make
     \endcode
 
     \section1 Checking that QtOpenCL is working
@@ -161,6 +196,11 @@
     \c{CL_DEVICE_NOT_AVAILABLE}, or similar error, then you may
     need to modify QCLContext::create() to locate the correct
     platform or device on your system.
+
+    You can also run the \c{tests/auto/qcl/tst_qcl} program to
+    execute the QtOpenCL unit tests, which will check that the
+    OpenCL implementation is operating in accordance with
+    QtOpenCL's expectations.
 
     When reporting bugs, it is recommended that you include the output
     of the \l{Querying OpenCL Device Capabilities}{clinfo} program
