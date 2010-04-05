@@ -58,7 +58,7 @@ class Q_CL_EXPORT QCLSampler
 {
 public:
     QCLSampler();
-    QCLSampler(cl_sampler id);
+    QCLSampler(QCLContext *context, cl_sampler id);
     QCLSampler(const QCLSampler &other);
     ~QCLSampler();
 

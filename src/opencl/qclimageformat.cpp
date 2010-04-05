@@ -163,7 +163,7 @@ QCLImageFormat::QCLImageFormat
     } else if (order == Order_ARGB && type == Type_Normalized_UInt8) {
         if (QSysInfo::ByteOrder != QSysInfo::LittleEndian)
             m_qformat = QImage::Format_ARGB32;
-    } else if (order == Order_A) {
+    } else if (order == Order_A && type == Type_Normalized_UInt8) {
         // We assume that Indexed8 images are alpha maps for font glyphs.
         m_qformat = QImage::Format_Indexed8;
     }

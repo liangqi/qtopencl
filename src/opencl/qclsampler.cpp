@@ -95,7 +95,7 @@ public:
     }
 
     mutable cl_sampler id;
-    QCLContext *context;
+    mutable QCLContext *context;
     bool normalizedCoordinates;
     QCLSampler::AddressingMode addressingMode;
     QCLSampler::FilterMode filterMode;
@@ -113,9 +113,9 @@ QCLSampler::QCLSampler()
 /*!
     Constructs an OpenCL sampler object from the native identifier \a id.
     This class takes over ownership of \a id and will release it in
-    the destructor.
+    the destructor.  The sampler \a id will be associated with \a context.
 */
-QCLSampler::QCLSampler(cl_sampler id)
+QCLSampler::QCLSampler(QCLContext *context, cl_sampler id)
     : d_ptr(new QCLSamplerPrivate())
 {
     Q_D(QCLSampler);
@@ -135,6 +135,7 @@ QCLSampler::QCLSampler(cl_sampler id)
         d->normalizedCoordinates = (normalized != CL_FALSE);
         d->addressingMode = QCLSampler::AddressingMode(addressing);
         d->filterMode = QCLSampler::FilterMode(filter);
+        d->context = context;
     }
 }
 
@@ -344,6 +345,10 @@ void QCLSampler::setKernelArg
              cl_addressing_mode(d->addressingMode),
              cl_filter_mode(d->filterMode), &error);
         context->reportError("QCLKernel::setArg(sampler):", error);
+        if (d->id)
+            d->context = context;
+        else
+            d->context = 0;
     }
     clSetKernelArg(kernel, index, sizeof(d->id), &(d->id));
 }

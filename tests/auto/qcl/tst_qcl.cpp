@@ -57,10 +57,17 @@ public:
 private slots:
     void initTestCase();
     void checkProfile();
+    void platform();
+    void device();
     void buildProgram();
     void argumentPassing();
     void vectorBuffer();
     void eventProfiling();
+    void sampler();
+    void workSize();
+    void imageFormat();
+    void qimageFormat_data();
+    void qimageFormat();
 
 private:
     QCLContext context;
@@ -69,7 +76,8 @@ private:
 
 void tst_QCL::initTestCase()
 {
-    QVERIFY(context.create());
+    if (!context.create())
+        QFAIL("OpenCL implementation unusable - cannot create default context");
 }
 
 // Checks that the OpenCL implementation supports either
@@ -87,11 +95,179 @@ void tst_QCL::checkProfile()
     QVERIFY(device.isEmbeddedProfile() == platform.isEmbeddedProfile());
 }
 
+// Test the QCLPlatform class.
+void tst_QCL::platform()
+{
+    // Check the null platform identifier.
+    QCLPlatform platform;
+    QVERIFY(platform.isNull());
+    QVERIFY(platform.platformId() == 0);
+    QVERIFY(platform == platform);
+    QVERIFY(!(platform != platform));
+    QVERIFY(!platform.isFullProfile());
+    QVERIFY(!platform.isEmbeddedProfile());
+    QVERIFY(platform.profile().isEmpty());
+    QVERIFY(platform.version().isEmpty());
+    QVERIFY(platform.name().isEmpty());
+    QVERIFY(platform.vendor().isEmpty());
+    QVERIFY(platform.extensions().isEmpty());
+    QVERIFY(!platform.hasExtension("cl_khr_byte_addressable_store"));
+
+    // Must have at least 1 platform on the system.
+    QList<QCLPlatform> platforms = QCLPlatform::platforms();
+    QVERIFY(platforms.size() >= 1);
+    foreach (QCLPlatform platform2, platforms) {
+        // Should be non-null and not equal to a null platform.
+        QVERIFY(!platform2.isNull());
+        QVERIFY(platform2.platformId() != 0);
+        QVERIFY(platform != platform2);
+        QVERIFY(!(platform == platform2));
+
+        // Must be either full or embedded.
+        QVERIFY(platform2.isFullProfile() || platform2.isEmbeddedProfile());
+
+        // Version should start with "OpenCL ".
+        QVERIFY(platform2.version().startsWith(QLatin1String("OpenCL ")));
+
+        // profile() should be consistent with isFull/EmbeddedProfile().
+        QString profile = platform2.profile();
+        if (platform2.isFullProfile())
+            QCOMPARE(profile, QLatin1String("FULL_PROFILE"));
+        if (platform2.isEmbeddedProfile())
+            QCOMPARE(profile, QLatin1String("EMBEDDED_PROFILE"));
+
+        // Check the extension list.
+        QStringList extensions = platform2.extensions();
+        foreach (QString extn, extensions) {
+            QVERIFY(platform2.hasExtension(extn.toLatin1().constData()));
+            QVERIFY(platform2.hasExtension(extn.toUpper().toLatin1().constData()));
+        }
+        QVERIFY(!platform2.hasExtension("unknown_extension"));
+        QVERIFY(!platform2.hasExtension("cl")); // Prefix match.
+    }
+}
+
+static bool sameDeviceList(const QList<QCLDevice> &list1,
+                           const QList<QCLDevice> &list2)
+{
+    foreach (QCLDevice dev, list1) {
+        if (!list2.contains(dev))
+            return false;
+    }
+    foreach (QCLDevice dev, list2) {
+        if (!list1.contains(dev))
+            return false;
+    }
+    return true;
+}
+
+// Test the QCLDevice class.
+void tst_QCL::device()
+{
+    // Check the null device identifier.
+    QCLDevice device;
+    QVERIFY(device.isNull());
+    QVERIFY(device.deviceId() == 0);
+    QVERIFY(device.deviceType() == 0);
+    QVERIFY(device.platform().isNull());
+    QVERIFY(device == device);
+    QVERIFY(!(device != device));
+    QVERIFY(!device.isFullProfile());
+    QVERIFY(!device.isEmbeddedProfile());
+    QVERIFY(device.vendorId() == 0);
+    QVERIFY(device.profile().isEmpty());
+    QVERIFY(device.version().isEmpty());
+    QVERIFY(device.driverVersion().isEmpty());
+    QVERIFY(device.name().isEmpty());
+    QVERIFY(device.vendor().isEmpty());
+    QVERIFY(device.extensions().isEmpty());
+    QVERIFY(!device.hasExtension("cl_khr_byte_addressable_store"));
+
+    // Must have at least 1 device on the system.
+    QList<QCLDevice> devices = QCLDevice::devices();
+    QList<QCLDevice> gpus;
+    QList<QCLDevice> cpus;
+    QVERIFY(devices.size() >= 1);
+    foreach (QCLDevice device2, devices) {
+        // Should be non-null and not equal to a null device.
+        QVERIFY(!device2.isNull());
+        QVERIFY(device2.deviceId() != 0);
+        QVERIFY(device2.deviceType() != 0);
+        QVERIFY(device != device2);
+        QVERIFY(!(device == device2));
+
+        // Must be either full or embedded.
+        QVERIFY(device2.isFullProfile() || device2.isEmbeddedProfile());
+
+        // Version should start with "OpenCL ".
+        QVERIFY(device2.version().startsWith(QLatin1String("OpenCL ")));
+
+        // profile() should be consistent with isFull/EmbeddedProfile().
+        QString profile = device2.profile();
+        if (device2.isFullProfile())
+            QCOMPARE(profile, QLatin1String("FULL_PROFILE"));
+        if (device2.isEmbeddedProfile())
+            QCOMPARE(profile, QLatin1String("EMBEDDED_PROFILE"));
+
+        // Check the extension list.
+        QStringList extensions = device2.extensions();
+        foreach (QString extn, extensions) {
+            QVERIFY(device2.hasExtension(extn.toLatin1().constData()));
+            QVERIFY(device2.hasExtension(extn.toUpper().toLatin1().constData()));
+        }
+        QVERIFY(!device2.hasExtension("unknown_extension"));
+        QVERIFY(!device2.hasExtension("cl")); // Prefix match.
+
+        // Warn for device properties that may be of concern.
+        // The device may still be usable, but buggy.
+        if (!device2.isAvailable())
+            qWarning() << device2.name() << "is not available";
+        if (!device2.hasCompiler())
+            qWarning() << device2.name() << "does not have a compiler";
+        if (!device2.computeUnits())
+            qWarning() << device2.name() << "does not have any compute units";
+        if (!device2.hasImage2D()) {
+            qWarning() << device2.name() << "does not support 2D images";
+        } else {
+            QSize size = device2.maximumImage2DSize();
+            if (size.width() < 1 || size.height() < 1)
+                qWarning() << device2.name() << "has 2D images, but max size is" << size;
+        }
+        if (!device2.hasImage3D()) {
+            // It is OK for the embedded profile to not have 3D images.
+            if (!device2.isEmbeddedProfile())
+                qWarning() << device2.name() << "does not support 3D images";
+        } else {
+            QCLWorkSize size = device2.maximumImage3DSize();
+            if (size.width() < 1 || size.height() < 1 || size.depth() < 1)
+                qWarning() << device2.name() << "has 3D images, but max size is" << size.width() << size.height() << size.depth();
+        }
+
+        // Split the devices based on type.
+        if (device2.deviceType() == QCLDevice::GPU)
+            gpus.append(device2);
+        else if (device2.deviceType() == QCLDevice::CPU)
+            cpus.append(device2);
+    }
+
+    // Check that the type-specific lists are accurate.
+    QVERIFY(sameDeviceList(gpus, QCLDevice::devices(QCLDevice::GPU)));
+    QVERIFY(sameDeviceList(cpus, QCLDevice::devices(QCLDevice::CPU)));
+}
+
 // Build the OpenCL program code we will be using for the rest of the tests.
 void tst_QCL::buildProgram()
 {
     program = context.buildProgramFromSourceFile(QLatin1String(":/tst_qcl.cl"));
-    QVERIFY(!program.isNull());
+    if (program.isNull()) {
+        if (context.defaultDevice().hasCompiler())
+            QFAIL("could not compile the OpenCL test program");
+        else
+            QFAIL("OpenCL implementation does not have a compiler");
+    }
+
+    // Don't need the compiler any more.
+    QCLProgram::unloadCompiler();
 }
 
 // Tests that passing various argument types like int, float, QVector3D,
@@ -268,6 +444,269 @@ void tst_QCL::eventProfiling()
 
     queue.setProfilingEnabled(false);
     QVERIFY(!queue.isProfilingEnabled());
+}
+
+// Test QCLSampler.
+void tst_QCL::sampler()
+{
+    QCLSampler sampler;
+
+    // Check the default conditions.
+    QVERIFY(!sampler.normalizedCoordinates());
+    QVERIFY(sampler.addressingMode() == QCLSampler::ClampToEdge);
+    QVERIFY(sampler.filterMode() == QCLSampler::Linear);
+    QVERIFY(sampler.samplerId() == 0);
+    QVERIFY(sampler.context() == 0);
+    QVERIFY(sampler == sampler);
+    QVERIFY(!(sampler != sampler));
+
+    // Modify and check that the modifications are correct.
+    sampler.setNormalizedCoordinates(true);
+    sampler.setAddressingMode(QCLSampler::None);
+    sampler.setFilterMode(QCLSampler::Nearest);
+    QVERIFY(sampler.normalizedCoordinates());
+    QVERIFY(sampler.addressingMode() == QCLSampler::None);
+    QVERIFY(sampler.filterMode() == QCLSampler::Nearest);
+
+    // Check that the sampler is not the same as the default.
+    QCLSampler sampler2;
+    QVERIFY(sampler != sampler2);
+    QVERIFY(!(sampler == sampler2));
+
+    // Copy and check.
+    QCLSampler sampler3(sampler);
+    QVERIFY(sampler3.normalizedCoordinates());
+    QVERIFY(sampler3.addressingMode() == QCLSampler::None);
+    QVERIFY(sampler3.filterMode() == QCLSampler::Nearest);
+    sampler2 = sampler;
+    QVERIFY(sampler2.normalizedCoordinates());
+    QVERIFY(sampler2.addressingMode() == QCLSampler::None);
+    QVERIFY(sampler2.filterMode() == QCLSampler::Nearest);
+    QVERIFY(sampler3 == sampler);
+    QVERIFY(!(sampler3 != sampler));
+    QVERIFY(sampler2 == sampler);
+    QVERIFY(!(sampler2 != sampler));
+
+    // Modify the original and check that the copies don't change.
+    sampler.setNormalizedCoordinates(false);
+    sampler.setAddressingMode(QCLSampler::Repeat);
+    sampler.setFilterMode(QCLSampler::Linear);
+    QVERIFY(sampler3.normalizedCoordinates());
+    QVERIFY(sampler3.addressingMode() == QCLSampler::None);
+    QVERIFY(sampler3.filterMode() == QCLSampler::Nearest);
+    QVERIFY(sampler2.normalizedCoordinates());
+    QVERIFY(sampler2.addressingMode() == QCLSampler::None);
+    QVERIFY(sampler2.filterMode() == QCLSampler::Nearest);
+    QVERIFY(sampler3 == sampler2);
+    QVERIFY(!(sampler3 != sampler2));
+    QVERIFY(sampler3 != sampler);
+    QVERIFY(!(sampler3 == sampler));
+
+    // Bind the sampler to a program and check that the id changes.
+    QVERIFY(sampler3.samplerId() == 0);
+    QCLKernel useSampler = program.createKernel("useSampler");
+    useSampler(sampler3);
+    QVERIFY(sampler3.samplerId() != 0);
+    QVERIFY(sampler3.context() == &context);
+    QVERIFY(sampler2.samplerId() == 0); // Doesn't affect previous copies.
+    QVERIFY(sampler2.context() == 0);
+    sampler2 = sampler3;
+    QVERIFY(sampler3.samplerId() == sampler2.samplerId());
+    QVERIFY(sampler3.context() == sampler2.context());
+
+    // Create a sampler from a raw identifier.
+    clRetainSampler(sampler3.samplerId());
+    QCLSampler sampler4(sampler3.context(), sampler3.samplerId());
+    QVERIFY(sampler3.samplerId() == sampler4.samplerId());
+    QVERIFY(sampler3.context() == sampler4.context());
+    QVERIFY(sampler4.normalizedCoordinates());
+    QVERIFY(sampler4.addressingMode() == QCLSampler::None);
+    QVERIFY(sampler4.filterMode() == QCLSampler::Nearest);
+}
+
+// Test QCLWorkSize.
+void tst_QCL::workSize()
+{
+    QCLWorkSize size;
+    QVERIFY(size.dimensions() == 1);
+    QVERIFY(size.width() == 1);
+    QVERIFY(size.height() == 0);
+    QVERIFY(size.depth() == 0);
+
+    QCLWorkSize size1(42);
+    QVERIFY(size1.dimensions() == 1);
+    QVERIFY(size1.width() == 42);
+    QVERIFY(size1.height() == 0);
+    QVERIFY(size1.depth() == 0);
+
+    QCLWorkSize size2(42, 63);
+    QVERIFY(size2.dimensions() == 2);
+    QVERIFY(size2.width() == 42);
+    QVERIFY(size2.height() == 63);
+    QVERIFY(size2.depth() == 0);
+
+    QCLWorkSize size2b(QSize(63, 42));
+    QVERIFY(size2b.dimensions() == 2);
+    QVERIFY(size2b.width() == 63);
+    QVERIFY(size2b.height() == 42);
+    QVERIFY(size2b.depth() == 0);
+
+    QCLWorkSize size3(42, 63, 12);
+    QVERIFY(size3.dimensions() == 3);
+    QVERIFY(size3.width() == 42);
+    QVERIFY(size3.height() == 63);
+    QVERIFY(size3.depth() == 12);
+
+    QVERIFY(size != size1);
+    QVERIFY(size1 != size2);
+    QVERIFY(size2 != size3);
+    QVERIFY(!(size == size1));
+    QVERIFY(!(size1 == size2));
+    QVERIFY(!(size2 == size3));
+
+    QCLWorkSize size4(size3);
+    QVERIFY(size4.dimensions() == 3);
+    QVERIFY(size4.width() == 42);
+    QVERIFY(size4.height() == 63);
+    QVERIFY(size4.depth() == 12);
+    QVERIFY(size3 == size4);
+    QVERIFY(!(size3 != size4));
+
+    size4 = size2;
+    QVERIFY(size4.dimensions() == 2);
+    QVERIFY(size4.width() == 42);
+    QVERIFY(size4.height() == 63);
+    QVERIFY(size4.depth() == 0);
+
+    QVERIFY(size4.width() == size4.sizes()[0]);
+    QVERIFY(size4.height() == size4.sizes()[1]);
+    QVERIFY(size4.depth() == size4.sizes()[2]);
+}
+
+// Test QCLImageFormat.
+void tst_QCL::imageFormat()
+{
+    QCLImageFormat format1;
+    QVERIFY(format1.isNull());
+    QVERIFY(format1.channelOrder() == 0);
+    QVERIFY(format1.channelType() == 0);
+    QVERIFY(format1.toQImageFormat() == QImage::Format_Invalid);
+
+    QCLImageFormat format2(QCLImageFormat::Order_RGBA,
+                           QCLImageFormat::Type_Normalized_UInt16);
+    QVERIFY(!format2.isNull());
+    QVERIFY(format2.channelOrder() == QCLImageFormat::Order_RGBA);
+    QVERIFY(format2.channelType() == QCLImageFormat::Type_Normalized_UInt16);
+    QVERIFY(format2.toQImageFormat() == QImage::Format_Invalid);
+    QVERIFY(format1 != format2);
+    QVERIFY(!(format1 == format2));
+
+    QCLImageFormat format3(format2);
+    QVERIFY(format3.channelOrder() == QCLImageFormat::Order_RGBA);
+    QVERIFY(format3.channelType() == QCLImageFormat::Type_Normalized_UInt16);
+    QVERIFY(format3.toQImageFormat() == QImage::Format_Invalid);
+    QVERIFY(format3 == format2);
+    QVERIFY(!(format3 != format2));
+}
+
+void tst_QCL::qimageFormat_data()
+{
+    QTest::addColumn<int>("qformat");
+    QTest::addColumn<int>("order");
+    QTest::addColumn<int>("type");
+    QTest::addColumn<int>("resultQformat");
+    QTest::addColumn<int>("reverseQformat");
+
+    QCLImageFormat::ChannelOrder hostOrder;
+    if (QSysInfo::ByteOrder == QSysInfo::LittleEndian)
+        hostOrder = QCLImageFormat::Order_BGRA;
+    else
+        hostOrder = QCLImageFormat::Order_ARGB;
+
+    QTest::newRow("Indexed8")
+        << int(QImage::Format_Indexed8)
+        << int(QCLImageFormat::Order_A)
+        << int(QCLImageFormat::Type_Normalized_UInt8)
+        << int(QImage::Format_Indexed8)
+        << int(QImage::Format_Indexed8);
+
+    QTest::newRow("RGB32")
+        << int(QImage::Format_RGB32)
+        << int(hostOrder)
+        << int(QCLImageFormat::Type_Normalized_UInt8)
+        << int(QImage::Format_RGB32)
+        << int(QImage::Format_ARGB32);
+
+    QTest::newRow("ARGB32")
+        << int(QImage::Format_ARGB32)
+        << int(hostOrder)
+        << int(QCLImageFormat::Type_Normalized_UInt8)
+        << int(QImage::Format_ARGB32)
+        << int(QImage::Format_ARGB32);
+
+    QTest::newRow("ARGB32_Premultiplied")
+        << int(QImage::Format_ARGB32_Premultiplied)
+        << int(hostOrder)
+        << int(QCLImageFormat::Type_Normalized_UInt8)
+        << int(QImage::Format_ARGB32_Premultiplied)
+        << int(QImage::Format_ARGB32);
+
+    QTest::newRow("RGB16")
+        << int(QImage::Format_RGB16)
+        << int(QCLImageFormat::Order_RGB)
+        << int(QCLImageFormat::Type_Normalized_565)
+        << int(QImage::Format_RGB16)
+        << int(QImage::Format_RGB16);
+
+    QTest::newRow("RGB555")
+        << int(QImage::Format_RGB555)
+        << int(QCLImageFormat::Order_RGB)
+        << int(QCLImageFormat::Type_Normalized_555)
+        << int(QImage::Format_RGB555)
+        << int(QImage::Format_RGB555);
+
+    QTest::newRow("RGB888")
+        << int(QImage::Format_RGB888)
+        << int(QCLImageFormat::Order_RGB)
+        << int(QCLImageFormat::Type_Normalized_UInt8)
+        << int(QImage::Format_RGB888)
+        << int(QImage::Format_RGB888);
+
+    QTest::newRow("RGB444")
+        << int(QImage::Format_RGB444)
+        << int(0)
+        << int(0)
+        << int(QImage::Format_Invalid)
+        << int(QImage::Format_Invalid);
+
+    QTest::newRow("!Indexed8")
+        << int(QImage::Format_Invalid)
+        << int(QCLImageFormat::Order_A)
+        << int(QCLImageFormat::Type_Normalized_UInt16)
+        << int(QImage::Format_Invalid)
+        << int(QImage::Format_Invalid);
+}
+
+void tst_QCL::qimageFormat()
+{
+    QFETCH(int, qformat);
+    QFETCH(int, order);
+    QFETCH(int, type);
+    QFETCH(int, resultQformat);
+    QFETCH(int, reverseQformat);
+
+    if (qformat != int(QImage::Format_Invalid)) {
+        QCLImageFormat format1((QImage::Format)qformat);
+        QVERIFY(format1.channelOrder() == QCLImageFormat::ChannelOrder(order));
+        QVERIFY(format1.channelType() == QCLImageFormat::ChannelType(type));
+        QVERIFY(format1.toQImageFormat() == QImage::Format(resultQformat));
+    }
+
+    QCLImageFormat format2((QCLImageFormat::ChannelOrder)order,
+                           (QCLImageFormat::ChannelType)type);
+    QVERIFY(format2.channelOrder() == QCLImageFormat::ChannelOrder(order));
+    QVERIFY(format2.channelType() == QCLImageFormat::ChannelType(type));
+    QVERIFY(format2.toQImageFormat() == QImage::Format(reverseQformat));
 }
 
 QTEST_MAIN(tst_QCL)

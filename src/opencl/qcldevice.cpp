@@ -106,7 +106,7 @@ QT_BEGIN_NAMESPACE
 static uint qt_cl_paramUInt(cl_device_id id, cl_device_info name)
 {
     cl_uint value;
-    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+    if (!id || clGetDeviceInfo(id, name, sizeof(value), &value, 0)
             != CL_SUCCESS)
         return 0;
     else
@@ -116,7 +116,7 @@ static uint qt_cl_paramUInt(cl_device_id id, cl_device_info name)
 static int qt_cl_paramInt(cl_device_id id, cl_device_info name)
 {
     cl_int value;
-    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+    if (!id || clGetDeviceInfo(id, name, sizeof(value), &value, 0)
             != CL_SUCCESS)
         return 0;
     else
@@ -126,7 +126,7 @@ static int qt_cl_paramInt(cl_device_id id, cl_device_info name)
 static quint64 qt_cl_paramULong(cl_device_id id, cl_device_info name)
 {
     cl_ulong value;
-    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+    if (!id || clGetDeviceInfo(id, name, sizeof(value), &value, 0)
             != CL_SUCCESS)
         return 0;
     else
@@ -136,7 +136,7 @@ static quint64 qt_cl_paramULong(cl_device_id id, cl_device_info name)
 static size_t qt_cl_paramSize(cl_device_id id, cl_device_info name)
 {
     size_t value;
-    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+    if (!id || clGetDeviceInfo(id, name, sizeof(value), &value, 0)
             != CL_SUCCESS)
         return 0;
     else
@@ -146,7 +146,7 @@ static size_t qt_cl_paramSize(cl_device_id id, cl_device_info name)
 static bool qt_cl_paramBool(cl_device_id id, cl_device_info name)
 {
     cl_bool value;
-    if (clGetDeviceInfo(id, name, sizeof(value), &value, 0)
+    if (!id || clGetDeviceInfo(id, name, sizeof(value), &value, 0)
             != CL_SUCCESS)
         return false;
     else
@@ -156,11 +156,10 @@ static bool qt_cl_paramBool(cl_device_id id, cl_device_info name)
 static QString qt_cl_paramString(cl_device_id id, cl_device_info name)
 {
     size_t size;
-    if (clGetDeviceInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+    if (!id || clGetDeviceInfo(id, name, 0, 0, &size) != CL_SUCCESS)
         return QString();
     QVarLengthArray<char> buf(size);
-    if (clGetDeviceInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
-        return QString();
+    clGetDeviceInfo(id, name, size, buf.data(), &size);
     return QString::fromLatin1(buf.data());
 }
 
@@ -169,13 +168,12 @@ static bool qt_cl_isParamString
 {
     size_t len = qstrlen(str);
     size_t size;
-    if (clGetDeviceInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+    if (!id || clGetDeviceInfo(id, name, 0, 0, &size) != CL_SUCCESS)
         return false;
     if (size <= len)
         return false;
     QVarLengthArray<char> buf(size);
-    if (clGetDeviceInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
-        return false;
+    clGetDeviceInfo(id, name, size, buf.data(), &size);
     if (qstrncmp(buf.constData(), str, len) != 0)
         return false;
     return buf[len] == '\0';
@@ -188,7 +186,7 @@ static bool qt_cl_isParamString
 QCLDevice::DeviceTypes QCLDevice::deviceType() const
 {
     cl_device_type type;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_TYPE, sizeof(type), &type, 0)
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_TYPE, sizeof(type), &type, 0)
             != CL_SUCCESS)
         return QCLDevice::DeviceTypes(0);
     else
@@ -201,7 +199,7 @@ QCLDevice::DeviceTypes QCLDevice::deviceType() const
 QCLPlatform QCLDevice::platform() const
 {
     cl_platform_id plat;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_PLATFORM, sizeof(plat), &plat, 0)
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_PLATFORM, sizeof(plat), &plat, 0)
             != CL_SUCCESS)
         return QCLPlatform();
     else
@@ -240,7 +238,7 @@ bool QCLDevice::hasCompiler() const
 bool QCLDevice::hasNativeKernels() const
 {
     cl_device_exec_capabilities caps;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_EXECUTION_CAPABILITIES,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_EXECUTION_CAPABILITIES,
                         sizeof(caps), &caps, 0)
             != CL_SUCCESS)
         return false;
@@ -257,7 +255,7 @@ bool QCLDevice::hasNativeKernels() const
 bool QCLDevice::hasOutOfOrderExecution() const
 {
     cl_command_queue_properties props;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_QUEUE_PROPERTIES,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_QUEUE_PROPERTIES,
                         sizeof(props), &props, 0)
             != CL_SUCCESS)
         return false;
@@ -343,13 +341,12 @@ QSysInfo::Endian QCLDevice::byteOrder() const
 QCLWorkSize QCLDevice::maximumWorkItemSize() const
 {
     size_t dims = 0;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
                         sizeof(dims), &dims, 0) != CL_SUCCESS || !dims)
         return QCLWorkSize(1, 1, 1);
     QVarLengthArray<size_t> buf(dims);
-    if (clGetDeviceInfo(m_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
-                        sizeof(size_t) * dims, buf.data(), 0) != CL_SUCCESS)
-        return QCLWorkSize(1, 1, 1);
+    clGetDeviceInfo(m_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+                    sizeof(size_t) * dims, buf.data(), 0);
     if (dims == 1)
         return QCLWorkSize(buf[0]);
     else if (dims == 2)
@@ -557,7 +554,7 @@ int QCLDevice::preferredDoubleVectorSize() const
 QCLDevice::FloatCapabilities QCLDevice::floatCapabilities() const
 {
     cl_device_fp_config config;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_SINGLE_FP_CONFIG,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_SINGLE_FP_CONFIG,
                         sizeof(config), &config, 0)
             != CL_SUCCESS)
         return NotSupported;
@@ -581,7 +578,7 @@ QCLDevice::FloatCapabilities QCLDevice::floatCapabilities() const
 QCLDevice::FloatCapabilities QCLDevice::doubleCapabilities() const
 {
     cl_device_fp_config config;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_DOUBLE_FP_CONFIG,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_DOUBLE_FP_CONFIG,
                         sizeof(config), &config, 0)
             != CL_SUCCESS)
         return NotSupported;
@@ -605,7 +602,7 @@ QCLDevice::FloatCapabilities QCLDevice::doubleCapabilities() const
 QCLDevice::FloatCapabilities QCLDevice::halfFloatCapabilities() const
 {
     cl_device_fp_config config;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_HALF_FP_CONFIG,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_HALF_FP_CONFIG,
                         sizeof(config), &config, 0)
             != CL_SUCCESS)
         return NotSupported;
@@ -662,7 +659,7 @@ quint64 QCLDevice::globalMemorySize() const
 QCLDevice::CacheType QCLDevice::globalMemoryCacheType() const
 {
     cl_device_mem_cache_type type;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_GLOBAL_MEM_CACHE_TYPE,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_GLOBAL_MEM_CACHE_TYPE,
                         sizeof(type), &type, 0)
             != CL_SUCCESS)
         return NoCache;
@@ -710,7 +707,7 @@ quint64 QCLDevice::localMemorySize() const
 bool QCLDevice::isLocalMemorySeparate() const
 {
     cl_device_local_mem_type type;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_LOCAL_MEM_TYPE,
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_LOCAL_MEM_TYPE,
                         sizeof(type), &type, 0)
             != CL_SUCCESS)
         return false;
@@ -845,6 +842,8 @@ QString QCLDevice::vendor() const
 */
 QStringList QCLDevice::extensions() const
 {
+    if (!m_id)
+        return QStringList();
     return qt_cl_paramString(m_id, CL_DEVICE_EXTENSIONS).simplified().split(QChar(' '));
 }
 
@@ -886,12 +885,10 @@ bool qt_cl_has_extension(const char *list, size_t listLen, const char *name)
 bool QCLDevice::hasExtension(const char *name) const
 {
     size_t size;
-    if (clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, 0, 0, &size) != CL_SUCCESS)
+    if (!m_id || clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, 0, 0, &size) != CL_SUCCESS)
         return false;
     QVarLengthArray<char> buf(size);
-    if (clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, size,
-                        buf.data(), &size) != CL_SUCCESS)
-        return false;
+    clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, size, buf.data(), &size);
     return qt_cl_has_extension(buf.constData(), size, name);
 }
 
@@ -938,9 +935,8 @@ QList<QCLDevice> QCLDevice::devices
                            0, 0, &size) != CL_SUCCESS)
             continue;
         QVarLengthArray<cl_device_id> buf(size);
-        if (clGetDeviceIDs(platforms[plat].platformId(), cl_device_type(types),
-                           size, buf.data(), &size) != CL_SUCCESS)
-            continue;
+        clGetDeviceIDs(platforms[plat].platformId(), cl_device_type(types),
+                       size, buf.data(), &size);
         for (int index = 0; index < buf.size(); ++index)
             devs.append(QCLDevice(buf[index]));
     }

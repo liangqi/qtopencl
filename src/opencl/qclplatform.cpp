@@ -104,11 +104,10 @@ QT_BEGIN_NAMESPACE
 static QString qt_cl_platform_string(cl_platform_id id, cl_platform_info name)
 {
     size_t size;
-    if (clGetPlatformInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+    if (!id || clGetPlatformInfo(id, name, 0, 0, &size) != CL_SUCCESS)
         return QString();
     QVarLengthArray<char> buf(size);
-    if (clGetPlatformInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
-        return QString();
+    clGetPlatformInfo(id, name, size, buf.data(), &size);
     return QString::fromLatin1(buf.data());
 }
 
@@ -117,13 +116,12 @@ static bool qt_cl_is_platform
 {
     size_t len = qstrlen(str);
     size_t size;
-    if (clGetPlatformInfo(id, name, 0, 0, &size) != CL_SUCCESS)
+    if (!id || clGetPlatformInfo(id, name, 0, 0, &size) != CL_SUCCESS)
         return false;
     if (size <= len)
         return false;
     QVarLengthArray<char> buf(size);
-    if (clGetPlatformInfo(id, name, size, buf.data(), &size) != CL_SUCCESS)
-        return false;
+    clGetPlatformInfo(id, name, size, buf.data(), &size);
     if (qstrncmp(buf.constData(), str, len) != 0)
         return false;
     return buf[len] == '\0';
@@ -192,6 +190,8 @@ QString QCLPlatform::vendor() const
 */
 QStringList QCLPlatform::extensions() const
 {
+    if (!m_id)
+        return QStringList();
     return qt_cl_platform_string(m_id, CL_PLATFORM_EXTENSIONS).simplified().split(QChar(' '));
 }
 
@@ -212,13 +212,12 @@ bool qt_cl_has_extension(const char *list, size_t listLen, const char *name);
 bool QCLPlatform::hasExtension(const char *name) const
 {
     size_t size;
-    if (clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS,
-                          0, 0, &size) != CL_SUCCESS)
+    if (!m_id || clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS,
+                                   0, 0, &size) != CL_SUCCESS)
         return false;
     QVarLengthArray<char> buf(size);
-    if (clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS, size,
-                          buf.data(), &size) != CL_SUCCESS)
-        return false;
+    clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS, size,
+                      buf.data(), &size);
     return qt_cl_has_extension(buf.constData(), size, name);
 }
 
@@ -237,8 +236,7 @@ QList<QCLPlatform> QCLPlatform::platforms()
     if (clGetPlatformIDs(0, 0, &size) != CL_SUCCESS)
         return QList<QCLPlatform>();
     QVarLengthArray<cl_platform_id> buf(size);
-    if (clGetPlatformIDs(size, buf.data(), &size) != CL_SUCCESS)
-        return QList<QCLPlatform>();
+    clGetPlatformIDs(size, buf.data(), &size);
     QList<QCLPlatform> platforms;
     for (int index = 0; index < buf.size(); ++index)
         platforms.append(QCLPlatform(buf[index]));
