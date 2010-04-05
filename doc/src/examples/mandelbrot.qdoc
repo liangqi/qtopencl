@@ -49,5 +49,13 @@
 
     \image mandelbrot-screenshot.png
 
+    The \c{-native} command-line option can be supplied to compare
+    the performance of OpenCL with a native CPU implementation of
+    the same Mandelbrot algorithm.
+
+    The \c{-opengl} command-line option can be supplied to make use
+    of \l{Interoperation between OpenCL and OpenGL}{OpenCL/OpenGL
+    interoperation}.
+
     \l{index.html}{Return to Home}
 */
