@@ -102,6 +102,7 @@ unset QTDIR
 # initalize internal variables
 CFG_OPENCL=yes
 CFG_OPENCLGL=auto
+CFG_GCOV=no
 
 OPT_SHADOW=maybe
 OPT_QMAKE=
@@ -150,7 +151,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -opencl|-verbose|-v|-help|-h)
+    -opencl|-verbose|-v|-help|-h|-gcov)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -256,6 +257,13 @@ while [ "$#" -gt 0 ]; do
     openclgl)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_OPENCLGL="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    gcov)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_GCOV="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -407,6 +415,8 @@ Configure options:
     -no-openclgl ....... Do not use OpenCL/OpenGL interoperability.
  *  -openclgl .......... Use OpenCL/OpenGL interoperability.
 
+    -gcov .............. Use gcov for coverage testing (g++ only).
+
     -I <string> ........ Add an explicit include path for OpenCL.
     -L <string> ........ Add an explicit library path for OpenCL.
     -l <string> ........ Change the library name for OpenCL.
@@ -482,6 +492,13 @@ fi
 QMAKE_OPTIONS=""
 if [ "x$CFG_OPENCLGL" != "xyes" ] ; then
     QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=no_cl_gl"
+fi
+if [ "x$CFG_GCOV" = "xyes" ] ; then
+    QMAKE_OPTIONS="$QMAKE_OPTIONS LIBS*=-fprofile-arcs"
+    QMAKE_OPTIONS="$QMAKE_OPTIONS LIBS*=-ftest-coverage"
+    QMAKE_OPTIONS="$QMAKE_OPTIONS QMAKE_CXXFLAGS*=-fprofile-arcs"
+    QMAKE_OPTIONS="$QMAKE_OPTIONS QMAKE_CXXFLAGS*=-ftest-coverage"
+    QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=gcov"
 fi
 
 if $OPT_QMAKE $QMAKE_OPTIONS \

@@ -1,8 +1,12 @@
 TEMPLATE = lib
 TARGET = QtOpenCLGL
 QT += opengl
-CONFIG += dll \
-    warn_on
+gcov {
+    CONFIG += staticlib
+} else {
+    CONFIG += dll
+}
+CONFIG += warn_on
 win32 { 
     DESTDIR = ../../bin
     !static:DEFINES += QT_MAKEDLL
