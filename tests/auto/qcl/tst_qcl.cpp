@@ -68,6 +68,7 @@ private slots:
     void imageFormat();
     void qimageFormat_data();
     void qimageFormat();
+    void eventList();
 
 private:
     QCLContext context;
@@ -707,6 +708,95 @@ void tst_QCL::qimageFormat()
     QVERIFY(format2.channelOrder() == QCLImageFormat::ChannelOrder(order));
     QVERIFY(format2.channelType() == QCLImageFormat::ChannelType(type));
     QVERIFY(format2.toQImageFormat() == QImage::Format(reverseQformat));
+}
+
+// Test QCLEventList.
+void tst_QCL::eventList()
+{
+    QCLBuffer buffer = context.createBufferDevice
+        (sizeof(float) * 16, QCLMemoryObject::WriteOnly);
+
+    QCLKernel storeFloat = program.createKernel("storeFloat");
+    QCLEvent event1 = storeFloat(buffer, 5.0f);
+
+    QCLKernel storeInt = program.createKernel("storeInt");
+    QCLEvent event2 = storeInt(buffer, 7);
+
+    QCLEventList list;
+    QVERIFY(list.isEmpty());
+    QCOMPARE(list.size(), 0);
+
+    list.append(event1);
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 1);
+    QVERIFY(list.at(-1).isNull());
+    QVERIFY(list.at(0) == event1);
+    QVERIFY(list.at(1).isNull());
+    QVERIFY(list.contains(event1));
+    QVERIFY(!list.contains(event2));
+    QVERIFY(!list.contains(QCLEvent()));
+
+    list.append(event2);
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 2);
+    QVERIFY(list.at(0) == event1);
+    QVERIFY(list.at(1) == event2);
+    QVERIFY(list.contains(event1));
+    QVERIFY(list.contains(event2));
+    QVERIFY(!list.contains(QCLEvent()));
+
+    list.append(QCLEvent());    // Should be ignored.
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 2);
+    QVERIFY(list.at(0) == event1);
+    QVERIFY(list.at(1) == event2);
+    QVERIFY(list.contains(event1));
+    QVERIFY(list.contains(event2));
+    QVERIFY(!list.contains(QCLEvent()));
+
+    // We should be able to wait as many times as we'd like.
+    list.waitForFinished();
+    list.waitForFinished();
+
+    list.remove(event1);
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 1);
+    QVERIFY(list.at(0) == event2);
+    QVERIFY(list.contains(event2));
+    QVERIFY(!list.contains(event1));
+    QVERIFY(!list.contains(QCLEvent()));
+
+    QCLEventList list2;
+    list2.append(event1);
+    list.append(list2);
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 2);
+    QVERIFY(list.at(0) == event2);
+    QVERIFY(list.at(1) == event1);
+    QVERIFY(list.contains(event1));
+    QVERIFY(list.contains(event2));
+    QVERIFY(!list.contains(QCLEvent()));
+
+    list.append(event2);
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 3);
+    QVERIFY(list.at(0) == event2);
+    QVERIFY(list.at(1) == event1);
+    QVERIFY(list.at(2) == event2);
+    QVERIFY(list.contains(event1));
+    QVERIFY(list.contains(event2));
+    QVERIFY(!list.contains(QCLEvent()));
+
+    // Wait on a list with multiple copies of the same event.
+    list.waitForFinished();
+
+    list.remove(event2);
+    QVERIFY(!list.isEmpty());
+    QCOMPARE(list.size(), 1);
+    QVERIFY(list.at(0) == event1);
+    QVERIFY(list.contains(event1));
+    QVERIFY(!list.contains(event2));
+    QVERIFY(!list.contains(QCLEvent()));
 }
 
 QTEST_MAIN(tst_QCL)
