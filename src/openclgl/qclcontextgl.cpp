@@ -220,7 +220,7 @@ bool QCLContextGL::create()
         id = clCreateContextFromType
             (0, deviceType, qt_clgl_context_notify, 0, &error);
     }
-    if (!id && error == CL_INVALID_PLATFORM && plat.isNull()) {
+    if (!id && plat.isNull()) {
         // Some OpenCL implementations seem to fail if a non-specific
         // platform is supplied.  Try again with an explicit device.
         cl_device_id dev = gpu.deviceId();
