@@ -74,6 +74,10 @@ else
 fi
 
 [ -x "$EXE" ] && SUCCESS=yes
+ 
+if [ "$SUCCESS" != "yes" ]; then
+   [ -x "opencl.app/Contents/MacOS/$EXE" ] && SUCCESS=yes
+fi
 
 # done
 if [ "$SUCCESS" != "yes" ]; then
