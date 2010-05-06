@@ -296,9 +296,9 @@ void BezierWidget::computeVerticesNative()
     computeMatrices();
     allocVertices();
 
-#ifdef USE_VBOS
     QVector4D *posns;
     QVector2D *texcs;
+#ifdef USE_VBOS
     if (vertexBuffer) {
         vertexBuffer->bind();
         void *mapped = vertexBuffer->map(QGLBuffer::WriteOnly);
