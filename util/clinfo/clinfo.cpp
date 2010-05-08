@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
         printMemorySize(dev.localMemorySize());
         printf("    Global Memory     : ");
         printMemorySize(dev.globalMemorySize());
-        QCLDevice::CacheType cacheType;
+        QCLDevice::CacheType cacheType = dev.globalMemoryCacheType();
         printf("    Global Cache Type : ");
         if (cacheType == QCLDevice::ReadOnlyCache)
             printf("ReadOnly\n");
