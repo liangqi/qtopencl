@@ -79,6 +79,7 @@ public:
     bool isCreated;
     QCLCommandQueue commandQueue;
     QCLCommandQueue defaultCommandQueue;
+    QCLDevice defaultDevice;
     cl_int lastError;
 };
 
@@ -228,6 +229,7 @@ void QCLContext::release()
         d->defaultCommandQueue = QCLCommandQueue();
         clReleaseContext(d->id);
         d->id = 0;
+        d->defaultDevice = QCLDevice();
         d->isCreated = false;
     }
 }
@@ -292,8 +294,8 @@ QList<QCLDevice> QCLContext::devices() const
 }
 
 /*!
-    Returns the default device in use by this context, which is the
-    first element of the devices() list; or a null QCLDevice if the
+    Returns the default device in use by this context, which is typically
+    the first element of the devices() list; or a null QCLDevice if the
     context has not been created yet.
 
     \sa devices()
@@ -302,6 +304,8 @@ QCLDevice QCLContext::defaultDevice() const
 {
     Q_D(const QCLContext);
     if (d->isCreated) {
+        if (!d->defaultDevice.isNull())
+            return d->defaultDevice;
         size_t size = 0;
         if (clGetContextInfo(d->id, CL_CONTEXT_DEVICES, 0, 0, &size)
                 == CL_SUCCESS && size > 0) {
@@ -1191,6 +1195,18 @@ void QCLContext::barrier(const QCLEventList &events)
     cl_int error = clEnqueueWaitForEvents
         (activeQueue(), events.size(), events.eventData());
     reportError("QCLContext::barrier(QCLEventList):", error);
+}
+
+/*!
+    \internal
+
+    Used by QCLContextGL::create() to set the default device found
+    by querying CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR.
+*/
+void QCLContext::setDefaultDevice(const QCLDevice &device)
+{
+    Q_D(QCLContext);
+    d->defaultDevice = device;
 }
 
 /*!

@@ -105,11 +105,21 @@ static void qt_clgl_context_notify(const char *errinfo,
 
 };
 
+#if !defined(CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR)
+#define CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR 0x2006
+#endif
+
+#if !defined(CL_DEVICES_FOR_GL_CONTEXT_KHR)
+#define CL_DEVICES_FOR_GL_CONTEXT_KHR 0x2007
+#endif
+
+#if !defined(CL_GL_CONTEXT_KHR)
 #define CL_GL_CONTEXT_KHR           0x2008
 #define CL_EGL_DISPLAY_KHR          0x2009
 #define CL_GLX_DISPLAY_KHR          0x200A
 #define CL_WGL_HDC_KHR              0x200B
 #define CL_CGL_SHAREGROUP_KHR       0x200C
+#endif
 
 /*!
     Creates an OpenCL context that is compatible with the current
@@ -156,6 +166,9 @@ bool QCLContextGL::create(const QCLPlatform &platform)
         return false;
     }
     QCLDevice gpu = devices[0];
+    QVarLengthArray<cl_device_id> devs;
+    foreach (QCLDevice dev, devices)
+        devs.append(dev.deviceId());
 
     // Add the platform identifier to the properties.
     QVarLengthArray<cl_context_properties> properties;
@@ -204,19 +217,49 @@ bool QCLContextGL::create(const QCLPlatform &platform)
 #endif // !QT_NO_CL_OPENGL
     properties.append(0);
 
+#ifndef QT_NO_CL_OPENGL
+    // Query the actual OpenCL devices we should use with the OpenGL context.
+    typedef cl_int (*q_PFNCLGETGLCONTEXTINFOKHR)
+        (const cl_context_properties *, cl_uint, size_t, void *, size_t *);
+    q_PFNCLGETGLCONTEXTINFOKHR getGLContextInfo =
+        (q_PFNCLGETGLCONTEXTINFOKHR)clGetExtensionFunctionAddress
+            ("clGetGLContextInfoKHR");
+    if (getGLContextInfo && hasSharing) {
+        cl_uint size;
+        cl_device_id currentDev;
+        if(getGLContextInfo(properties.data(),
+                            CL_DEVICES_FOR_GL_CONTEXT_KHR,
+                            0, 0, &size) == CL_SUCCESS && size > 0) {
+            QVarLengthArray<cl_device_id> buf(size / sizeof(cl_device_id));
+            getGLContextInfo(properties.data(),
+                             CL_DEVICES_FOR_GL_CONTEXT_KHR,
+                             size, buf.data(), 0);
+            devs = buf;
+            gpu = QCLDevice(devs[0]);
+        }
+        if (getGLContextInfo(properties.data(),
+                             CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
+                             sizeof(currentDev), &currentDev, 0)
+                == CL_SUCCESS) {
+            gpu = QCLDevice(currentDev);
+        }
+    }
+#endif
+
     // Create the OpenCL context.
     cl_context id;
     cl_int error;
-    cl_device_id dev = gpu.deviceId();
     id = clCreateContext
-        (properties.data(), 1, &dev, qt_clgl_context_notify, 0, &error);
+        (properties.data(), devs.size(), devs.data(),
+         qt_clgl_context_notify, 0, &error);
     if (!id && hasSharing) {
         // Try again without the sharing parameters.
         properties.resize(2);
         properties.append(0);
         hasSharing = false;
         id = clCreateContext
-            (properties.data(), 1, &dev, qt_clgl_context_notify, 0, &error);
+            (properties.data(), devs.size(), devs.data(),
+             qt_clgl_context_notify, 0, &error);
     }
     setLastError(error);
     if (id == 0) {
@@ -226,6 +269,7 @@ bool QCLContextGL::create(const QCLPlatform &platform)
         d->supportsSharing = hasSharing;
         setContextId(id);
         clReleaseContext(id);   // setContextId() adds an extra reference.
+        setDefaultDevice(gpu);
     }
     return id != 0;
 }

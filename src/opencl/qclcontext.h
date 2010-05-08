@@ -147,6 +147,9 @@ public:
     void barrier();
     void barrier(const QCLEventList &events);
 
+protected:
+    void setDefaultDevice(const QCLDevice &device);
+
 private:
     QScopedPointer<QCLContextPrivate> d_ptr;
 
