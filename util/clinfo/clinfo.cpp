@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     }
 
     printf("OpenCL Devices:\n");
-    QList<QCLDevice> devices = QCLDevice::devices();
+    QList<QCLDevice> devices = QCLDevice::allDevices();
     foreach (QCLDevice dev, devices) {
         printf("    Device ID         : %ld\n", long(dev.deviceId()));
         printf("    Platform ID       : %ld\n", long(dev.platform().platformId()));

@@ -899,46 +899,58 @@ bool QCLDevice::hasExtension(const char *name) const
 */
 
 /*!
-    \overload
-    Returns a list of all OpenCL devices that match \a types on
-    all platforms on this system.
+    Returns a list of all OpenCL devices on all platforms on this system.
+
+    \sa devices()
 */
-QList<QCLDevice> QCLDevice::devices(QCLDevice::DeviceTypes types)
+QList<QCLDevice> QCLDevice::allDevices()
 {
-    return devices(types, QCLPlatform::platforms());
+    QList<QCLPlatform> platforms = QCLPlatform::platforms();
+    QList<QCLDevice> devs;
+    for (int plat = 0; plat < platforms.size(); ++plat) {
+        cl_uint size;
+        if (clGetDeviceIDs(platforms[plat].platformId(), CL_DEVICE_TYPE_ALL,
+                           0, 0, &size) != CL_SUCCESS)
+            continue;
+        QVarLengthArray<cl_device_id> buf(size);
+        clGetDeviceIDs(platforms[plat].platformId(), CL_DEVICE_TYPE_ALL,
+                       size, buf.data(), &size);
+        for (int index = 0; index < buf.size(); ++index)
+            devs.append(QCLDevice(buf[index]));
+    }
+    return devs;
 }
 
 /*!
-    \overload
     Returns a list of all OpenCL devices that match \a types on
-    \a platform on this system.
+    \a platform on this system.  If \a platform is null, then
+    the first platform that has devices matching \a types will
+    be used.
+
+    \sa allDevices()
 */
 QList<QCLDevice> QCLDevice::devices
     (QCLDevice::DeviceTypes types, const QCLPlatform &platform)
 {
-    QList<QCLPlatform> platforms;
-    platforms.append(platform);
-    return devices(types, platforms);
-}
-
-/*!
-    Returns a list of all OpenCL devices that match \a types on
-    the specified \a platforms list.
-*/
-QList<QCLDevice> QCLDevice::devices
-    (QCLDevice::DeviceTypes types, const QList<QCLPlatform> &platforms)
-{
     QList<QCLDevice> devs;
+    QList<QCLPlatform> platforms;
+    if (platform.isNull())
+        platforms = QCLPlatform::platforms();
+    else
+        platforms.append(platform);
     for (int plat = 0; plat < platforms.size(); ++plat) {
         cl_uint size;
         if (clGetDeviceIDs(platforms[plat].platformId(), cl_device_type(types),
                            0, 0, &size) != CL_SUCCESS)
+            continue;
+        if (!size)
             continue;
         QVarLengthArray<cl_device_id> buf(size);
         clGetDeviceIDs(platforms[plat].platformId(), cl_device_type(types),
                        size, buf.data(), &size);
         for (int index = 0; index < buf.size(); ++index)
             devs.append(QCLDevice(buf[index]));
+        break;
     }
     return devs;
 }

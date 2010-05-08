@@ -158,11 +158,10 @@ public:
 
     cl_device_id deviceId() const { return m_id; }
 
-    static QList<QCLDevice> devices(QCLDevice::DeviceTypes types = All);
+    static QList<QCLDevice> allDevices();
     static QList<QCLDevice> devices
-        (QCLDevice::DeviceTypes types, const QCLPlatform &platform);
-    static QList<QCLDevice> devices
-        (QCLDevice::DeviceTypes types, const QList<QCLPlatform> &platforms);
+        (QCLDevice::DeviceTypes types,
+         const QCLPlatform &platform = QCLPlatform());
 
     bool operator==(const QCLDevice &other) const;
     bool operator!=(const QCLDevice &other) const;

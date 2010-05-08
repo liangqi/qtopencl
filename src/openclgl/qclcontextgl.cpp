@@ -113,15 +113,20 @@ static void qt_clgl_context_notify(const char *errinfo,
 
 /*!
     Creates an OpenCL context that is compatible with the current
-    QGLContext.  Returns false if there is no OpenGL context current or
-    the OpenCL context could not be created for some reason.
+    QGLContext and \a platform.  Returns false if there is no OpenGL
+    context current or the OpenCL context could not be created for
+    some reason.
 
     This function will first try to create a QCLDevice::GPU device,
     and will then fall back to QCLDevice::Default if a GPU is not found.
 
+    If \a platform is null, then the first platform that has a GPU
+    will be used.  If there is no GPU, then the first platform with a
+    default device will be used.
+
     \sa supportsObjectSharing()
 */
-bool QCLContextGL::create()
+bool QCLContextGL::create(const QCLPlatform &platform)
 {
     Q_D(QCLContextGL);
 
@@ -137,21 +142,13 @@ bool QCLContextGL::create()
     }
 
     // Find the first gpu device.
-    QCLPlatform plat = platform();
     QList<QCLDevice> devices;
     cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
-    if (plat.isNull()) {
-        devices = QCLDevice::devices(QCLDevice::GPU);
-        if (devices.isEmpty()) {
-            devices = QCLDevice::devices(QCLDevice::Default);
-            deviceType = CL_DEVICE_TYPE_DEFAULT;
-        }
-    } else {
-        devices = QCLDevice::devices(QCLDevice::GPU, plat);
-        if (devices.isEmpty()) {
-            devices = QCLDevice::devices(QCLDevice::Default, plat);
-            deviceType = CL_DEVICE_TYPE_DEFAULT;
-        }
+    devices = QCLDevice::devices(QCLDevice::GPU, platform);
+    if (devices.isEmpty()) {
+        // Find the first default device.
+        devices = QCLDevice::devices(QCLDevice::Default, platform);
+        deviceType = CL_DEVICE_TYPE_DEFAULT;
     }
     if (devices.isEmpty()) {
         qWarning() << "QCLContextGL::create: no gpu devices found";
@@ -160,17 +157,14 @@ bool QCLContextGL::create()
     }
     QCLDevice gpu = devices[0];
 
-    // Add the platform identifier to the properties, if present.
+    // Add the platform identifier to the properties.
     QVarLengthArray<cl_context_properties> properties;
-    if (!plat.isNull()) {
-        properties.append(CL_CONTEXT_PLATFORM);
-        properties.append(cl_context_properties(plat.platformId()));
-    }
+    properties.append(CL_CONTEXT_PLATFORM);
+    properties.append(cl_context_properties(gpu.platform().platformId()));
 
     bool hasSharing = false;
 #ifndef QT_NO_CL_OPENGL
     // Determine what kind of OpenCL-OpenGL sharing we have and enable it.
-    QStringList extensions = gpu.extensions();
 #if defined(__APPLE__) || defined(__MACOSX)
     bool appleSharing = gpu.hasExtension("cl_apple_gl_sharing");
     if (appleSharing) {
@@ -208,33 +202,21 @@ bool QCLContextGL::create()
 #endif
 #endif
 #endif // !QT_NO_CL_OPENGL
+    properties.append(0);
 
     // Create the OpenCL context.
     cl_context id;
     cl_int error;
-    if (!properties.isEmpty()) {
-        id = clCreateContextFromType
-            (properties.data(), deviceType,
-             qt_clgl_context_notify, 0, &error);
-    } else {
-        id = clCreateContextFromType
-            (0, deviceType, qt_clgl_context_notify, 0, &error);
-    }
-    if (!id && plat.isNull()) {
-        // Some OpenCL implementations seem to fail if a non-specific
-        // platform is supplied.  Try again with an explicit device.
-        cl_device_id dev = gpu.deviceId();
-        if (!properties.isEmpty()) {
-            id = clCreateContext
-                (properties.data(), 1, &dev,
-                 qt_clgl_context_notify, 0, &error);
-        }
-        if (!id && error == CL_INVALID_VALUE) {
-            // One more try - remove the GL properties.
-            id = clCreateContext
-                (0, 1, &dev, qt_clgl_context_notify, 0, &error);
-            hasSharing = false;
-        }
+    cl_device_id dev = gpu.deviceId();
+    id = clCreateContext
+        (properties.data(), 1, &dev, qt_clgl_context_notify, 0, &error);
+    if (!id && hasSharing) {
+        // Try again without the sharing parameters.
+        properties.resize(2);
+        properties.append(0);
+        hasSharing = false;
+        id = clCreateContext
+            (properties.data(), 1, &dev, qt_clgl_context_notify, 0, &error);
     }
     setLastError(error);
     if (id == 0) {

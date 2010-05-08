@@ -77,7 +77,6 @@ public:
 
     cl_context id;
     bool isCreated;
-    QCLPlatform platform;
     QCLCommandQueue commandQueue;
     QCLCommandQueue defaultCommandQueue;
     cl_int lastError;
@@ -112,35 +111,6 @@ bool QCLContext::isCreated() const
     return d->isCreated;
 }
 
-/*!
-    Returns the platform that the context will be created within
-    when create() is called.  The default is a null QCLPlatform,
-    which indicates that no specific platform is required.
-
-    After the context has been created, the actual platform in use
-    by the context can be retrieved by calling QCLDevice::platform()
-    on defaultDevice().
-
-    \sa setPlatform(), create()
-*/
-QCLPlatform QCLContext::platform() const
-{
-    Q_D(const QCLContext);
-    return d->platform;
-}
-
-/*!
-    Sets the \a platform to be used when the context is created
-    by create().
-
-    \sa platform(), create()
-*/
-void QCLContext::setPlatform(const QCLPlatform &platform)
-{
-    Q_D(QCLContext);
-    d->platform = platform;
-}
-
 extern "C" {
 
 static void qt_cl_context_notify(const char *errinfo,
@@ -157,9 +127,17 @@ static void qt_cl_context_notify(const char *errinfo,
 };
 
 /*!
-    Creates a new OpenCL context that matches platform() and
-    \a type.  Does nothing if the context has already been created.
-    The default value for \a type is QCLDevice::Default.
+    Creates a new OpenCL context that matches \a type.  Does nothing
+    if the context has already been created.  The default value for
+    \a type is QCLDevice::Default.
+
+    This function will search for the first platform that has a device
+    that matches \a type.  The following code can be used to select
+    devices that match \a type on a specific platform:
+
+    \code
+    context.create(QCLDevice::devices(type, platform));
+    \endcode
 
     Returns true if the context was created; false otherwise.
     On error, the status can be retrieved by calling lastError().
@@ -171,29 +149,25 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
     Q_D(QCLContext);
     if (d->isCreated)
         return true;
-    if (!d->platform.isNull()) {
+    // The "cl_khr_icd" extension says that a null platform cannot
+    // be supplied to OpenCL any more, so find the first platform
+    // that has devices that match "type".
+    QList<QCLDevice> devices = QCLDevice::devices(type);
+    if (!devices.isEmpty()) {
+        QVector<cl_device_id> devs;
+        foreach (QCLDevice dev, devices)
+            devs.append(dev.deviceId());
         cl_context_properties props[] = {
             CL_CONTEXT_PLATFORM,
-            cl_context_properties(d->platform.platformId()),
+            cl_context_properties(devices[0].platform().platformId()),
             0
         };
-        d->id = clCreateContextFromType
-            (props, cl_device_type(type),
+        d->id = clCreateContext
+            (props, devs.size(), devs.constData(),
              qt_cl_context_notify, 0, &(d->lastError));
     } else {
-        d->id = clCreateContextFromType
-            (0, cl_device_type(type),
-             qt_cl_context_notify, 0, &(d->lastError));
-        if (!d->id && d->lastError == CL_INVALID_PLATFORM) {
-            // Some OpenCL implementations seem to fail if a non-specific
-            // platform is supplied.  Try again with a device instead.
-            QList<QCLDevice> devs = QCLDevice::devices(type);
-            if (!devs.isEmpty()) {
-                cl_device_id dev = devs[0].deviceId();
-                d->id = clCreateContext
-                    (0, 1, &dev, qt_cl_context_notify, 0, &(d->lastError));
-            }
-        }
+        d->lastError = CL_DEVICE_NOT_FOUND;
+        d->id = 0;
     }
     d->isCreated = (d->id != 0);
     if (!d->isCreated) {
@@ -204,8 +178,9 @@ bool QCLContext::create(QCLDevice::DeviceTypes type)
 }
 
 /*!
-    Creates a new OpenCL context that matches platform() and
-    \a devices.  Does nothing if the context has already been created.
+    Creates a new OpenCL context that matches \a devices.  Does nothing
+    if the context has already been created.  All of the \a devices must
+    be associated with the same platform.
 
     Returns true if the context was created; false otherwise.
     On error, the status can be retrieved by calling lastError().
@@ -217,23 +192,22 @@ bool QCLContext::create(const QList<QCLDevice> &devices)
     Q_D(QCLContext);
     if (d->isCreated)
         return true;
+    if (devices.isEmpty()) {
+        reportError("QCLContext::create:", CL_INVALID_VALUE);
+        return false;
+    }
     QVector<cl_device_id> devs;
     foreach (QCLDevice dev, devices)
         devs.append(dev.deviceId());
-    if (!d->platform.isNull()) {
-        cl_context_properties props[] = {
-            CL_CONTEXT_PLATFORM,
-            intptr_t(d->platform.platformId()),
-            0
-        };
-        d->id = clCreateContext
-            (props, devs.size(), devs.constData(),
-             qt_cl_context_notify, 0, &(d->lastError));
-    } else {
-        d->id = clCreateContext
-            (0, devs.size(), devs.constData(),
-             qt_cl_context_notify, 0, &(d->lastError));
-    }
+    cl_platform_id platform = devices[0].platform().platformId();
+    cl_context_properties props[] = {
+        CL_CONTEXT_PLATFORM,
+        intptr_t(platform),
+        0
+    };
+    d->id = clCreateContext
+        (props, devs.size(), devs.constData(),
+         qt_cl_context_notify, 0, &(d->lastError));
     d->isCreated = (d->id != 0);
     if (!d->isCreated)
         qWarning() << "QCLContext::create:" << errorName(d->lastError);

@@ -185,7 +185,7 @@ void tst_QCL::device()
     QVERIFY(!device.hasExtension("cl_khr_byte_addressable_store"));
 
     // Must have at least 1 device on the system.
-    QList<QCLDevice> devices = QCLDevice::devices();
+    QList<QCLDevice> devices = QCLDevice::allDevices();
     QList<QCLDevice> gpus;
     QList<QCLDevice> cpus;
     QVERIFY(devices.size() >= 1);
