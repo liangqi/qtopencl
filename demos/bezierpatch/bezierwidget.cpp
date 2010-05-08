@@ -98,6 +98,7 @@ BezierWidget::BezierWidget(QWidget *parent)
     , lastSubdivisionSize(-1)
     , textureId(0)
     , vertexBuffer(0)
+    , texBuffer(0)
     , indexBuffer(0)
 {
     setAutoFillBackground(false);
@@ -124,13 +125,6 @@ BezierWidget::BezierWidget(QWidget *parent)
     camera.setCenter(QVector3D(1.5f, 0.0f, 1.5f));
     camera.setEye(QVector3D(-6.0f, 5.0f, 6.0f));
 
-    if (!context.create())
-        qFatal("Could not create OpenCL context");
-
-    program = context.buildProgramFromSourceFile(QLatin1String(":/bezierpatch.cl"));
-    evaluateBezier = program.createKernel("evaluateBezier");
-    evaluateBezier.setLocalWorkSize(8, 8);
-
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer->start(0);
@@ -140,6 +134,7 @@ BezierWidget::BezierWidget(QWidget *parent)
 
 BezierWidget::~BezierWidget()
 {
+    freeVertices();
 }
 
 void BezierWidget::resizeGL(int width, int height)
@@ -149,6 +144,13 @@ void BezierWidget::resizeGL(int width, int height)
 
 void BezierWidget::initializeGL()
 {
+    if (!context.create())
+        qFatal("Could not create OpenCL context");
+
+    program = context.buildProgramFromSourceFile(QLatin1String(":/bezierpatch.cl"));
+    evaluateBezier = program.createKernel("evaluateBezier");
+    evaluateBezier.setLocalWorkSize(8, 8);
+
     glEnable(GL_DEPTH_TEST);
 
     textureImage = QImage(QLatin1String(":/qtlogo.png"));
@@ -193,8 +195,10 @@ void BezierWidget::paintGL()
     if (vertexBuffer) {
         vertexBuffer->bind();
         glVertexPointer(4, GL_FLOAT, 0, 0);
-        glTexCoordPointer(2, GL_FLOAT, 0, (void *)(sizeof(GLfloat) * 4 * numVertices));
         vertexBuffer->release();
+        texBuffer->bind();
+        glTexCoordPointer(2, GL_FLOAT, 0, 0);
+        texBuffer->release();
     } else {
         glVertexPointer(4, GL_FLOAT, 0, positions);
         glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
@@ -238,6 +242,7 @@ void BezierWidget::paintGL()
 void BezierWidget::setUseOpenCL(bool value)
 {
     useOpenCL = value;
+    freeVertices();
     frameRate.start();
 }
 
@@ -298,22 +303,20 @@ void BezierWidget::computeVerticesNative()
 
     QVector4D *posns;
     QVector2D *texcs;
+
 #ifdef USE_VBOS
     if (vertexBuffer) {
         vertexBuffer->bind();
         void *mapped = vertexBuffer->map(QGLBuffer::WriteOnly);
         posns = (QVector4D *)mapped;
-        texcs = (QVector2D *)(((uchar *)mapped) +
-                              numVertices * sizeof(GLfloat) * 4);
     } else {
         posns = positions;
-        texcs = texCoords;
     }
 #else
     posns = positions;
-    texcs = texCoords;
 #endif
 
+    // Compute the positions.
     for (int sint = 0; sint < subdivisionSize; ++sint) {
         qreal s = qreal(sint) / (subdivisionSize - 1);
         QVector4D svec = QVector4D(s * s * s, s * s, s, 1);
@@ -325,7 +328,6 @@ void BezierWidget::computeVerticesNative()
             qreal z = QVector4D::dotProduct(svec * matrixZ, tvec);
             int offset = sint + tint * subdivisionSize;
             posns[offset] = QVector4D(x, y, z, 1);
-            texcs[offset] = QVector2D(s, t);
         }
     }
 
@@ -333,6 +335,30 @@ void BezierWidget::computeVerticesNative()
     if (vertexBuffer) {
         vertexBuffer->unmap();
         vertexBuffer->release();
+        texBuffer->bind();
+        void *mapped = texBuffer->map(QGLBuffer::WriteOnly);
+        texcs = (QVector2D *)mapped;
+    } else {
+        texcs = texCoords;
+    }
+#else
+    texcs = texCoords;
+#endif
+
+    // Compute the texture co-ordinates.
+    for (int sint = 0; sint < subdivisionSize; ++sint) {
+        qreal s = qreal(sint) / (subdivisionSize - 1);
+        for (int tint = 0; tint < subdivisionSize; ++tint) {
+            qreal t = qreal(tint) / (subdivisionSize - 1);
+            int offset = sint + tint * subdivisionSize;
+            texcs[offset] = QVector2D(s, t);
+        }
+    }
+
+#ifdef USE_VBOS
+    if (texBuffer) {
+        texBuffer->unmap();
+        texBuffer->release();
     }
 #endif
 }
@@ -342,21 +368,35 @@ void BezierWidget::computeVerticesCL()
     computeMatrices();
     allocVertices();
 
+#ifdef USE_VBOS
+    if (vertexBuffer && context.supportsObjectSharing()) {
+        // Acquire the vertex buffers from OpenGL.
+        context.acquire(positionBuffer);
+        context.acquire(texCoordBuffer);
+    }
+#endif
+
     evaluateBezier.setGlobalWorkSize(subdivisionSize, subdivisionSize);
     evaluateBezier(positionBuffer, texCoordBuffer,
                    matrixX, matrixY, matrixZ, subdivisionSize);
 
 #ifdef USE_VBOS
-    if (vertexBuffer) {
-        // Read the results directly into the vertex buffer.
+    if (vertexBuffer && context.supportsObjectSharing()) {
+        // Release the vertex buffers from OpenCL back to OpenGL.
+        context.release(positionBuffer);
+        context.release(texCoordBuffer).waitForFinished();
+    } else if (vertexBuffer) {
+        // Read the results directly into the vertex buffers.
         vertexBuffer->bind();
         GLfloat *mapped = (GLfloat *)vertexBuffer->map(QGLBuffer::WriteOnly);
-        GLfloat *posns = mapped;
-        GLfloat *texcs = mapped + numVertices * 4;
-        positionBuffer.read(posns, numVertices * sizeof(GLfloat) * 4);
-        texCoordBuffer.read(texcs, numVertices * sizeof(GLfloat) * 2);
+        positionBuffer.read(mapped, numVertices * sizeof(GLfloat) * 4);
         vertexBuffer->unmap();
         vertexBuffer->release();
+        texBuffer->bind();
+        mapped = (GLfloat *)texBuffer->map(QGLBuffer::WriteOnly);
+        texCoordBuffer.read(mapped, numVertices * sizeof(GLfloat) * 2);
+        texBuffer->unmap();
+        texBuffer->release();
     } else {
         positionBuffer.read(positions, numVertices * sizeof(GLfloat) * 4);
         texCoordBuffer.read(texCoords, numVertices * sizeof(GLfloat) * 2);
@@ -388,23 +428,45 @@ void BezierWidget::allocVertices()
     if (!vertexBuffer) {
         vertexBuffer = new QGLBuffer(QGLBuffer::VertexBuffer);
         vertexBuffer->setUsagePattern(QGLBuffer::DynamicDraw);
-        if (!vertexBuffer->create()) {
+        texBuffer = new QGLBuffer(QGLBuffer::VertexBuffer);
+        texBuffer->setUsagePattern(QGLBuffer::DynamicDraw);
+        if (!vertexBuffer->create() || !texBuffer->create()) {
             delete vertexBuffer;
             vertexBuffer = 0;
+            delete texBuffer;
+            texBuffer = 0;
         }
     }
     if (vertexBuffer) {
         vertexBuffer->bind();
-        vertexBuffer->allocate(sizeof(GLfloat) * 6 * num);
+        vertexBuffer->allocate(sizeof(GLfloat) * 4 * num);
         if (!vertexBuffer->map(QGLBuffer::WriteOnly)) {
             // No point using a vertex buffer if we cannot map it.
             vertexBuffer->unmap();
             vertexBuffer->release();
             delete vertexBuffer;
             vertexBuffer = 0;
+            delete texBuffer;
+            texBuffer = 0;
         } else {
             vertexBuffer->unmap();
             vertexBuffer->release();
+        }
+    }
+    if (texBuffer) {
+        texBuffer->bind();
+        texBuffer->allocate(sizeof(GLfloat) * 2 * num);
+        if (!texBuffer->map(QGLBuffer::WriteOnly)) {
+            // No point using a vertex buffer if we cannot map it.
+            texBuffer->unmap();
+            texBuffer->release();
+            delete vertexBuffer;
+            vertexBuffer = 0;
+            delete texBuffer;
+            texBuffer = 0;
+        } else {
+            texBuffer->unmap();
+            texBuffer->release();
         }
     }
 #endif
@@ -441,9 +503,49 @@ void BezierWidget::allocVertices()
     }
 #endif
 
-    // Allocate OpenCL buffers of the right size.
-    positionBuffer = context.createBufferDevice
-        (num * sizeof(GLfloat) * 4, QCLMemoryObject::WriteOnly);
-    texCoordBuffer = context.createBufferDevice
-        (num * sizeof(GLfloat) * 2, QCLMemoryObject::WriteOnly);
+    // Allocate OpenCL buffers of the right size, directly on top of
+    // the OpenGL vertex buffers if possible.
+#ifdef USE_VBOS
+    if (context.supportsObjectSharing()) {
+        positionBuffer = context.createGLBuffer
+            (vertexBuffer, QCLMemoryObject::WriteOnly);
+        texCoordBuffer = context.createGLBuffer
+            (texBuffer, QCLMemoryObject::WriteOnly);
+    } else
+#endif
+    {
+        positionBuffer = context.createBufferDevice
+            (num * sizeof(GLfloat) * 4, QCLMemoryObject::WriteOnly);
+        texCoordBuffer = context.createBufferDevice
+            (num * sizeof(GLfloat) * 2, QCLMemoryObject::WriteOnly);
+    }
+}
+
+void BezierWidget::freeVertices()
+{
+    positionBuffer = QCLBuffer();
+    texCoordBuffer = QCLBuffer();
+    if (positions) {
+        qFree(positions);
+        positions = 0;
+    }
+    if (texCoords) {
+        qFree(texCoords);
+        texCoords = 0;
+    }
+    if (indices) {
+        qFree(indices);
+        indices = 0;
+    }
+#ifdef USE_VBOS
+    delete vertexBuffer;
+    delete texBuffer;
+    delete indexBuffer;
+    vertexBuffer = 0;
+    texBuffer = 0;
+    indexBuffer = 0;
+#endif
+    lastSubdivisionSize = -1;
+    numVertices = 0;
+    numIndices = 0;
 }

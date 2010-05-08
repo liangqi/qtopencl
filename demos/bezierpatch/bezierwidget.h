@@ -47,7 +47,7 @@
 #include <QtGui/qvector2d.h>
 #include <QtGui/qvector3d.h>
 #include <QtGui/qvector4d.h>
-#include "qclcontext.h"
+#include "qclcontextgl.h"
 #include "qglcamera.h"
 #include "framerate.h"
 
@@ -75,7 +75,7 @@ private slots:
 private:
     bool useOpenCL;
 
-    QCLContext context;
+    QCLContextGL context;
 
     QCLProgram program;
     QCLKernel evaluateBezier;
@@ -91,6 +91,7 @@ private:
     QMatrix4x4 matrixZ;
     QVector3D cp[16];
 
+    void *vertices;
     QVector4D *positions;
     QVector2D *texCoords;
 #ifdef QT_OPENGL_ES
@@ -110,6 +111,7 @@ private:
     GLuint textureId;
 
     QGLBuffer *vertexBuffer;
+    QGLBuffer *texBuffer;
     QGLBuffer *indexBuffer;
 
     void computeMatrices();
@@ -117,6 +119,7 @@ private:
     void computeVerticesCL();
 
     void allocVertices();
+    void freeVertices();
 };
 
 #endif

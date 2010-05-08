@@ -21,4 +21,4 @@ RESOURCES += bezierpatch.qrc
 FORMS += beziermainwindow.ui
 
 LIBS += -L../../lib -L../../bin
-include(../../src/opencl/opencl_dep.pri)
+include(../../src/openclgl/openclgl_dep.pri)
