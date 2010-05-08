@@ -38,16 +38,13 @@ no_cl_gl {
 INCLUDEPATH += $$PWD/../opencl
 
 HEADERS += \
-    qclcontextgl.h \
-    qcltexture2d.h
+    qclcontextgl.h
 
 SOURCES += \
-    qclcontextgl.cpp \
-    qcltexture2d.cpp
+    qclcontextgl.cpp
 
 PRIVATE_HEADERS += \
-    qcl_gl_p.h \
-    qcl_glproxy_p.h
+    qcl_gl_p.h
 
 HEADERS += $$PRIVATE_HEADERS
 DEFINES += QT_BUILD_CLGL_LIB

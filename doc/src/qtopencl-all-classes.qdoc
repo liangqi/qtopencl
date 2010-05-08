@@ -84,21 +84,10 @@
     extension is present.  If there is no QCLDevice::GPU, then
     QCLDevice::Default will be used instead.
 
-    If the system's OpenCL implementation does not have the OpenGL
-    interoperation functions, then QtOpenCL will need to be built
-    with the \c{no_cl_gl} option to qmake (see \l{Building QtOpenCL}
-    for more information):
-
-    \code
-    qmake CONFIG+=no_cl_gl opencl.pro
-    \endcode
-
     If the OpenCL implementation does not support interoperation
     with OpenGL, then the classes listed below will still be present
     in the final library, but their functionality and performance
-    will be reduced.  For example, QCLTexture2D will explicitly
-    copy 2D image contents from OpenCL to OpenGL memory if the
-    OpenCL implementation cannot directly write into an OpenGL texture.
+    will be reduced.
 
     The QCLContextGL::supportsObjectSharing() function can be used
     to determine if the OpenCL implementation can interoperate with

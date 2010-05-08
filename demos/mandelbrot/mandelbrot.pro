@@ -16,6 +16,7 @@ SOURCES += main.cpp \
            imagenative.cpp \
            view.cpp \
            viewgl.cpp \
+           cltexture2d.cpp \
            zoom.cpp
 HEADERS += palette.h \
            framerate.h \
@@ -24,6 +25,8 @@ HEADERS += palette.h \
            imagenative.h \
            view.h \
            viewgl.h \
+           cltexture2d.h \
+           glproxy.h \
            zoom.h
 RESOURCES += mandelbrot.qrc
 

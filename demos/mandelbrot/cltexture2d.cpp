@@ -39,9 +39,9 @@
 **
 ****************************************************************************/
 
-#include "qcltexture2d.h"
+#include "cltexture2d.h"
 #include "qclcontextgl.h"
-#include "qcl_glproxy_p.h"
+#include "glproxy.h"
 #if QT_VERSION >= 0x040700 && !defined(QT_OPENGL_ES)
 #include <QtOpenGL/qglbuffer.h>
 #define USE_PIXEL_UNPACK_BUFFERS 1
@@ -50,8 +50,8 @@
 QT_BEGIN_NAMESPACE
 
 /*!
-    \class QCLTexture2D
-    \brief The QCLTexture2D class represents a 2D OpenCL texture object.
+    \class CLTexture2D
+    \brief The CLTexture2D class represents a 2D OpenCL texture object.
     \since 4.7
     \ingroup openclgl
 
@@ -60,17 +60,17 @@ QT_BEGIN_NAMESPACE
     with a QCLImage2D object.  However, some systems do not support
     the OpenCL/OpenGL sharing mechanisms that are needed to make that work.
 
-    QCLTexture2D abstracts the creation and management of \c{GL_RGBA}
+    CLTexture2D abstracts the creation and management of \c{GL_RGBA}
     textures so that applications can render into them with OpenCL
     kernels without needing to implement special handling for
     OpenCL implementations that lack sharing.
 */
 
-class QCLTexture2DPrivate : public QObject
+class CLTexture2DPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QCLTexture2DPrivate()
+    CLTexture2DPrivate()
         : context(0)
         , clContext(0)
         , textureId(0)
@@ -80,7 +80,7 @@ public:
 #endif
     {
     }
-    ~QCLTexture2DPrivate()
+    ~CLTexture2DPrivate()
     {
 #ifdef USE_PIXEL_UNPACK_BUFFERS
         delete pixelBuffer;
@@ -102,7 +102,7 @@ private slots:
     void aboutToDestroyContext(const QGLContext *ctx);
 };
 
-void QCLTexture2DPrivate::aboutToDestroyContext(const QGLContext *ctx)
+void CLTexture2DPrivate::aboutToDestroyContext(const QGLContext *ctx)
 {
     if (context == ctx) {
         context = 0;
@@ -110,7 +110,7 @@ void QCLTexture2DPrivate::aboutToDestroyContext(const QGLContext *ctx)
     }
 }
 
-void QCLTexture2DPrivate::setContextAndId(const QGLContext *ctx, GLuint id)
+void CLTexture2DPrivate::setContextAndId(const QGLContext *ctx, GLuint id)
 {
     context = ctx;
     textureId = id;
@@ -123,15 +123,15 @@ void QCLTexture2DPrivate::setContextAndId(const QGLContext *ctx, GLuint id)
 /*!
     Constructs an uninitialized OpenCL texture object.
 */
-QCLTexture2D::QCLTexture2D()
-    : QCLImage2D(), d_ptr(new QCLTexture2DPrivate())
+CLTexture2D::CLTexture2D()
+    : QCLImage2D(), d_ptr(new CLTexture2DPrivate())
 {
 }
 
 /*!
     Destroys this OpenCL texture object.
 */
-QCLTexture2D::~QCLTexture2D()
+CLTexture2D::~CLTexture2D()
 {
     destroy();
 }
@@ -142,9 +142,9 @@ QCLTexture2D::~QCLTexture2D()
 
     \sa destroy(), textureId()
 */
-bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
+bool CLTexture2D::create(QCLContextGL *context, const QSize &size)
 {
-    Q_D(QCLTexture2D);
+    Q_D(CLTexture2D);
     Q_ASSERT(context && size.width() > 0 && size.height() > 0);
     Q_ASSERT(memoryId() == 0);    // Must not be created already.
     d->clContext = context;
@@ -217,7 +217,7 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
 }
 
 /*!
-    \fn bool QCLTexture2D::create(QCLContextGL *context, int width, int height)
+    \fn bool CLTexture2D::create(QCLContextGL *context, int width, int height)
     \overload
 
     Constructs an OpenCL texture of size (\a width, \a height)
@@ -229,9 +229,9 @@ bool QCLTexture2D::create(QCLContextGL *context, const QSize &size)
 /*!
     Destroys this OpenCL texture object.
 */
-void QCLTexture2D::destroy()
+void CLTexture2D::destroy()
 {
-    Q_D(QCLTexture2D);
+    Q_D(CLTexture2D);
     setId(0, 0);
     GLuint textureId = d->textureId;
     if (textureId) {
@@ -264,9 +264,9 @@ void QCLTexture2D::destroy()
 
     \sa release()
 */
-void QCLTexture2D::acquire()
+void CLTexture2D::acquire()
 {
-    Q_D(QCLTexture2D);
+    Q_D(CLTexture2D);
     if (d->directRender)
         d->clContext->acquire(*this).waitForFinished();
 }
@@ -277,9 +277,9 @@ void QCLTexture2D::acquire()
 
     \sa acquire()
 */
-void QCLTexture2D::release()
+void CLTexture2D::release()
 {
-    Q_D(QCLTexture2D);
+    Q_D(CLTexture2D);
     if (!d->textureId)
         return;
 
@@ -326,12 +326,12 @@ void QCLTexture2D::release()
 /*!
     Returns the OpenGL texture identifier for this OpenCL texture object.
 */
-GLuint QCLTexture2D::textureId() const
+GLuint CLTexture2D::textureId() const
 {
-    Q_D(const QCLTexture2D);
+    Q_D(const CLTexture2D);
     return d->textureId;
 }
 
 QT_END_NAMESPACE
 
-#include "qcltexture2d.moc"
+#include "cltexture2d.moc"

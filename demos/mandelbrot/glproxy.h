@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCL_GLPROXY_P_H
-#define QCL_GLPROXY_P_H
+#ifndef GLPROXY_H
+#define GLPROXY_H
 
 //
 //  W A R N I N G

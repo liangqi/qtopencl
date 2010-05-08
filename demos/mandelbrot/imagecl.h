@@ -44,7 +44,7 @@
 
 #include "image.h"
 #include "qclcontextgl.h"
-#include "qcltexture2d.h"
+#include "cltexture2d.h"
 
 class ImageCL : public Image
 {
@@ -64,7 +64,7 @@ public:
 protected:
     QImage img;
     QCLImage2D imageBuffer;
-    QCLTexture2D textureBuffer;
+    CLTexture2D textureBuffer;
     QCLBuffer colorBuffer;
     int lastIterations;
     bool initialized;

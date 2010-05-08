@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCLTEXTURE2D_H
-#define QCLTEXTURE2D_H
+#ifndef CLTEXTURE2D_H
+#define CLTEXTURE2D_H
 
 #include "qclimage.h"
 #include <QtCore/qscopedpointer.h>
@@ -53,14 +53,14 @@ QT_BEGIN_NAMESPACE
 QT_MODULE(CLGL)
 
 class QCLContextGL;
-class QCLTexture2DPrivate;
+class CLTexture2DPrivate;
 
 // Note: this class probably should be in the QtOpenGL library.
-class Q_CLGL_EXPORT QCLTexture2D : public QCLImage2D
+class Q_CLGL_EXPORT CLTexture2D : public QCLImage2D
 {
 public:
-    QCLTexture2D();
-    ~QCLTexture2D();
+    CLTexture2D();
+    ~CLTexture2D();
 
     bool create(QCLContextGL *context, const QSize &size);
     bool create(QCLContextGL *context, int width, int height);
@@ -72,13 +72,13 @@ public:
     GLuint textureId() const;
 
 private:
-    QScopedPointer<QCLTexture2DPrivate> d_ptr;
+    QScopedPointer<CLTexture2DPrivate> d_ptr;
 
-    Q_DISABLE_COPY(QCLTexture2D)
-    Q_DECLARE_PRIVATE(QCLTexture2D)
+    Q_DISABLE_COPY(CLTexture2D)
+    Q_DECLARE_PRIVATE(CLTexture2D)
 };
 
-inline bool QCLTexture2D::create(QCLContextGL *context, int width, int height)
+inline bool CLTexture2D::create(QCLContextGL *context, int width, int height)
 {
     return create(context, QSize(width, height));
 }
