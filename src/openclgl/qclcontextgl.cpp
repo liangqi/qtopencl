@@ -266,12 +266,22 @@ bool QCLContextGL::create(const QCLPlatform &platform)
         qWarning() << "QCLContextGL::create:" << errorName(error);
         d->supportsSharing = false;
     } else {
-        d->supportsSharing = hasSharing;
         setContextId(id);
         clReleaseContext(id);   // setContextId() adds an extra reference.
         setDefaultDevice(gpu);
+        d->supportsSharing = hasSharing;
     }
     return id != 0;
+}
+
+/*!
+    \reimp
+*/
+void QCLContextGL::release()
+{
+    Q_D(QCLContextGL);
+    d->supportsSharing = false;
+    QCLContext::release();
 }
 
 /*!

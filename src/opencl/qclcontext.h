@@ -74,7 +74,7 @@ public:
 
     bool create(QCLDevice::DeviceTypes type = QCLDevice::Default);
     bool create(const QList<QCLDevice> &devices);
-    void release();
+    virtual void release();
 
     cl_context contextId() const;
     void setContextId(cl_context id);

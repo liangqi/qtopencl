@@ -64,6 +64,7 @@ public:
     ~QCLContextGL();
 
     bool create(const QCLPlatform &platform = QCLPlatform());
+    void release();
 
     bool supportsObjectSharing() const;
 
