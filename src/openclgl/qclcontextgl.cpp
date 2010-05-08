@@ -564,6 +564,7 @@ bool QCLContextGL::isGLBuffer(const QCLBuffer &buffer)
         return false;
     return objectType == CL_GL_OBJECT_BUFFER;
 #else
+    Q_UNUSED(buffer);
     return false;
 #endif
 }
@@ -583,6 +584,7 @@ bool QCLContextGL::isTexture2D(const QCLImage2D &image)
         return false;
     return objectType == CL_GL_OBJECT_TEXTURE2D;
 #else
+    Q_UNUSED(image);
     return false;
 #endif
 }
@@ -602,6 +604,7 @@ bool QCLContextGL::isTexture3D(const QCLImage3D &image)
         return false;
     return objectType == CL_GL_OBJECT_TEXTURE3D;
 #else
+    Q_UNUSED(image);
     return false;
 #endif
 }
@@ -621,6 +624,7 @@ bool QCLContextGL::isRenderbuffer(const QCLImage2D &image)
         return false;
     return objectType == CL_GL_OBJECT_RENDERBUFFER;
 #else
+    Q_UNUSED(image);
     return false;
 #endif
 }
@@ -649,6 +653,7 @@ QCLEvent QCLContextGL::acquire(const QCLMemoryObject &mem)
     else
         return QCLEvent();
 #else
+    Q_UNUSED(mem);
     return QCLEvent();
 #endif
 }
@@ -684,6 +689,7 @@ QCLEvent QCLContextGL::acquire
     else
         return QCLEvent();
 #else
+    Q_UNUSED(mem);
     Q_UNUSED(after);
     return QCLEvent();
 #endif
@@ -714,6 +720,7 @@ QCLEvent QCLContextGL::release(const QCLMemoryObject &mem)
     else
         return QCLEvent();
 #else
+    Q_UNUSED(mem);
     return QCLEvent();
 #endif
 }
@@ -750,6 +757,7 @@ QCLEvent QCLContextGL::release
     else
         return QCLEvent();
 #else
+    Q_UNUSED(mem);
     Q_UNUSED(after);
     return QCLEvent();
 #endif
