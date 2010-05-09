@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
         printf("    Version           : %s\n", platform.version().toLatin1().constData());
         printf("    Name              : %s\n", platform.name().toLatin1().constData());
         printf("    Vendor            : %s\n", platform.vendor().toLatin1().constData());
+        printf("    Extension Suffix  : %s\n", platform.extensionSuffix().toLatin1().constData());
         printf("    Extensions        :\n");
         QStringList extns = platform.extensions();
         foreach (QString ext, extns)

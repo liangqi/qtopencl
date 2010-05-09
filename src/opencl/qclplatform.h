@@ -68,6 +68,7 @@ public:
     QString version() const;
     QString name() const;
     QString vendor() const;
+    QString extensionSuffix() const;
     QStringList extensions() const;
 
     bool hasExtension(const char *name) const;

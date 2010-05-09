@@ -70,6 +70,8 @@ QT_BEGIN_NAMESPACE
        usually something like \c{OpenCL 1.0}.
     \o name() - name of the platform.
     \o vendor() - name of the vendor that created the platform.
+    \o extensionSuffix() - the vendor extension suffix if the \c{cl_khr_icd}
+       extension is supported; an empty string otherwise.
     \o extensions() - list of OpenCL extensions that are supported
        by the platform.  The hasExtension() function can be used
        to check for a specific extension.
@@ -181,6 +183,19 @@ QString QCLPlatform::name() const
 QString QCLPlatform::vendor() const
 {
     return qt_cl_platform_string(m_id, CL_PLATFORM_VENDOR);
+}
+
+#if !defined(CL_PLATFORM_ICD_SUFFIX_KHR)
+#define CL_PLATFORM_ICD_SUFFIX_KHR 0x0920
+#endif
+
+/*!
+    Returns the vendor extension suffix for this platform if the
+    \c{cl_khr_icd} extension is supported; an empty string otherwise.
+*/
+QString QCLPlatform::extensionSuffix() const
+{
+    return qt_cl_platform_string(m_id, CL_PLATFORM_ICD_SUFFIX_KHR);
 }
 
 /*!
