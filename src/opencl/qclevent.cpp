@@ -67,6 +67,8 @@ QT_BEGIN_NAMESPACE
     but has not yet finished.
     \row \o isFinished() \o The command has finished execution and
     the results, if any, are now available for use in further commands.
+    \row \o isErrored() \o The command has finished execution due
+    to an error.
     \endtable
 
     Host applications can wait for the event (and thus, the command
@@ -176,7 +178,7 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
     queued for execution on the host, but has not yet been submitted to
     the device yet.
 
-    \sa isSubmitted(), isRunning(), isFinished()
+    \sa isSubmitted(), isRunning(), isFinished(), isErrored(), status()
 */
 
 /*!
@@ -185,7 +187,7 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
     Returns true if the command associated with this OpenCL event has been
     submitted for execution on the device yet, but is not yet running.
 
-    \sa isQueued(), isRunning(), isFinished()
+    \sa isQueued(), isRunning(), isFinished(), isErrored(), status()
 */
 
 /*!
@@ -194,7 +196,7 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
     Returns true if the command associated with this OpenCL event is
     running on the device, but has not yet finished.
 
-    \sa isQueued(), isSubmitted(), isFinished()
+    \sa isQueued(), isSubmitted(), isFinished(), isErrored(), status()
 */
 
 /*!
@@ -203,13 +205,24 @@ QCLEvent &QCLEvent::operator=(const QCLEvent &other)
     Returns true if the command associated with this OpenCL event
     has finished execution on the device.
 
-    \sa isQueued(), isSubmitted(), isRunning()
+    \sa isQueued(), isSubmitted(), isRunning(), isErrored(), status()
 */
 
 /*!
-    \internal
+    \fn bool QCLEvent::isErrored() const
+
+    Returns true if an error has occurred on this OpenCL event.
+
+    \sa isQueued(), isSubmitted(), isRunning(), isFinished(), status()
 */
-int QCLEvent::status() const
+
+/*!
+    Returns the status of this event, which is an error code or one
+    of \c{CL_QUEUED}, \c{CL_SUBMITTED}, \c{CL_RUNNING}, or \c{CL_COMPLETE}.
+
+    \sa isQueued(), isSubmitted(), isRunning(), isFinished(), isErrored()
+*/
+cl_int QCLEvent::status() const
 {
     if (!m_id)
         return CL_INVALID_EVENT;

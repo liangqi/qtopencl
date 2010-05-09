@@ -70,6 +70,9 @@ public:
     bool isSubmitted() const { return status() == CL_SUBMITTED; }
     bool isRunning() const { return status() == CL_RUNNING; }
     bool isFinished() const { return status() == CL_COMPLETE; }
+    bool isErrored() const { return status() < 0; }
+
+    cl_int status() const;
 
     void waitForFinished();
 
@@ -88,8 +91,6 @@ public:
 
 private:
     cl_event m_id;
-
-    int status() const;
 };
 
 class Q_CL_EXPORT QCLEventList
