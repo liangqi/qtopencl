@@ -1023,6 +1023,15 @@ QCLProgram QCLContext::createProgramFromSourceFile(const QString &fileName)
         qWarning() << "QCLContext::createProgramFromSourceFile: Unable to open file" << fileName;
         return QCLProgram();
     }
+    qint64 size = file.size();
+    uchar *data;
+    if (size > 0 && size <= 0x7fffffff && (data = file.map(0, size)) != 0) {
+        QByteArray array = QByteArray::fromRawData
+            (reinterpret_cast<char *>(data), int(size));
+        QCLProgram program = createProgramFromSourceCode(array);
+        file.unmap(data);
+        return program;
+    }
     QByteArray contents = file.readAll();
     return createProgramFromSourceCode(contents.constData());
 }
@@ -1064,6 +1073,15 @@ QCLProgram QCLContext::createProgramFromBinaryFile(const QString &fileName)
     if (!file.open(QFile::ReadOnly)) {
         qWarning() << "QCLContext::createProgramFromBinaryFile: Unable to open file" << fileName;
         return QCLProgram();
+    }
+    qint64 size = file.size();
+    uchar *data;
+    if (size > 0 && size <= 0x7fffffff && (data = file.map(0, size)) != 0) {
+        QByteArray array = QByteArray::fromRawData
+            (reinterpret_cast<char *>(data), int(size));
+        QCLProgram program = createProgramFromBinaryCode(array);
+        file.unmap(data);
+        return program;
     }
     QByteArray contents = file.readAll();
     return createProgramFromBinaryCode(contents.constData());
