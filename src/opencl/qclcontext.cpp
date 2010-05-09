@@ -1003,7 +1003,7 @@ QCLProgram QCLContext::createProgramFromSourceCode(const QByteArray &sourceCode)
     size_t length = sourceCode.size();
     cl_program prog = clCreateProgramWithSource
         (d->id, 1, &code, &length, &error);
-    reportError("QCLContext::createProgramFromSourceCode(QByteArray):", error);
+    reportError("QCLContext::createProgramFromSourceCode:", error);
     if (prog)
         return QCLProgram(this, prog);
     else
@@ -1025,6 +1025,82 @@ QCLProgram QCLContext::createProgramFromSourceFile(const QString &fileName)
     }
     QByteArray contents = file.readAll();
     return createProgramFromSourceCode(contents.constData());
+}
+
+/*!
+    Creates an OpenCL program object from \a binary for defaultDevice().
+
+    This function can only load the binary for a single device.  For multiple
+    devices, use createProgramFromBinaries() instead.
+
+    \sa createProgramFromBinaryFile(), createProgramFromBinaries()
+*/
+QCLProgram QCLContext::createProgramFromBinaryCode(const QByteArray &binary)
+{
+    Q_D(QCLContext);
+    Q_ASSERT(!binary.isEmpty());
+    cl_int error = CL_INVALID_CONTEXT;
+    const uchar *code = reinterpret_cast<const uchar *>(binary.constData());
+    size_t length = binary.size();
+    cl_device_id device = defaultDevice().deviceId();
+    cl_program prog = clCreateProgramWithBinary
+        (d->id, 1, &device, &length, &code, 0, &error);
+    reportError("QCLContext::createProgramFromBinaryCode:", error);
+    if (prog)
+        return QCLProgram(this, prog);
+    else
+        return QCLProgram();
+}
+
+/*!
+    Creates an OpenCL program object from the binary data in \a fileName
+    for defaultDevice().
+
+    \sa createProgramFromBinaryCode(), createProgramFromBinaries()
+*/
+QCLProgram QCLContext::createProgramFromBinaryFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning() << "QCLContext::createProgramFromBinaryFile: Unable to open file" << fileName;
+        return QCLProgram();
+    }
+    QByteArray contents = file.readAll();
+    return createProgramFromBinaryCode(contents.constData());
+}
+
+/*!
+    Creates an OpenCL program object from the list of \a binaries
+    for \a devices.  The \a binaries and \a devices lists must have
+    the same number of elements.
+
+    \sa createProgramFromBinaryCode(), createProgramFromBinaryFile()
+*/
+QCLProgram QCLContext::createProgramFromBinaries
+    (const QList<QCLDevice> &devices, const QList<QByteArray> &binaries)
+{
+    Q_D(QCLContext);
+    if (devices.size() != binaries.size() || devices.isEmpty()) {
+        reportError("QCLContext::createProgramFromBinaries:", CL_INVALID_VALUE);
+        return QCLProgram();
+    }
+    QVarLengthArray<cl_device_id> devs;
+    QVarLengthArray<const uchar *> bins;
+    QVarLengthArray<size_t> lens;
+    for (int index = 0; index < devices.size(); ++index) {
+        devs.append(devices.at(index).deviceId());
+        bins.append(reinterpret_cast<const uchar *>
+            (binaries.at(index).constData()));
+        lens.append(binaries.at(index).size());
+    }
+    cl_int error = CL_INVALID_CONTEXT;
+    cl_program prog = clCreateProgramWithBinary
+        (d->id, devs.size(), devs.data(), lens.data(), bins.data(), 0, &error);
+    reportError("QCLContext::createProgramFromBinaries:", error);
+    if (prog)
+        return QCLProgram(this, prog);
+    else
+        return QCLProgram();
 }
 
 /*!
@@ -1052,6 +1128,57 @@ QCLProgram QCLContext::buildProgramFromSourceCode(const QByteArray &sourceCode)
 QCLProgram QCLContext::buildProgramFromSourceFile(const QString &fileName)
 {
     QCLProgram program = createProgramFromSourceFile(fileName);
+    if (program.isNull() || program.build())
+        return program;
+    return QCLProgram();
+}
+
+/*!
+    Creates an OpenCL program object from the supplied \a binary
+    for defaultDevice() and then builds it.  Returns a null QCLProgram
+    if the program could not be built.
+
+    This function can only load the binary for a single device.  For multiple
+    devices, use createProgramFromBinaries() instead.
+
+    \sa createProgramFromBinaryCode(), buildProgramFromBinaryFile()
+    \sa buildProgramFromBinaries()
+*/
+QCLProgram QCLContext::buildProgramFromBinaryCode(const QByteArray &binary)
+{
+    QCLProgram program = createProgramFromBinaryCode(binary);
+    if (program.isNull() || program.build())
+        return program;
+    return QCLProgram();
+}
+
+/*!
+    Creates an OpenCL program object from the binary contents of the supplied
+    \a fileName for defaultDevice() and then builds it.  Returns a null
+    QCLProgram if the program could not be built.
+
+    \sa createProgramFromBinaryFile(), buildProgramFromBinaryCode()
+*/
+QCLProgram QCLContext::buildProgramFromBinaryFile(const QString &fileName)
+{
+    QCLProgram program = createProgramFromBinaryFile(fileName);
+    if (program.isNull() || program.build())
+        return program;
+    return QCLProgram();
+}
+
+/*!
+    Creates an OpenCL program object from the list of \a binaries for
+    \a devices and then builds the program.  Returns a null QCLProgram if
+    the program could not be built.  The \a binaries and \a devices lists
+    must have the same number of elements.
+
+    \sa createProgramFromBinaries(), buildProgramFromBinaryCode()
+*/
+QCLProgram QCLContext::buildProgramFromBinaries
+    (const QList<QCLDevice> &devices, const QList<QByteArray> &binaries)
+{
+    QCLProgram program = createProgramFromBinaries(devices, binaries);
     if (program.isNull() || program.build())
         return program;
     return QCLProgram();
