@@ -49,24 +49,28 @@
 
     \code
 OpenCL Platforms:
-    Platform ID       : 12289
+    Platform ID       : 134570448
     Profile           : FULL_PROFILE
-    Version           : OpenCL 1.0
-    Name              : NVIDIA
+    Version           : OpenCL 1.0 CUDA 3.0.1
+    Name              : NVIDIA CUDA
     Vendor            : NVIDIA Corporation
+    Extension Suffix  : NV
     Extensions        :
         cl_khr_byte_addressable_store
+        cl_khr_icd
+        cl_khr_gl_sharing
         cl_nv_compiler_options
         cl_nv_device_attribute_query
+        cl_nv_pragma_unroll
 
 OpenCL Devices:
-    Device ID         : 65536
-    Platform ID       : 12289
+    Device ID         : 134570528
+    Platform ID       : 134570448
     Vendor ID         : 4318
     Type              : GPU
     Profile           : FULL_PROFILE
-    Version           : OpenCL 1.0
-    Driver Version    : 190.29
+    Version           : OpenCL 1.0 CUDA
+    Driver Version    : 195.36.15
     Name              : GeForce GTX 275
     Vendor            : NVIDIA Corporation
     Available         : true
@@ -88,8 +92,8 @@ OpenCL Devices:
     Alignment         : 32 (min 16)
     Max Param Bytes   : 4352
     Error Correction  : false
-    Float Support     : InfinityNaN RoundNearest
-    Double Support    : No
+    Float Support     : InfinityNaN RoundNearest RoundZero RoundInfinity FusedMultiplyAdd
+    Double Support    : Denom InfinityNaN RoundNearest RoundZero RoundInfinity FusedMultiplyAdd
     Half Float Support: No
     Image Support     : 2D, 3D
     Max 2D Image Size : 8192x8192
@@ -102,15 +106,20 @@ OpenCL Devices:
     Native Kernels    : false
     Out of Order Exec : true
     Preferred Vector Sizes:
-        char1, short1, int1, long1, float1
+        char1, short1, int1, long1, float1, double1
     Extensions        :
         cl_khr_byte_addressable_store
+        cl_khr_icd
+        cl_khr_gl_sharing
         cl_nv_compiler_options
         cl_nv_device_attribute_query
+        cl_nv_pragma_unroll
         cl_khr_global_int32_base_atomics
         cl_khr_global_int32_extended_atomics
         cl_khr_local_int32_base_atomics
         cl_khr_local_int32_extended_atomics
+        cl_khr_fp64
+
     \endcode
 
     \l{index.html}{Return to Home}
