@@ -225,7 +225,7 @@ bool QCLContextGL::create(const QCLPlatform &platform)
         (q_PFNCLGETGLCONTEXTINFOKHR)clGetExtensionFunctionAddress
             ("clGetGLContextInfoKHR");
     if (getGLContextInfo && hasSharing) {
-        cl_uint size;
+        size_t size;
         cl_device_id currentDev;
         if(getGLContextInfo(properties.data(),
                             CL_DEVICES_FOR_GL_CONTEXT_KHR,
