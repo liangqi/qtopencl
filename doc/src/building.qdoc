@@ -206,13 +206,13 @@
     of the \l{Querying OpenCL Device Capabilities}{clinfo} program
     in the bug report.
 
-    \section1 Building the Documentation
+    \section1 Generating the Documentation
 
-    There is a script called \c{mkdocs} in the \c{doc/src} directory
-    that can be used to build the documentation on Linux and MacOSX
-    systems.  The script assumes that the \c{qdoc3} binary from Qt
-    is on the PATH, and places the generated documentation into
-    \c{doc/html}.
+    From the top-level, type \c{make docs} to generate the documentation
+    into the \c{doc/html} directory in the build tree.  This will
+    use the \c{qdoc3} binary from the Qt you used to build QtOpenCL.
+    If that \c{qdoc3} binary does not exist, it will use the \c{qdoc3}
+    binary on the PATH instead.
 
     \l{index.html}{Return to Home}
 */
