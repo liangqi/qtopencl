@@ -377,46 +377,37 @@ void tst_QCL::vectorBuffer()
     QVERIFY(vector1.isNull());
     QVERIFY(vector1.isEmpty());
     QCOMPARE(vector1.size(), 0);
-    QVERIFY(vector1.memoryId() == 0);
+    QVERIFY(vector1.toBuffer().memoryId() == 0);
     QVERIFY(vector1.context() == 0);
-    QVERIFY(!vector1.isMapped());
 
     vector1 = context.createVector<float>(100);
     QVERIFY(!vector1.isNull());
     QVERIFY(!vector1.isEmpty());
     QCOMPARE(vector1.size(), 100);
-    QVERIFY(vector1.memoryId() != 0);
+    QVERIFY(vector1.toBuffer().memoryId() != 0);
     QVERIFY(vector1.context() == &context);
-    QVERIFY(!vector1.isMapped());
 
     for (int index = 0; index < 100; ++index)
         vector1[index] = float(index);
-    QVERIFY(vector1.isMapped());
 
-    vector1.unmap();
-    QVERIFY(!vector1.isMapped());
     for (int index = 0; index < 100; ++index)
         QCOMPARE(vector1[index], float(index));
-    QVERIFY(vector1.isMapped());
 
     QCLKernel addToVector = program.createKernel("addToVector");
     addToVector.setGlobalWorkSize(vector1.size());
     addToVector(vector1, 42.0f);
-    QVERIFY(!vector1.isMapped());
 
     for (int index = 0; index < 100; ++index) {
         QCOMPARE(constVectorAt(vector1, index), float(index + 42));
         QCOMPARE(vector1[index], float(index + 42));
     }
-    QVERIFY(vector1.isMapped());
 
     vector1.release();
     QVERIFY(vector1.isNull());
     QVERIFY(vector1.isEmpty());
     QCOMPARE(vector1.size(), 0);
-    QVERIFY(vector1.memoryId() == 0);
+    QVERIFY(vector1.toBuffer().memoryId() == 0);
     QVERIFY(vector1.context() == 0);
-    QVERIFY(!vector1.isMapped());
 }
 
 void tst_QCL::eventProfiling()
@@ -429,7 +420,6 @@ void tst_QCL::eventProfiling()
     QCLVector<float> vector1 = context.createVector<float>(20000);
     for (int index = 0; index < vector1.size(); ++index)
         vector1[index] = float(index);
-    vector1.unmap();
 
     QCLKernel addToVector = program.createKernel("addToVector");
     addToVector.setGlobalWorkSize(vector1.size());

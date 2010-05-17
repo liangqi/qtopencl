@@ -55,11 +55,10 @@ QT_BEGIN_NAMESPACE
     OpenCL buffer object to make it appear as a host-accessible array
     of elements of type T.
 
-    Whenever the host CPU calls operator[]() or map(), the
-    array's contents are mapped into host-accessible memory for
-    direct access.  When the host calls unmap() or sets the vector
-    on a QCLKernel as an argument, the data is copied back to the
-    OpenCL compute device (e.g., the GPU).
+    Whenever the host CPU calls operator[](), the array's contents
+    are copied into host-accessible memory for direct access.  When the
+    host sets the vector on a QCLKernel as an argument, the data is
+    copied back to the OpenCL compute device (e.g., the GPU).
 
     The type T is restricted to primitive and movable types that do
     not require explicit construction, destruction, or operator=().
@@ -390,60 +389,22 @@ cl_mem QCLVectorBase::kernelArg() const
     \fn T &QCLVector::operator[](int index)
 
     Returns a reference to the element at \a index in this OpenCL vector.
-    The vector will be mapped into host memory if necessary.
-
-    \sa map()
+    The vector will be copied to host memory if necessary.
 */
 
 /*!
     \fn const T &QCLVector::operator[](int index) const
 
     Returns a const reference to the element at \a index in this
-    OpenCL vector.  The vector will be mapped into host memory
+    OpenCL vector.  The vector will be copied to host memory
     if necessary.
-
-    \sa map()
-*/
-
-/*!
-    \fn void QCLVector::map()
-
-    Maps this OpenCL vector into the host CPU's address space so that
-    its contents can be read or written.  Once the host CPU no longer
-    needs to access the vector's contents, it should call unmap().
-
-    This function does nothing if the vector is already mapped.
-
-    The vector will be implicitly unmapped if it is set on a QCLKernel
-    as an argument.
-
-    \sa unmap(), isMapped()
-*/
-
-/*!
-    \fn void QCLVector::unmap()
-
-    Unmaps this OpenCL vector from the host CPU's address space.
-    The data can then be accessed by a QCLKernel running on the
-    OpenCL compute device.
-
-    \sa map(), isMapped()
-*/
-
-/*!
-    \fn bool QCLVector::isMapped() const
-
-    Returns true if this vector is mapped into the host CPU's
-    address space; false otherwise.
-
-    \sa map(), unmap()
 */
 
 /*!
     \fn void QCLVector::read(T *data, int count, int offset)
 
     Reads the \a count elements starting \a offset in this vector
-    into \a data.  The vector does not need to be mapped.
+    into \a data.
 
     \sa write()
 */
@@ -452,7 +413,6 @@ cl_mem QCLVectorBase::kernelArg() const
     \fn void QCLVector::write(const T *data, int count, int offset)
 
     Writes the \a count elements from \a data to \a offset in this vector.
-    The vector does not need to be mapped.
 
     \sa read()
 */
@@ -462,22 +422,6 @@ cl_mem QCLVectorBase::kernelArg() const
     \overload
 
     Writes the contents of \a data to \a offset in this vector.
-    The vector does not need to be mapped.
-*/
-
-/*!
-    \fn T *QCLVector::data() const
-
-    Returns a pointer to the first element in the vector.
-    The vector will be mapped into host memory if necessary.
-
-    \sa map()
-*/
-
-/*!
-    \fn cl_mem QCLVector::memoryId() const
-
-    Returns the native OpenCL memory buffer identifier for this vector.
 */
 
 /*!
