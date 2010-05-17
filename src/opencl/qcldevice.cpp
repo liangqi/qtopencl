@@ -872,7 +872,7 @@ bool qt_cl_has_extension(const char *list, size_t listLen, const char *name)
 }
 
 /*!
-    Returns this if this device has an extension called \a name;
+    Returns true if this device has an extension called \a name;
     false otherwise.
 
     This function is more efficient than checking for \a name
