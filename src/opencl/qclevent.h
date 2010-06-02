@@ -73,6 +73,7 @@ public:
     bool isErrored() const { return status() < 0; }
 
     cl_int status() const;
+    cl_command_type commandType() const;
 
     void waitForFinished();
 

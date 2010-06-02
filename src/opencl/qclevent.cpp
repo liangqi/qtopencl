@@ -236,6 +236,22 @@ cl_int QCLEvent::status() const
 }
 
 /*!
+    Returns the type of command that generated this event.
+*/
+cl_command_type QCLEvent::commandType() const
+{
+    if (!m_id)
+        return 0;
+    cl_command_type type;
+    cl_int error = clGetEventInfo
+        (m_id, CL_EVENT_COMMAND_TYPE, sizeof(type), &type, 0);
+    if (error != CL_SUCCESS)
+        return 0;
+    else
+        return type;
+}
+
+/*!
     Waits for this event to be signalled as finished.  The calling thread
     is blocked until the event is signalled.  This function returns
     immediately if the event is null.
@@ -426,18 +442,8 @@ QDebug operator<<(QDebug dbg, const QCLEvent &event)
         dbg << "QCLEvent()";
         return dbg;
     }
-    cl_command_type command;
-    cl_int status;
-    if (clGetEventInfo(id, CL_EVENT_COMMAND_TYPE,
-                       sizeof(command), &command, 0) != CL_SUCCESS) {
-        dbg << "QCLEvent(invalid)";
-        return dbg;
-    }
-    if (clGetEventInfo(id, CL_EVENT_COMMAND_EXECUTION_STATUS,
-                       sizeof(status), &status, 0) != CL_SUCCESS) {
-        dbg << "QCLEvent(invalid)";
-        return dbg;
-    }
+    cl_command_type command = event.commandType();
+    cl_int status = event.status();
     const char *commandName;
     switch (command) {
     case CL_COMMAND_NDRANGE_KERNEL:
