@@ -361,9 +361,9 @@ QCLWorkSize QCLDevice::maximumWorkItemSize() const
 
     \sa maximumWorkItemSize()
 */
-int QCLDevice::maximumWorkItemsPerGroup() const
+size_t QCLDevice::maximumWorkItemsPerGroup() const
 {
-    return int(qt_cl_paramSize(m_id, CL_DEVICE_MAX_WORK_GROUP_SIZE));
+    return qt_cl_paramSize(m_id, CL_DEVICE_MAX_WORK_GROUP_SIZE);
 }
 
 /*!

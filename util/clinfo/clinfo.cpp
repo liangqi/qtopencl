@@ -100,7 +100,8 @@ int main(int argc, char *argv[])
         printf("    Max Work Size     : %ux%ux%u\n",
                uint(size.width()), uint(size.height()),
                uint(size.depth()));
-        printf("    Max Items/Group   : %d\n", dev.maximumWorkItemsPerGroup());
+        printf("    Max Items/Group   : %u\n",
+               uint(dev.maximumWorkItemsPerGroup()));
         printf("    Local Memory      : ");
         printMemorySize(dev.localMemorySize());
         printf("    Global Memory     : ");

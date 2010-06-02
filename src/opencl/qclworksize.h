@@ -51,6 +51,8 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
+class QCLDevice;
+
 class Q_CL_EXPORT QCLWorkSize
 {
 public:
@@ -75,6 +77,10 @@ public:
 
     bool operator==(const QCLWorkSize &other) const;
     bool operator!=(const QCLWorkSize &other) const;
+
+    QCLWorkSize toLocalWorkSize
+        (const QCLWorkSize &maxWorkItemSize, size_t maxItemsPerGroup) const;
+    QCLWorkSize toLocalWorkSize(const QCLDevice &device) const;
 
 private:
     size_t m_dim;

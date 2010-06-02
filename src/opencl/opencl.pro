@@ -56,7 +56,8 @@ SOURCES += \
     qclplatform.cpp \
     qclprogram.cpp \
     qclsampler.cpp \
-    qclvector.cpp
+    qclvector.cpp \
+    qclworksize.cpp
 
 HEADERS += $$PRIVATE_HEADERS
 DEFINES += QT_BUILD_CL_LIB
