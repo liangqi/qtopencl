@@ -89,18 +89,21 @@ QT_BEGIN_NAMESPACE
     \fn QCLWorkSize::QCLWorkSize(size_t size)
 
     Constructs a single-dimensional work size with width() set to \a size.
+    The height() and depth() will be set to 1.
 */
 
 /*!
     \fn QCLWorkSize::QCLWorkSize(size_t width, size_t height)
 
     Constructs a two-dimensional work size of \a width x \a height.
+    The depth() will be set to 1.
 */
 
 /*!
     \fn QCLWorkSize::QCLWorkSize(const QSize &size)
 
     Constructs a two-dimensional work size set to \a size.
+    The depth() will be set to 1.
 */
 
 /*!

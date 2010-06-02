@@ -521,26 +521,26 @@ void tst_QCL::workSize()
     QCLWorkSize size;
     QVERIFY(size.dimensions() == 1);
     QVERIFY(size.width() == 1);
-    QVERIFY(size.height() == 0);
-    QVERIFY(size.depth() == 0);
+    QVERIFY(size.height() == 1);
+    QVERIFY(size.depth() == 1);
 
     QCLWorkSize size1(42);
     QVERIFY(size1.dimensions() == 1);
     QVERIFY(size1.width() == 42);
-    QVERIFY(size1.height() == 0);
-    QVERIFY(size1.depth() == 0);
+    QVERIFY(size1.height() == 1);
+    QVERIFY(size1.depth() == 1);
 
     QCLWorkSize size2(42, 63);
     QVERIFY(size2.dimensions() == 2);
     QVERIFY(size2.width() == 42);
     QVERIFY(size2.height() == 63);
-    QVERIFY(size2.depth() == 0);
+    QVERIFY(size2.depth() == 1);
 
     QCLWorkSize size2b(QSize(63, 42));
     QVERIFY(size2b.dimensions() == 2);
     QVERIFY(size2b.width() == 63);
     QVERIFY(size2b.height() == 42);
-    QVERIFY(size2b.depth() == 0);
+    QVERIFY(size2b.depth() == 1);
 
     QCLWorkSize size3(42, 63, 12);
     QVERIFY(size3.dimensions() == 3);
@@ -567,7 +567,7 @@ void tst_QCL::workSize()
     QVERIFY(size4.dimensions() == 2);
     QVERIFY(size4.width() == 42);
     QVERIFY(size4.height() == 63);
-    QVERIFY(size4.depth() == 0);
+    QVERIFY(size4.depth() == 1);
 
     QVERIFY(size4.width() == size4.sizes()[0]);
     QVERIFY(size4.height() == size4.sizes()[1]);
