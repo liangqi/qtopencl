@@ -51,17 +51,19 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
+class QCLDevice;
+
 class Q_CL_EXPORT QCLWorkSize
 {
 public:
     QCLWorkSize()
-        : m_dim(1) { m_sizes[0] = 1; m_sizes[1] = 0; m_sizes[2] = 0; }
+        : m_dim(1) { m_sizes[0] = 1; m_sizes[1] = 1; m_sizes[2] = 1; }
     QCLWorkSize(size_t size)
-        : m_dim(1) { m_sizes[0] = size; m_sizes[1] = 0; m_sizes[2] = 0; }
+        : m_dim(1) { m_sizes[0] = size; m_sizes[1] = 1; m_sizes[2] = 1; }
     QCLWorkSize(size_t width, size_t height)
-        : m_dim(2) { m_sizes[0] = width; m_sizes[1] = height; m_sizes[2] = 0; }
+        : m_dim(2) { m_sizes[0] = width; m_sizes[1] = height; m_sizes[2] = 1; }
     QCLWorkSize(const QSize &size)
-        : m_dim(2) { m_sizes[0] = size.width(); m_sizes[1] = size.height(); m_sizes[2] = 0; }
+        : m_dim(2) { m_sizes[0] = size.width(); m_sizes[1] = size.height(); m_sizes[2] = 1; }
     QCLWorkSize(size_t width, size_t height, size_t depth)
         : m_dim(3)
         { m_sizes[0] = width; m_sizes[1] = height; m_sizes[2] = depth; }
@@ -75,6 +77,10 @@ public:
 
     bool operator==(const QCLWorkSize &other) const;
     bool operator!=(const QCLWorkSize &other) const;
+
+    QCLWorkSize toLocalWorkSize
+        (const QCLWorkSize &maxWorkItemSize, size_t maxItemsPerGroup) const;
+    QCLWorkSize toLocalWorkSize(const QCLDevice &device) const;
 
 private:
     size_t m_dim;

@@ -39,6 +39,11 @@
 **
 ****************************************************************************/
 
+#include "qclworksize.h"
+#include "qcldevice.h"
+
+QT_BEGIN_NAMESPACE
+
 /*!
     \class QCLWorkSize
     \brief The QCLWorkSize class defines the size of an item of work for an OpenCL kernel.
@@ -84,18 +89,21 @@
     \fn QCLWorkSize::QCLWorkSize(size_t size)
 
     Constructs a single-dimensional work size with width() set to \a size.
+    The height() and depth() will be set to 1.
 */
 
 /*!
     \fn QCLWorkSize::QCLWorkSize(size_t width, size_t height)
 
     Constructs a two-dimensional work size of \a width x \a height.
+    The depth() will be set to 1.
 */
 
 /*!
     \fn QCLWorkSize::QCLWorkSize(const QSize &size)
 
     Constructs a two-dimensional work size set to \a size.
+    The depth() will be set to 1.
 */
 
 /*!
@@ -152,3 +160,64 @@
 
     \sa operator==()
 */
+
+static size_t qt_gcd_of_size(size_t x, size_t y)
+{
+    size_t remainder;
+    while ((remainder = x % y) != 0) {
+        x = y;
+        y = remainder;
+    }
+    return y;
+}
+
+/*!
+    Returns the best-fit local work size that evenly divides this work
+    size and fits within the maximums defined by \a maxWorkItemSize
+    and \a maxItemsPerGroup.
+
+    This function is typically used to convert an arbitrary global
+    work size on a QCLKernel into a compatible local work size.
+
+    \sa QCLKernel::setLocalWorkSize()
+*/
+QCLWorkSize QCLWorkSize::toLocalWorkSize
+    (const QCLWorkSize &maxWorkItemSize, size_t maxItemsPerGroup) const
+{
+    // Adjust for the maximum work item size in each dimension.
+    size_t width = m_dim >= 1 ? qt_gcd_of_size(m_sizes[0], maxWorkItemSize.width()) : 1;
+    size_t height = m_dim >= 2 ? qt_gcd_of_size(m_sizes[1], maxWorkItemSize.height()) : 1;
+    size_t depth = m_dim >= 3 ? qt_gcd_of_size(m_sizes[2], maxWorkItemSize.depth()) : 1;
+
+    // Reduce in size by a factor of 2 until underneath the maximum group size.
+    while (maxItemsPerGroup && (width * height * depth) > maxItemsPerGroup) {
+        width = (width > 1) ? (width / 2) : 1;
+        height = (height > 1) ? (height / 2) : 1;
+        depth = (depth > 1) ? (depth / 2) : 1;
+    }
+
+    // Return the final result.
+    if (m_dim >= 3)
+        return QCLWorkSize(width, height, depth);
+    else if (m_dim >= 2)
+        return QCLWorkSize(width, height);
+    else
+        return QCLWorkSize(width);
+}
+
+/*!
+    Returns the best-fit local work size that evenly divides this
+    work size and fits within the maximum work group size of \a device.
+
+    This function is typically used to convert an arbitrary global
+    work size on a QCLKernel into a compatible local work size.
+
+    \sa QCLKernel::setLocalWorkSize()
+*/
+QCLWorkSize QCLWorkSize::toLocalWorkSize(const QCLDevice &device) const
+{
+    return toLocalWorkSize(device.maximumWorkItemSize(),
+                           device.maximumWorkItemsPerGroup());
+}
+
+QT_END_NAMESPACE

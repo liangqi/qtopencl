@@ -87,7 +87,7 @@ public:
     QSysInfo::Endian byteOrder() const;
 
     QCLWorkSize maximumWorkItemSize() const;
-    int maximumWorkItemsPerGroup() const;
+    size_t maximumWorkItemsPerGroup() const;
 
     bool hasImage2D() const;
     bool hasImage3D() const;

@@ -107,19 +107,11 @@ public:
     T &operator[](int index);
     const T &operator[](int index) const;
 
-    void map();
-    void unmap();
-    bool isMapped() const;
-
     void read(T *data, int count, int offset = 0);
     void write(const T *data, int count, int offset = 0);
     void write(const QVector<T> &data, int offset = 0);
 
-    T *data() const;
-
-    cl_mem memoryId() const;
     QCLContext *context() const;
-
     QCLBuffer toBuffer() const;
 
 private:
@@ -189,24 +181,6 @@ Q_INLINE_TEMPLATE const T &QCLVector<T>::operator[](int index) const
 }
 
 template <typename T>
-Q_INLINE_TEMPLATE void QCLVector<T>::map()
-{
-    QCLVectorBase::map();
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE void QCLVector<T>::unmap()
-{
-    QCLVectorBase::unmap();
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE bool QCLVector<T>::isMapped() const
-{
-    return m_mapped != 0;
-}
-
-template <typename T>
 Q_INLINE_TEMPLATE void QCLVector<T>::write
     (const T *data, int count, int offset)
 {
@@ -227,20 +201,6 @@ Q_INLINE_TEMPLATE void QCLVector<T>::write
     (const QVector<T> &data, int offset)
 {
     write(data.constData(), data.size(), offset);
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE T *QCLVector<T>::data() const
-{
-    if (!m_mapped)
-        map();
-    return reinterpret_cast<T *>(m_mapped);
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE cl_mem QCLVector<T>::memoryId() const
-{
-    return QCLVectorBase::memoryId();
 }
 
 template <typename T>

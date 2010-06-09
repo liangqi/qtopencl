@@ -377,46 +377,37 @@ void tst_QCL::vectorBuffer()
     QVERIFY(vector1.isNull());
     QVERIFY(vector1.isEmpty());
     QCOMPARE(vector1.size(), 0);
-    QVERIFY(vector1.memoryId() == 0);
+    QVERIFY(vector1.toBuffer().memoryId() == 0);
     QVERIFY(vector1.context() == 0);
-    QVERIFY(!vector1.isMapped());
 
     vector1 = context.createVector<float>(100);
     QVERIFY(!vector1.isNull());
     QVERIFY(!vector1.isEmpty());
     QCOMPARE(vector1.size(), 100);
-    QVERIFY(vector1.memoryId() != 0);
+    QVERIFY(vector1.toBuffer().memoryId() != 0);
     QVERIFY(vector1.context() == &context);
-    QVERIFY(!vector1.isMapped());
 
     for (int index = 0; index < 100; ++index)
         vector1[index] = float(index);
-    QVERIFY(vector1.isMapped());
 
-    vector1.unmap();
-    QVERIFY(!vector1.isMapped());
     for (int index = 0; index < 100; ++index)
         QCOMPARE(vector1[index], float(index));
-    QVERIFY(vector1.isMapped());
 
     QCLKernel addToVector = program.createKernel("addToVector");
     addToVector.setGlobalWorkSize(vector1.size());
     addToVector(vector1, 42.0f);
-    QVERIFY(!vector1.isMapped());
 
     for (int index = 0; index < 100; ++index) {
         QCOMPARE(constVectorAt(vector1, index), float(index + 42));
         QCOMPARE(vector1[index], float(index + 42));
     }
-    QVERIFY(vector1.isMapped());
 
     vector1.release();
     QVERIFY(vector1.isNull());
     QVERIFY(vector1.isEmpty());
     QCOMPARE(vector1.size(), 0);
-    QVERIFY(vector1.memoryId() == 0);
+    QVERIFY(vector1.toBuffer().memoryId() == 0);
     QVERIFY(vector1.context() == 0);
-    QVERIFY(!vector1.isMapped());
 }
 
 void tst_QCL::eventProfiling()
@@ -429,7 +420,6 @@ void tst_QCL::eventProfiling()
     QCLVector<float> vector1 = context.createVector<float>(20000);
     for (int index = 0; index < vector1.size(); ++index)
         vector1[index] = float(index);
-    vector1.unmap();
 
     QCLKernel addToVector = program.createKernel("addToVector");
     addToVector.setGlobalWorkSize(vector1.size());
@@ -531,26 +521,26 @@ void tst_QCL::workSize()
     QCLWorkSize size;
     QVERIFY(size.dimensions() == 1);
     QVERIFY(size.width() == 1);
-    QVERIFY(size.height() == 0);
-    QVERIFY(size.depth() == 0);
+    QVERIFY(size.height() == 1);
+    QVERIFY(size.depth() == 1);
 
     QCLWorkSize size1(42);
     QVERIFY(size1.dimensions() == 1);
     QVERIFY(size1.width() == 42);
-    QVERIFY(size1.height() == 0);
-    QVERIFY(size1.depth() == 0);
+    QVERIFY(size1.height() == 1);
+    QVERIFY(size1.depth() == 1);
 
     QCLWorkSize size2(42, 63);
     QVERIFY(size2.dimensions() == 2);
     QVERIFY(size2.width() == 42);
     QVERIFY(size2.height() == 63);
-    QVERIFY(size2.depth() == 0);
+    QVERIFY(size2.depth() == 1);
 
     QCLWorkSize size2b(QSize(63, 42));
     QVERIFY(size2b.dimensions() == 2);
     QVERIFY(size2b.width() == 63);
     QVERIFY(size2b.height() == 42);
-    QVERIFY(size2b.depth() == 0);
+    QVERIFY(size2b.depth() == 1);
 
     QCLWorkSize size3(42, 63, 12);
     QVERIFY(size3.dimensions() == 3);
@@ -577,7 +567,7 @@ void tst_QCL::workSize()
     QVERIFY(size4.dimensions() == 2);
     QVERIFY(size4.width() == 42);
     QVERIFY(size4.height() == 63);
-    QVERIFY(size4.depth() == 0);
+    QVERIFY(size4.depth() == 1);
 
     QVERIFY(size4.width() == size4.sizes()[0]);
     QVERIFY(size4.height() == size4.sizes()[1]);
