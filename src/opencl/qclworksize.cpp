@@ -41,6 +41,8 @@
 
 #include "qclworksize.h"
 #include "qcldevice.h"
+#include <QtCore/qdatastream.h>
+#include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -270,5 +272,63 @@ QCLWorkSize QCLWorkSize::fromString(const QString &str)
         return QCLWorkSize();
     }
 }
+
+#ifndef QT_NO_DATASTREAM
+
+/*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QCLWorkSize &size)
+    \relates QCLWorkSize
+
+    Writes the given \a size to the given \a stream, and returns a
+    reference to the stream.
+*/
+QDataStream &operator<<(QDataStream &stream, const QCLWorkSize &size)
+{
+    stream << int(size.dimensions());
+    stream << quint64(size.width());
+    stream << quint64(size.height());
+    stream << quint64(size.depth());
+    return stream;
+}
+
+/*!
+    \fn QDataStream &operator>>(QDataStream &stream, QCLWorkSize &size)
+    \relates QCLWorkSize
+
+    Reads a size from the given \a stream into the given \a size, and
+    returns a reference to the stream.
+*/
+QDataStream &operator>>(QDataStream &stream, QCLWorkSize &size)
+{
+    int dims;
+    quint64 width, height, depth;
+    stream >> dims;
+    stream >> width;
+    stream >> height;
+    stream >> depth;
+    if (dims >= 3)
+        size = QCLWorkSize(size_t(width), size_t(height), size_t(depth));
+    else if (dims >= 2)
+        size = QCLWorkSize(size_t(width), size_t(height));
+    else
+        size = QCLWorkSize(size_t(width));
+    return stream;
+}
+
+#endif // QT_NO_DATASTREAM
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<(QDebug dbg, const QCLWorkSize &s) {
+    if (s.dimensions() == 1)
+        dbg.nospace() << "QCLWorkSize(" << s.width() << ')';
+    else if (s.dimensions() == 2)
+        dbg.nospace() << "QCLWorkSize(" << s.width() << ", " << s.height() << ')';
+    else
+        dbg.nospace() << "QCLWorkSize(" << s.width() << ", " << s.height() << ", " << s.depth() << ')';
+    return dbg.space();
+}
+
+#endif
 
 QT_END_NAMESPACE

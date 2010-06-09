@@ -608,6 +608,23 @@ void tst_QCL::workSize()
     QVERIFY(size5.height() == 6);
     QVERIFY(size5.depth() == 43);
     QCOMPARE(size5.toString(), QLatin1String("23x6x43"));
+
+    QByteArray array;
+    QDataStream stream(&array, QIODevice::WriteOnly);
+    stream << QCLWorkSize(23);
+    stream << QCLWorkSize(42, 12);
+    stream << QCLWorkSize(2, 3, 1);
+    stream << QCLWorkSize();
+
+    QDataStream stream2(array);
+    stream2 >> size1;
+    stream2 >> size2;
+    stream2 >> size3;
+    stream2 >> size4;
+    QVERIFY(size1 == QCLWorkSize(23));
+    QVERIFY(size2 == QCLWorkSize(42, 12));
+    QVERIFY(size3 == QCLWorkSize(2, 3, 1));
+    QVERIFY(size4 == QCLWorkSize());
 }
 
 // Test QCLImageFormat.

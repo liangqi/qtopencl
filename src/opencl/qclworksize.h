@@ -90,6 +90,8 @@ private:
     size_t m_sizes[3];
 };
 
+Q_DECLARE_TYPEINFO(QCLWorkSize, Q_MOVABLE_TYPE);
+
 inline bool QCLWorkSize::operator==(const QCLWorkSize &other) const
 {
     return m_dim == other.m_dim &&
@@ -105,6 +107,15 @@ inline bool QCLWorkSize::operator!=(const QCLWorkSize &other) const
            m_sizes[1] != other.m_sizes[1] ||
            m_sizes[2] != other.m_sizes[2];
 }
+
+#ifndef QT_NO_DATASTREAM
+Q_CL_EXPORT QDataStream &operator<<(QDataStream &, const QCLWorkSize &);
+Q_CL_EXPORT QDataStream &operator>>(QDataStream &, QCLWorkSize &);
+#endif
+
+#ifndef QT_NO_DEBUG_STREAM
+Q_CL_EXPORT QDebug operator<<(QDebug, const QCLWorkSize &);
+#endif
 
 QT_END_NAMESPACE
 
