@@ -220,4 +220,55 @@ QCLWorkSize QCLWorkSize::toLocalWorkSize(const QCLDevice &device) const
                            device.maximumWorkItemsPerGroup());
 }
 
+/*!
+    Returns the string form of this work size, with components
+    separated by 'x'.
+
+    \sa fromString()
+*/
+QString QCLWorkSize::toString() const
+{
+    if (m_dim == 1) {
+        return QString::number(qulonglong(m_sizes[0]));
+    } else if (m_dim == 2) {
+        return QString::number(qulonglong(m_sizes[0])) + QLatin1Char('x') +
+               QString::number(qulonglong(m_sizes[1]));
+    } else {
+        return QString::number(qulonglong(m_sizes[0])) + QLatin1Char('x') +
+               QString::number(qulonglong(m_sizes[1])) + QLatin1Char('x') +
+               QString::number(qulonglong(m_sizes[2]));
+    }
+}
+
+/*!
+    Returns the work size that corresponds to the contents of \a str.
+    Components are assumed to be separated by 'x'.
+
+    \sa toString()
+*/
+QCLWorkSize QCLWorkSize::fromString(const QString &str)
+{
+    QStringList split = str.split(QLatin1Char('x'));
+    if (split.size() >= 3) {
+        return QCLWorkSize(size_t(split[0].toULongLong()),
+                           size_t(split[1].toULongLong()),
+                           size_t(split[2].toULongLong()));
+    } else if (split.size() == 2) {
+        return QCLWorkSize(size_t(split[0].toULongLong()),
+                           size_t(split[1].toULongLong()));
+    } else if (split.size() == 1) {
+        // An empty string will turn into a single-element list,
+        // which we want to result in (1, 1, 1), not (0, 1, 1)
+        // so it matches the default QCLWorkSize().
+        bool ok;
+        qulonglong value = split[0].toULongLong(&ok);
+        if (ok)
+            return QCLWorkSize(value);
+        else
+            return QCLWorkSize();
+    } else {
+        return QCLWorkSize();
+    }
+}
+
 QT_END_NAMESPACE

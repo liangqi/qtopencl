@@ -82,6 +82,9 @@ public:
         (const QCLWorkSize &maxWorkItemSize, size_t maxItemsPerGroup) const;
     QCLWorkSize toLocalWorkSize(const QCLDevice &device) const;
 
+    QString toString() const;
+    static QCLWorkSize fromString(const QString &str);
+
 private:
     size_t m_dim;
     size_t m_sizes[3];

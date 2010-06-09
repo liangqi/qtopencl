@@ -572,6 +572,42 @@ void tst_QCL::workSize()
     QVERIFY(size4.width() == size4.sizes()[0]);
     QVERIFY(size4.height() == size4.sizes()[1]);
     QVERIFY(size4.depth() == size4.sizes()[2]);
+
+    QCLWorkSize size5;
+    size5 = QCLWorkSize::fromString(QLatin1String(""));
+    QVERIFY(size5.dimensions() == 1);
+    QVERIFY(size5.width() == 1);
+    QVERIFY(size5.height() == 1);
+    QVERIFY(size5.depth() == 1);
+    QCOMPARE(size5.toString(), QLatin1String("1"));
+
+    size5 = QCLWorkSize::fromString(QLatin1String("23"));
+    QVERIFY(size5.dimensions() == 1);
+    QVERIFY(size5.width() == 23);
+    QVERIFY(size5.height() == 1);
+    QVERIFY(size5.depth() == 1);
+    QCOMPARE(size5.toString(), QLatin1String("23"));
+
+    size5 = QCLWorkSize::fromString(QLatin1String("23x6"));
+    QVERIFY(size5.dimensions() == 2);
+    QVERIFY(size5.width() == 23);
+    QVERIFY(size5.height() == 6);
+    QVERIFY(size5.depth() == 1);
+    QCOMPARE(size5.toString(), QLatin1String("23x6"));
+
+    size5 = QCLWorkSize::fromString(QLatin1String("23 x 6 x 43"));
+    QVERIFY(size5.dimensions() == 3);
+    QVERIFY(size5.width() == 23);
+    QVERIFY(size5.height() == 6);
+    QVERIFY(size5.depth() == 43);
+    QCOMPARE(size5.toString(), QLatin1String("23x6x43"));
+
+    size5 = QCLWorkSize::fromString(QLatin1String("23x6x43x1"));
+    QVERIFY(size5.dimensions() == 3);
+    QVERIFY(size5.width() == 23);
+    QVERIFY(size5.height() == 6);
+    QVERIFY(size5.depth() == 43);
+    QCOMPARE(size5.toString(), QLatin1String("23x6x43"));
 }
 
 // Test QCLImageFormat.
