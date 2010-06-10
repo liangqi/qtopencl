@@ -41,6 +41,7 @@
 
 #include "qcldevice.h"
 #include <QtCore/qvarlengtharray.h>
+#include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -972,5 +973,15 @@ QList<QCLDevice> QCLDevice::devices
 
     \sa operator==()
 */
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<(QDebug dbg, const QCLDevice &device)
+{
+    dbg.nospace() << "QCLDevice(" << device.name() << ')';
+    return dbg.space();
+}
+
+#endif
 
 QT_END_NAMESPACE

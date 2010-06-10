@@ -94,6 +94,10 @@ inline bool QCLPlatform::operator!=(const QCLPlatform &other) const
     return m_id != other.m_id;
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+Q_CL_EXPORT QDebug operator<<(QDebug, const QCLPlatform &);
+#endif
+
 QT_END_NAMESPACE
 
 QT_END_HEADER

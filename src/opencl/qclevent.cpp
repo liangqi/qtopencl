@@ -435,6 +435,8 @@ QFuture<void> QCLEvent::toFuture() const
 
 #endif // QT_NO_CONCURRENT
 
+#ifndef QT_NO_DEBUG_STREAM
+
 QDebug operator<<(QDebug dbg, const QCLEvent &event)
 {
     cl_event id = event.eventId();
@@ -528,6 +530,8 @@ QDebug operator<<(QDebug dbg, const QCLEvent &event)
     }
     return dbg;
 }
+
+#endif // QT_NO_DEBUG_STREAM
 
 /*!
     \class QCLEventList
@@ -804,5 +808,22 @@ QFuture<void> QCLEventList::toFuture() const
 */
 
 #endif // QT_NO_CONCURRENT
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<(QDebug dbg, const QCLEventList &eventList)
+{
+    if (eventList.isEmpty()) {
+        dbg << "QCLEventList()";
+        return dbg;
+    }
+    dbg << "QCLEventList(";
+    for (int index = 0; index < eventList.size(); ++index)
+        dbg << eventList.at(index);
+    dbg << ")";
+    return dbg;
+}
+
+#endif // QT_NO_DEBUG_STREAM
 
 QT_END_NAMESPACE

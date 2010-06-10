@@ -183,6 +183,10 @@ inline bool QCLDevice::operator!=(const QCLDevice &other) const
     return m_id != other.m_id;
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+Q_CL_EXPORT QDebug operator<<(QDebug, const QCLDevice &);
+#endif
+
 QT_END_NAMESPACE
 
 QT_END_HEADER

@@ -41,6 +41,7 @@
 
 #include "qclplatform.h"
 #include <QtCore/qvarlengtharray.h>
+#include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -275,5 +276,15 @@ QList<QCLPlatform> QCLPlatform::platforms()
 
     \sa operator==()
 */
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<(QDebug dbg, const QCLPlatform &platform)
+{
+    dbg.nospace() << "QCLPlatform(" << platform.name() << ')';
+    return dbg.space();
+}
+
+#endif
 
 QT_END_NAMESPACE

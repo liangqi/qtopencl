@@ -124,7 +124,7 @@ public:
 
     void waitForFinished();
 
-#if !defined(QT_NO_CONCURRENT)
+#ifndef QT_NO_CONCURRENT
     QFuture<void> toFuture() const;
     operator QFuture<void>() const;
 #endif
@@ -143,10 +143,12 @@ inline bool QCLEvent::operator!=(const QCLEvent &other) const
     return m_id != other.m_id;
 }
 
+#ifndef QT_NO_CONCURRENT
 inline QCLEvent::operator QFuture<void>() const
 {
     return toFuture();
 }
+#endif
 
 inline bool QCLEventList::contains(const QCLEvent &event) const
 {
@@ -182,12 +184,17 @@ inline QCLEventList &QCLEventList::operator<<(const QCLEventList &other)
     return *this;
 }
 
+#ifndef QT_NO_CONCURRENT
 inline QCLEventList::operator QFuture<void>() const
 {
     return toFuture();
 }
+#endif
 
+#ifndef QT_NO_DEBUG_STREAM
 Q_CL_EXPORT QDebug operator<<(QDebug, const QCLEvent &);
+Q_CL_EXPORT QDebug operator<<(QDebug, const QCLEventList &);
+#endif
 
 QT_END_NAMESPACE
 
