@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "qcldevice.h"
+#include "qclext_p.h"
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qdebug.h>
 
@@ -563,10 +564,6 @@ QCLDevice::FloatCapabilities QCLDevice::floatCapabilities() const
         return QCLDevice::FloatCapabilities(config);
 }
 
-#ifndef CL_DEVICE_DOUBLE_FP_CONFIG
-#define CL_DEVICE_DOUBLE_FP_CONFIG 0x1032
-#endif
-
 /*!
     Returns a set of flags that describes the floating-point
     capabilities of the \c{double} type on this device.
@@ -586,10 +583,6 @@ QCLDevice::FloatCapabilities QCLDevice::doubleCapabilities() const
     else
         return QCLDevice::FloatCapabilities(config);
 }
-
-#ifndef CL_DEVICE_HALF_FP_CONFIG
-#define CL_DEVICE_HALF_FP_CONFIG 0x1033
-#endif
 
 /*!
     Returns a set of flags that describes the floating-point

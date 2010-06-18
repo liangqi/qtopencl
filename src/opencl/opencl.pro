@@ -59,5 +59,8 @@ SOURCES += \
     qclvector.cpp \
     qclworksize.cpp
 
+PRIVATE_HEADERS += \
+    qclext_p.h
+
 HEADERS += $$PRIVATE_HEADERS
 DEFINES += QT_BUILD_CL_LIB

@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "qclcontext.h"
+#include "qclext_p.h"
 #include <QtCore/qdebug.h>
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qfile.h>
@@ -494,11 +495,20 @@ QString QCLContext::errorName(cl_int code)
     case CL_INVALID_GLOBAL_WORK_SIZE: return QLatin1String("CL_INVALID_GLOBAL_WORK_SIZE");
 #endif
 
+    // OpenCL 1.1
+    case CL_MISALIGNED_SUB_BUFFER_OFFSET: return QLatin1String("CL_MISALIGNED_SUB_BUFFER_OFFSET");
+    case CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST: return QLatin1String("CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+
     // OpenCL-OpenGL sharing extension error codes.
-    case -1000: return QLatin1String("CL_INVALID_CL_SHAREGROUP_REFERENCE_KHR");
+    case CL_INVALID_CL_SHAREGROUP_REFERENCE_KHR: return QLatin1String("CL_INVALID_CL_SHAREGROUP_REFERENCE_KHR");
 
     // cl_khr_icd extension.
-    case -1001: return QLatin1String("CL_PLATFORM_NOT_FOUND_KHR");
+    case CL_PLATFORM_NOT_FOUND_KHR: return QLatin1String("CL_PLATFORM_NOT_FOUND_KHR");
+
+    // cl_ext_device_fission extension.
+    case CL_DEVICE_PARTITION_FAILED_EXT: return QLatin1String("CL_DEVICE_PARTITION_FAILED_EXT");
+    case CL_INVALID_PARTITION_COUNT_EXT: return QLatin1String("CL_INVALID_PARTITION_COUNT_EXT");
+    case CL_INVALID_PARTITION_NAME_EXT: return QLatin1String("CL_INVALID_PARTITION_NAME_EXT");
 
     default: break;
     }

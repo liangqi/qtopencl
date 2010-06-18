@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "qclplatform.h"
+#include "qclext_p.h"
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qdebug.h>
 
@@ -185,10 +186,6 @@ QString QCLPlatform::vendor() const
 {
     return qt_cl_platform_string(m_id, CL_PLATFORM_VENDOR);
 }
-
-#if !defined(CL_PLATFORM_ICD_SUFFIX_KHR)
-#define CL_PLATFORM_ICD_SUFFIX_KHR 0x0920
-#endif
 
 /*!
     Returns the vendor extension suffix for this platform if the
