@@ -156,6 +156,10 @@ inline bool QCLImageFormat::operator!=(const QCLImageFormat &other)
            m_qformat != other.m_qformat;
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+Q_CL_EXPORT QDebug operator<<(QDebug, const QCLImageFormat &);
+#endif
+
 QT_END_NAMESPACE
 
 QT_END_HEADER

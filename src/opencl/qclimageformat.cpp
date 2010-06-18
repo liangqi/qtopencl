@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "qclimageformat.h"
+#include <QtCore/qdebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -279,5 +280,72 @@ QCLImageFormat::QCLImageFormat(QImage::Format format)
     Returns the nearest QImage format to this OpenCL image format;
     QImage::Format_Invalid if there is no corresponding QImage format.
 */
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<(QDebug dbg, const QCLImageFormat &format)
+{
+    if (format.isNull()) {
+        dbg << "QCLImageFormat()";
+        return dbg;
+    }
+    dbg.nospace() << "QCLImageFormat(";
+    switch (int(format.channelOrder())) {
+    case QCLImageFormat::Order_R: dbg << "R,"; break;
+    case QCLImageFormat::Order_A: dbg << "A,"; break;
+    case QCLImageFormat::Order_RG: dbg << "RG,"; break;
+    case QCLImageFormat::Order_RA: dbg << "RA,"; break;
+    case QCLImageFormat::Order_RGB: dbg << "RGB,"; break;
+    case QCLImageFormat::Order_RGBA: dbg << "RGBA,"; break;
+    case QCLImageFormat::Order_BGRA: dbg << "BGRA,"; break;
+    case QCLImageFormat::Order_ARGB: dbg << "ARGB,"; break;
+    case QCLImageFormat::Order_Intensity: dbg << "Intensity,"; break;
+    case QCLImageFormat::Order_Luminence: dbg << "Luminence,"; break;
+    case QCLImageFormat::Order_Rx: dbg << "Rx,"; break;
+    case QCLImageFormat::Order_RGx: dbg << "RGx,"; break;
+    case QCLImageFormat::Order_RGBx: dbg << "RGBx,"; break;
+    default: dbg << int(format.channelOrder()) << ','; break;
+    }
+    switch (int(format.channelType())) {
+    case QCLImageFormat::Type_Normalized_Int8:
+        dbg << "int8"; break;
+    case QCLImageFormat::Type_Normalized_Int16:
+        dbg << "int16"; break;
+    case QCLImageFormat::Type_Normalized_UInt8:
+        dbg << "uint8"; break;
+    case QCLImageFormat::Type_Normalized_UInt16:
+        dbg << "uint16"; break;
+    case QCLImageFormat::Type_Normalized_565:
+        dbg << "565"; break;
+    case QCLImageFormat::Type_Normalized_555:
+        dbg << "555"; break;
+    case QCLImageFormat::Type_Normalized_101010:
+        dbg << "101010"; break;
+    case QCLImageFormat::Type_Unnormalized_Int8:
+        dbg << "U_int8"; break;
+    case QCLImageFormat::Type_Unnormalized_Int16:
+        dbg << "U_int16"; break;
+    case QCLImageFormat::Type_Unnormalized_Int32:
+        dbg << "U_int32"; break;
+    case QCLImageFormat::Type_Unnormalized_UInt8:
+        dbg << "U_uint8"; break;
+    case QCLImageFormat::Type_Unnormalized_UInt16:
+        dbg << "U_uint16"; break;
+    case QCLImageFormat::Type_Unnormalized_UInt32:
+        dbg << "U_uint32"; break;
+    case QCLImageFormat::Type_Half_Float:
+        dbg << "half"; break;
+    case QCLImageFormat::Type_Float:
+        dbg << "float"; break;
+    default: dbg << int(format.channelType()); break;
+    }
+    QImage::Format qformat = format.toQImageFormat();
+    if (qformat != QImage::Format_Invalid)
+        dbg << ",QImage=" << int(qformat);
+    dbg << ')';
+    return dbg.space();
+}
+
+#endif
 
 QT_END_NAMESPACE
