@@ -101,6 +101,15 @@ QT_BEGIN_NAMESPACE
     \value Order_ARGB Alpha, red, green, then blue channels.
     \value Order_Intensity Single intensity channel.
     \value Order_Luminence Single luminence channel.
+    \value Order_Rx Red channel plus an ignored channel.
+        This value is an optional channel order in OpenCL 1.1,
+        and is not supported by OpenCL 1.0.
+    \value Order_RGx Red and green channels plus an ignored channel.
+        This value is an optional channel order in OpenCL 1.1,
+        and is not supported by OpenCL 1.0.
+    \value Order_RGBx Red, green, and blue channels, plus an
+        ignored channel.  This value is an optional channel
+        order in OpenCL 1.1, and is not supported by OpenCL 1.0.
 */
 
 /*!

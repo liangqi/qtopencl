@@ -67,7 +67,10 @@ public:
         Order_BGRA                  = 0x10B6,
         Order_ARGB                  = 0x10B7,
         Order_Intensity             = 0x10B8,
-        Order_Luminence             = 0x10B9
+        Order_Luminence             = 0x10B9,
+        Order_Rx                    = 0x10BA,   // OpenCL 1.1
+        Order_RGx                   = 0x10BB,   // OpenCL 1.1
+        Order_RGBx                  = 0x10BC    // OpenCL 1.1
     };
 
     enum ChannelType
