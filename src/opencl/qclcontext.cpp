@@ -535,10 +535,17 @@ void QCLContext::setCommandQueue(const QCLCommandQueue &queue)
 /*!
     Returns the default command queue for defaultDevice().  If the queue
     has not been created, it will be created with the default properties
-    of in-order execution of commands.
+    of in-order execution of commands, and profiling disabled.
 
-    Out of order execution can be set on the default command queue with
-    QCLCommandQueue::setOutOfOrder().
+    Use createCommandQueue() to create a queue that supports
+    out-of-order execution or profiling.  For example:
+
+    \code
+    QCLCommandQueue queue =
+        context.createCommandQueue
+            (CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);
+    context.setCommandQueue(queue);
+    \endcode
 
     \sa commandQueue(), createCommandQueue(), lastError()
 */
@@ -579,8 +586,9 @@ cl_command_queue QCLContext::activeQueue()
 }
 
 /*!
-    Creates a new command queue on this context for \a device and
-    \a properties.
+    Creates a new command queue on this context for \a device with
+    the specified \a properties.  If \a device is null, then
+    defaultDevice() will be used instead.
 
     Unlike defaultCommandQueue(), this function will create a new queue
     every time it is called.  The queue will be deleted when the last
@@ -589,12 +597,15 @@ cl_command_queue QCLContext::activeQueue()
     \sa defaultCommandQueue(), lastError()
 */
 QCLCommandQueue QCLContext::createCommandQueue
-    (const QCLDevice &device, cl_command_queue_properties properties)
+    (cl_command_queue_properties properties, const QCLDevice &device)
 {
     Q_D(QCLContext);
     cl_command_queue queue;
     cl_int error = CL_INVALID_VALUE;
-    queue = clCreateCommandQueue(d->id, device.deviceId(), properties, &error);
+    if (device.isNull())
+        queue = clCreateCommandQueue(d->id, defaultDevice().deviceId(), properties, &error);
+    else
+        queue = clCreateCommandQueue(d->id, device.deviceId(), properties, &error);
     reportError("QCLContext::createCommandQueue:", error);
     if (queue)
         return QCLCommandQueue(this, queue);

@@ -118,8 +118,6 @@ QCLCommandQueue &QCLCommandQueue::operator=(const QCLCommandQueue &other)
 /*!
     Returns true if this command queue executes commands out of order;
     otherwise false if commands are executed in order.
-
-    \sa setOutOfOrder()
 */
 bool QCLCommandQueue::isOutOfOrder() const
 {
@@ -133,27 +131,13 @@ bool QCLCommandQueue::isOutOfOrder() const
 }
 
 /*!
-    Enables or disables out of order execution of commands according
-    to \a enable.
-
-    \sa isOutOfOrder()
-*/
-void QCLCommandQueue::setOutOfOrder(bool enable)
-{
-    if (!m_id)
-        return;
-    clSetCommandQueueProperty(m_id, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
-                              (enable ? CL_TRUE : CL_FALSE), 0);
-}
-
-/*!
     Returns true if this command queue will perform profiling on
     commands; false otherwise.
 
     Profiling information is made available when a QCLEvent finishes
     execution.
 
-    \sa setProfilingEnabled(), QCLEvent::finishTime()
+    \sa QCLEvent::finishTime()
 */
 bool QCLCommandQueue::isProfilingEnabled() const
 {
@@ -164,22 +148,6 @@ bool QCLCommandQueue::isProfilingEnabled() const
                               sizeof(props), &props, 0) != CL_SUCCESS)
         return false;
     return (props & CL_QUEUE_PROFILING_ENABLE) != 0;
-}
-
-/*!
-    Enables or disables profiling of commands according to \a enable.
-
-    Profiling information is made available when a QCLEvent finishes
-    execution.
-
-    \sa isProfilingEnabled(), QCLEvent::finishTime()
-*/
-void QCLCommandQueue::setProfilingEnabled(bool enable)
-{
-    if (!m_id)
-        return;
-    clSetCommandQueueProperty(m_id, CL_QUEUE_PROFILING_ENABLE,
-                              (enable ? CL_TRUE : CL_FALSE), 0);
 }
 
 /*!

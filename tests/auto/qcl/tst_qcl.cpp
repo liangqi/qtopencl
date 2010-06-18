@@ -412,10 +412,12 @@ void tst_QCL::vectorBuffer()
 
 void tst_QCL::eventProfiling()
 {
-    QCLCommandQueue queue = context.defaultCommandQueue();
-    QVERIFY(!queue.isProfilingEnabled());
-    queue.setProfilingEnabled(true);
+    QVERIFY(!context.defaultCommandQueue().isProfilingEnabled());
+
+    QCLCommandQueue queue =
+        context.createCommandQueue(CL_QUEUE_PROFILING_ENABLE);
     QVERIFY(queue.isProfilingEnabled());
+    context.setCommandQueue(queue);
 
     QCLVector<float> vector1 = context.createVector<float>(20000);
     for (int index = 0; index < vector1.size(); ++index)
@@ -433,8 +435,7 @@ void tst_QCL::eventProfiling()
     QVERIFY(event.runTime() >= event.submitTime());
     QVERIFY(event.finishTime() >= event.runTime());
 
-    queue.setProfilingEnabled(false);
-    QVERIFY(!queue.isProfilingEnabled());
+    context.setCommandQueue(context.defaultCommandQueue());
 }
 
 // Test QCLSampler.

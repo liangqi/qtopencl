@@ -277,7 +277,6 @@ void QCLEvent::waitForFinished()
     execution and profiling was enabled on the command queue.
 
     \sa submitTime(), runTime(), finishTime(), isQueued()
-    \sa QCLCommandQueue::setProfilingEnabled()
 */
 quint64 QCLEvent::queueTime() const
 {
@@ -297,7 +296,6 @@ quint64 QCLEvent::queueTime() const
     execution and profiling was enabled on the command queue.
 
     \sa queueTime(), runTime(), finishTime(), isSubmitted()
-    \sa QCLCommandQueue::setProfilingEnabled()
 */
 quint64 QCLEvent::submitTime() const
 {
@@ -317,7 +315,6 @@ quint64 QCLEvent::submitTime() const
     execution and profiling was enabled on the command queue.
 
     \sa queueTime(), submitTime(), finishTime(), isRunning()
-    \sa QCLCommandQueue::setProfilingEnabled()
 */
 quint64 QCLEvent::runTime() const
 {
@@ -337,7 +334,6 @@ quint64 QCLEvent::runTime() const
     execution and profiling was enabled on the command queue.
 
     \sa queueTime(), submitTime(), runTime(), isFinished()
-    \sa QCLCommandQueue::setProfilingEnabled()
 */
 quint64 QCLEvent::finishTime() const
 {

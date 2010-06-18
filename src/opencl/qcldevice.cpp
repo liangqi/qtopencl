@@ -615,7 +615,7 @@ QCLDevice::FloatCapabilities QCLDevice::halfFloatCapabilities() const
     Returns the resolution of the device profiling timer in
     nanoseconds.
 
-    \sa QCLEvent::finishTime(), QCLCommandQueue::setProfilingEnabled()
+    \sa QCLEvent::finishTime()
 */
 quint64 QCLDevice::profilingTimerResolution() const
 {

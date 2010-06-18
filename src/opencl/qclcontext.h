@@ -92,7 +92,8 @@ public:
 
     QCLCommandQueue defaultCommandQueue();
     QCLCommandQueue createCommandQueue
-        (const QCLDevice &device, cl_command_queue_properties properties);
+        (cl_command_queue_properties properties,
+         const QCLDevice &device = QCLDevice());
 
     QCLBuffer createBufferDevice
         (size_t size, QCLMemoryObject::Access access);
