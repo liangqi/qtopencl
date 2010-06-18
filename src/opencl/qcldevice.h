@@ -54,8 +54,8 @@ QT_MODULE(CL)
 class Q_CL_EXPORT QCLDevice
 {
 public:
-    QCLDevice() : m_id(0) {}
-    QCLDevice(cl_device_id id) : m_id(id) {}
+    QCLDevice() : m_id(0), m_flags(0) {}
+    QCLDevice(cl_device_id id) : m_id(id), m_flags(0) {}
 
     enum DeviceType
     {
@@ -156,6 +156,8 @@ public:
 
     bool hasExtension(const char *name) const;
 
+    QCLPlatform::VersionFlags versionFlags() const;
+
     cl_device_id deviceId() const { return m_id; }
 
     static QList<QCLDevice> allDevices();
@@ -168,6 +170,7 @@ public:
 
 private:
     cl_device_id m_id;
+    mutable int m_flags;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QCLDevice::DeviceTypes)

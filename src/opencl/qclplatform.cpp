@@ -70,6 +70,9 @@ QT_BEGIN_NAMESPACE
        functions can be used to check for specific profile strings.
     \o version() - version of OpenCL supported by the platform;
        usually something like \c{OpenCL 1.0}.
+    \o versionFlags() - flag bits indicating which versions of
+       OpenCL are supported by this platform, in an easier to
+       use form than the string from version().
     \o name() - name of the platform.
     \o vendor() - name of the vendor that created the platform.
     \o extensionSuffix() - the vendor extension suffix if the \c{cl_khr_icd}
@@ -165,6 +168,11 @@ QString QCLPlatform::profile() const
 /*!
     Returns the OpenCL version that is implemented by this OpenCL platform,
     usually something like \c{OpenCL 1.0}.
+
+    The versionFlags() function parses the version into flag bits
+    that are easier to test than the string returned by version().
+
+    \sa versionFlags()
 */
 QString QCLPlatform::version() const
 {
@@ -232,6 +240,31 @@ bool QCLPlatform::hasExtension(const char *name) const
     clGetPlatformInfo(m_id, CL_PLATFORM_EXTENSIONS, size,
                       buf.data(), &size);
     return qt_cl_has_extension(buf.constData(), size, name);
+}
+
+/*!
+    \enum QCLPlatform::VersionFlag
+    This enum defines flag bits corresponding to OpenCL versions.
+
+    \value Version_1_0 OpenCL 1.0 is supported.
+    \value Version_1_1 OpenCL 1.1 is supported.
+*/
+
+// Defined in qcldevice.cpp.
+int qt_cl_version_flags(const QString &version);
+
+/*!
+    Returns the OpenCL versions supported by this platform.
+
+    \sa version(), QCLDevice::versionFlags()
+*/
+QCLPlatform::VersionFlags QCLPlatform::versionFlags() const
+{
+    if (!m_flags) {
+        m_flags = qt_cl_version_flags
+            (qt_cl_platform_string(m_id, CL_PLATFORM_VERSION));
+    }
+    return QCLPlatform::VersionFlags(m_flags);
 }
 
 /*!

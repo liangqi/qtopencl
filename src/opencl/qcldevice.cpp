@@ -796,7 +796,10 @@ QString QCLDevice::profile() const
     Returns the OpenCL version that is implemented by this OpenCL device,
     usually something like \c{OpenCL 1.0}.
 
-    \sa driverVersion()
+    The versionFlags() function parses the version into flag bits
+    that are easier to test than the string returned by version().
+
+    \sa versionFlags(), driverVersion()
 */
 QString QCLDevice::version() const
 {
@@ -884,6 +887,52 @@ bool QCLDevice::hasExtension(const char *name) const
     QVarLengthArray<char> buf(size);
     clGetDeviceInfo(m_id, CL_DEVICE_EXTENSIONS, size, buf.data(), &size);
     return qt_cl_has_extension(buf.constData(), size, name);
+}
+
+int qt_cl_version_flags(const QString &version)
+{
+    if (!version.startsWith(QLatin1String("OpenCL ")))
+        return 0;
+    int index = 7;
+    int major = 0;
+    int minor = 0;
+    while (index < version.length()) {
+        int ch = version[index].unicode();
+        if (ch < '0' || ch > '9')
+            break;
+        major = major * 10 + (ch - '0');
+        ++index;
+    }
+    if (index < version.length() && version[index] == QChar('.')) {
+        ++index;
+        while (index < version.length()) {
+            int ch = version[index].unicode();
+            if (ch < '0' || ch > '9')
+                break;
+            minor = minor * 10 + (ch - '0');
+            ++index;
+        }
+    }
+    int flags = 0;
+    if (major >= 1)
+        flags |= QCLPlatform::Version_1_0;
+    if ((major == 1 && minor >= 1) || major >= 2)
+        flags |= QCLPlatform::Version_1_1;
+    return flags;
+}
+
+/*!
+    Returns the OpenCL versions supported by this device.
+
+    \sa version(), QCLPlatform::versionFlags()
+*/
+QCLPlatform::VersionFlags QCLDevice::versionFlags() const
+{
+    if (!m_flags) {
+        m_flags = qt_cl_version_flags
+            (qt_cl_paramString(m_id, CL_DEVICE_VERSION));
+    }
+    return QCLPlatform::VersionFlags(m_flags);
 }
 
 /*!

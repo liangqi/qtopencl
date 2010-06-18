@@ -56,8 +56,8 @@ QT_MODULE(CL)
 class Q_CL_EXPORT QCLPlatform
 {
 public:
-    QCLPlatform() : m_id(0) {}
-    QCLPlatform(cl_platform_id id) : m_id(id) {}
+    QCLPlatform() : m_id(0), m_flags(0) {}
+    QCLPlatform(cl_platform_id id) : m_id(id), m_flags(0) {}
 
     bool isNull() const { return m_id == 0; }
 
@@ -73,6 +73,15 @@ public:
 
     bool hasExtension(const char *name) const;
 
+    enum VersionFlag
+    {
+        Version_1_0     = 0x0001,
+        Version_1_1     = 0x0002
+    };
+    Q_DECLARE_FLAGS(VersionFlags, VersionFlag)
+
+    QCLPlatform::VersionFlags versionFlags() const;
+
     cl_platform_id platformId() const { return m_id; }
 
     static QList<QCLPlatform> platforms();
@@ -82,7 +91,10 @@ public:
 
 private:
     cl_platform_id m_id;
+    mutable int m_flags;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QCLPlatform::VersionFlags)
 
 inline bool QCLPlatform::operator==(const QCLPlatform &other) const
 {
