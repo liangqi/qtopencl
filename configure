@@ -101,6 +101,7 @@ unset QTDIR
 
 # initalize internal variables
 CFG_OPENCL=yes
+CFG_OPENCL_1_1=auto
 CFG_OPENCLGL=auto
 CFG_GCOV=no
 
@@ -464,13 +465,23 @@ if [ "${CFG_OPENCLGL}" = "auto" ]; then
     fi
 fi
 
+# detect OpenCL 1.1
+if [ "${CFG_OPENCL_1_1}" = "auto" ]; then
+    if "$unixtests/compile.test" "$OPT_QMAKE" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/opencl11 "opencl11" $L_FLAGS $I_FLAGS $l_FLAGS $D_FLAGS; then
+	CFG_OPENCL_1_1=yes
+    else
+	CFG_OPENCL_1_1=no
+    fi
+fi
+
 #-------------------------------------------------------------------------------
 # give feedback on configuration
 #-------------------------------------------------------------------------------
 
 echo "Qt version ............. $QMAKE_VERSION"
 echo "qmake .................. $OPT_QMAKE"
-echo "OpenCL ................. $CFG_OPENCL"
+echo "OpenCL 1.0 ............. $CFG_OPENCL"
+echo "OpenCL 1.1 ............. $CFG_OPENCL_1_1"
 echo "OpenCL/OpenGL interop .. $CFG_OPENCLGL"
 echo "Extra QMAKE_CXXFLAGS ...$D_FLAGS" | sed 's/"//g'
 echo "Extra INCLUDEPATH ......$INCLUDEPATH" | sed 's/"//g'
@@ -492,6 +503,9 @@ fi
 QMAKE_OPTIONS=""
 if [ "x$CFG_OPENCLGL" != "xyes" ] ; then
     QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=no_cl_gl"
+fi
+if [ "x$CFG_OPENCL_1_1" != "xyes" ] ; then
+    QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=opencl_1_1"
 fi
 if [ "x$CFG_GCOV" = "xyes" ] ; then
     QMAKE_OPTIONS="$QMAKE_OPTIONS LIBS*=-fprofile-arcs"
