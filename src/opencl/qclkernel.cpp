@@ -659,12 +659,8 @@ void QCLKernel::setArg(int index, Qt::GlobalColor value)
 void QCLKernel::setArg(int index, const QPoint &value)
 {
     Q_D(const QCLKernel);
-    if (sizeof(value) == (sizeof(cl_int) * 2)) {
-        clSetKernelArg(d->id, index, sizeof(value), &value);
-    } else {
-        cl_int values[2] = {value.x(), value.y()};
-        clSetKernelArg(d->id, index, sizeof(values), values);
-    }
+    cl_int values[2] = {value.x(), value.y()};
+    clSetKernelArg(d->id, index, sizeof(values), values);
 }
 
 /*!
