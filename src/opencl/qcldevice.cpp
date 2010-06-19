@@ -841,7 +841,11 @@ QStringList QCLDevice::extensions() const
 {
     if (!m_id)
         return QStringList();
-    return qt_cl_paramString(m_id, CL_DEVICE_EXTENSIONS).simplified().split(QChar(' '));
+    QString extns = qt_cl_paramString(m_id, CL_DEVICE_EXTENSIONS).simplified();
+    if (!extns.isEmpty())
+        return extns.split(QChar(' '));
+    else
+        return QStringList();
 }
 
 bool qt_cl_has_extension(const char *list, size_t listLen, const char *name)

@@ -213,7 +213,11 @@ QStringList QCLPlatform::extensions() const
 {
     if (!m_id)
         return QStringList();
-    return qt_cl_platform_string(m_id, CL_PLATFORM_EXTENSIONS).simplified().split(QChar(' '));
+    QString extns = qt_cl_platform_string(m_id, CL_PLATFORM_EXTENSIONS).simplified();
+    if (!extns.isEmpty())
+        return extns.split(QChar(' '));
+    else
+        return QStringList();
 }
 
 // Defined in qcldevice.cpp.
