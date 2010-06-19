@@ -407,13 +407,13 @@ QSize QCLDevice::maximumImage2DSize() const
 {
     if (!qt_cl_paramBool(m_id, CL_DEVICE_IMAGE_SUPPORT))
         return QSize();
-    return QSize(qt_cl_paramInt(m_id, CL_DEVICE_IMAGE2D_MAX_WIDTH),
-                 qt_cl_paramInt(m_id, CL_DEVICE_IMAGE2D_MAX_HEIGHT));
+    return QSize(qt_cl_paramSize(m_id, CL_DEVICE_IMAGE2D_MAX_WIDTH),
+                 qt_cl_paramSize(m_id, CL_DEVICE_IMAGE2D_MAX_HEIGHT));
 }
 
 /*!
     Returns the maximum size of 3D images that are supported
-    by this device; or a (0, 0, 0) if images are not supported.
+    by this device; or (0, 0, 0) if images are not supported.
 
     \sa maximumImage2DSize(), hasImage3D()
 */
