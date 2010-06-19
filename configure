@@ -514,6 +514,7 @@ if [ "x$CFG_GCOV" = "xyes" ] ; then
     QMAKE_OPTIONS="$QMAKE_OPTIONS QMAKE_CXXFLAGS*=-ftest-coverage"
     QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=gcov"
 fi
+QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=opencl_configure"
 
 if $OPT_QMAKE $QMAKE_OPTIONS \
         "LIBS*=$L_FLAGS" \

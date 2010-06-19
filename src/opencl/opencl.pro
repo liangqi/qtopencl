@@ -26,6 +26,10 @@ win32 {
     }
 }
 
+macx:!opencl_configure {
+    LIBS += -framework OpenCL
+}
+
 HEADERS += \
     qclbuffer.h \
     qclcommandqueue.h \

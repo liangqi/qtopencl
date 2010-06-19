@@ -1,6 +1,9 @@
 INCLUDEPATH += $$PWD
+LIBS += -lQtOpenCL
+macx:!opencl_configure {
+    LIBS += -framework OpenCL
+}
 win32 {
-    LIBS += -lQtOpenCL
     !isEmpty(QMAKE_INCDIR_OPENCL) {
         QMAKE_CXXFLAGS += -I$$QMAKE_INCDIR_OPENCL
     }
@@ -12,6 +15,4 @@ win32 {
     } else {
         LIBS += -lOpenCL
     }
-} else {
-    LIBS += -lQtOpenCL
 }

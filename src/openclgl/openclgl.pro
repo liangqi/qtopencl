@@ -30,6 +30,9 @@ win32 {
 } else {
     LIBS += -lQtOpenCL
 }
+macx:!opencl_configure {
+    LIBS += -framework OpenCL
+}
 
 no_cl_gl {
     DEFINES += QT_NO_CL_OPENGL
