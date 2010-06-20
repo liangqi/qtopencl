@@ -52,6 +52,8 @@ QT_BEGIN_NAMESPACE
 
 QT_MODULE(CL)
 
+class QCLUserEvent;
+
 class Q_CL_EXPORT QCLEvent
 {
 public:
@@ -92,6 +94,8 @@ public:
 
 private:
     cl_event m_id;
+
+    friend class QCLUserEvent;
 };
 
 class Q_CL_EXPORT QCLEventList

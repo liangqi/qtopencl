@@ -1272,6 +1272,28 @@ QList<QCLImageFormat> QCLContext::supportedImage3DFormats
 }
 
 /*!
+    Creates a user event.  Returns null if user events are not
+    supported.
+
+    User events are a feature of OpenCL 1.1 which allows an application
+    to insert a marker into the command queue.  Commands that depend
+    upon the marker will not be executed until the application triggers
+    the user event with QCLUserEvent::setFinished().
+*/
+QCLUserEvent QCLContext::createUserEvent()
+{
+#ifdef QT_OPENCL_1_1
+    Q_D(QCLContext);
+    cl_int error = CL_INVALID_CONTEXT;
+    cl_event event = clCreateUserEvent(d->id, &error);
+    reportError("QCLContext::createUserEvent:", error);
+    return QCLUserEvent(event, true);
+#else
+    return QCLUserEvent();
+#endif
+}
+
+/*!
     Flushes all previously queued commands to the device associated
     with the active command queue.  The commands are delivered to
     the device, but no guarantees are given that they will be executed.

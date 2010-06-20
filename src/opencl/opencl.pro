@@ -44,6 +44,7 @@ HEADERS += \
     qclplatform.h \
     qclprogram.h \
     qclsampler.h \
+    qcluserevent.h \
     qclvector.h \
     qclworksize.h
 
@@ -60,6 +61,7 @@ SOURCES += \
     qclplatform.cpp \
     qclprogram.cpp \
     qclsampler.cpp \
+    qcluserevent.cpp \
     qclvector.cpp \
     qclworksize.cpp
 

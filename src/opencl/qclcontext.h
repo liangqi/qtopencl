@@ -49,6 +49,7 @@
 #include "qclimage.h"
 #include "qclsampler.h"
 #include "qclprogram.h"
+#include "qcluserevent.h"
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qsize.h>
 #include <QtCore/qbytearray.h>
@@ -145,6 +146,8 @@ public:
 
     QList<QCLImageFormat> supportedImage2DFormats(cl_mem_flags flags) const;
     QList<QCLImageFormat> supportedImage3DFormats(cl_mem_flags flags) const;
+
+    QCLUserEvent createUserEvent();
 
     void flush();
     void finish();

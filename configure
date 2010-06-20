@@ -504,7 +504,7 @@ QMAKE_OPTIONS=""
 if [ "x$CFG_OPENCLGL" != "xyes" ] ; then
     QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=no_cl_gl"
 fi
-if [ "x$CFG_OPENCL_1_1" != "xyes" ] ; then
+if [ "x$CFG_OPENCL_1_1" = "xyes" ] ; then
     QMAKE_OPTIONS="$QMAKE_OPTIONS CONFIG+=opencl_1_1"
 fi
 if [ "x$CFG_GCOV" = "xyes" ] ; then

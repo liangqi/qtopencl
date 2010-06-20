@@ -42,6 +42,7 @@
 #include "qclevent.h"
 #include "qclcommandqueue.h"
 #include "qclcontext.h"
+#include "qclext_p.h"
 #include <QtCore/qdebug.h>
 #include <QtCore/qtconcurrentrun.h>
 
@@ -105,7 +106,7 @@ QT_BEGIN_NAMESPACE
     Event lists can be used to order commands when out-of-order
     command execution is in use.
 
-    \sa QCLCommandQueue::isOutOfOrder(), QCLEventList
+    \sa QCLCommandQueue::isOutOfOrder(), QCLEventList, QCLUserEvent
 */
 
 /*!
@@ -478,6 +479,15 @@ QDebug operator<<(QDebug dbg, const QCLEvent &event)
         commandName = "clEnqueueAcquireGLObjects"; break;
     case CL_COMMAND_RELEASE_GL_OBJECTS:
         commandName = "clEnqueueReleaseGLObjects"; break;
+    // OpenCL 1.1 event types.
+    case CL_COMMAND_READ_BUFFER_RECT:
+        commandName = "clEnqueueReadBufferRect"; break;
+    case CL_COMMAND_WRITE_BUFFER_RECT:
+        commandName = "clEnqueueWriteBufferRect"; break;
+    case CL_COMMAND_COPY_BUFFER_RECT:
+        commandName = "clEnqueueCopyBufferRect"; break;
+    case CL_COMMAND_USER:
+        commandName = "clCreateUserEvent"; break;
     default:
         commandName = "Unknown"; break;
     }
