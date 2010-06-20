@@ -73,6 +73,7 @@
        \l{QCLBuffer::createSubBuffer()}{createSubBuffer()},
        \l{QCLBuffer::createSubBuffer()}{parentBuffer()}, and
        \l{QCLBuffer::createSubBuffer()}{offset()}.
+    \o Added QCLKernel::preferredWorkSizeMultiple().
     \endlist
 
     \l{index.html}{Return to Home}
