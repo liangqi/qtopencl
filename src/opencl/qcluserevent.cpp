@@ -143,6 +143,8 @@ void QCLUserEvent::setStatus(cl_int status)
                     << QCLContext::errorName(error);
         }
     }
+#else
+    Q_UNUSED(status);
 #endif
 }
 
