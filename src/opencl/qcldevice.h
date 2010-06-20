@@ -80,6 +80,7 @@ public:
     bool hasDouble() const;
     bool hasHalfFloat() const;
     bool hasErrorCorrectingMemory() const;
+    bool hasUnifiedMemory() const;
 
     int computeUnits() const;
     int clockFrequency() const;

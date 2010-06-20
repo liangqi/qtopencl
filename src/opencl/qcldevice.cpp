@@ -299,6 +299,19 @@ bool QCLDevice::hasErrorCorrectingMemory() const
 }
 
 /*!
+    Returns true if the device and the host share a unified
+    memory address space; false otherwise.
+
+    Note: OpenCL 1.0 devices will usually report false from
+    this function even if they have unified memory because
+    the relevant device query is specific to OpenCL 1.1.
+*/
+bool QCLDevice::hasUnifiedMemory() const
+{
+    return qt_cl_paramBool(m_id, CL_DEVICE_HOST_UNIFIED_MEMORY);
+}
+
+/*!
     Returns the number of parallel compute units on the device.
 */
 int QCLDevice::computeUnits() const

@@ -133,6 +133,8 @@ int main(int argc, char *argv[])
                dev.maximumParameterBytes());
         printf("    Error Correction  : %s\n",
                dev.hasErrorCorrectingMemory() ? "true" : "false");
+        printf("    Unified Memory    : %s\n",
+               dev.hasUnifiedMemory() ? "true" : "false");
         printf("    Float Support     :");
         printFloatCapabilities(dev.floatCapabilities());
         printf("    Double Support    :");
