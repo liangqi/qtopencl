@@ -57,7 +57,10 @@
     \o New QCLDevice queries:
        \l{QCLDevice::languageVersion()}{languageVersion()},
        \l{QCLDevice::preferredHalfFloatVectorSize()}{preferredHalfFloatVectorSize()},
-       and \l{QCLDevice::hasUnifiedMemory()}{hasUnifiedMemory()}.
+       \l{QCLDevice::hasUnifiedMemory()}{hasUnifiedMemory()},
+       \l{QCLDevice::nativeCharVectorSize()}{nativeCharVectorSize()},
+       \l{QCLDevice::nativeShortVectorSize()}{nativeShortVectorSize()},
+       etc.
     \o The \c{setOutOfOrder()} and \c{setProfilingEnabled()}
        functions have been removed from QCLCommandQueue because
        OpenCL 1.1 has deprecated the functionality, and we want

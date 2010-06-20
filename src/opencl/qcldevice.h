@@ -107,6 +107,14 @@ public:
     int preferredDoubleVectorSize() const;
     int preferredHalfFloatVectorSize() const;
 
+    int nativeCharVectorSize() const;
+    int nativeShortVectorSize() const;
+    int nativeIntVectorSize() const;
+    int nativeLongVectorSize() const;
+    int nativeFloatVectorSize() const;
+    int nativeDoubleVectorSize() const;
+    int nativeHalfFloatVectorSize() const;
+
     enum FloatCapability
     {
         NotSupported        = 0x0000,

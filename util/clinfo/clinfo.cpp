@@ -183,8 +183,24 @@ int main(int argc, char *argv[])
             printf(", double%d", dsize);
         int hsize = dev.preferredHalfFloatVectorSize();
         if (hsize)
-            printf(", half%d\n", hsize);
+            printf(", half%d", hsize);
         printf("\n");
+        if (dev.nativeCharVectorSize()) {
+            printf("    Native Vector Sizes:\n");
+            printf("        char%d, short%d, int%d, long%d, float%d",
+                   dev.nativeCharVectorSize(),
+                   dev.nativeShortVectorSize(),
+                   dev.nativeIntVectorSize(),
+                   dev.nativeLongVectorSize(),
+                   dev.nativeFloatVectorSize());
+            dsize = dev.nativeDoubleVectorSize();
+            if (dsize)
+                printf(", double%d", dsize);
+            hsize = dev.nativeHalfFloatVectorSize();
+            if (hsize)
+                printf(", half%d", hsize);
+            printf("\n");
+        }
         printf("    Extensions        :\n");
         QStringList extns = dev.extensions();
         foreach (QString ext, extns)

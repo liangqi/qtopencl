@@ -563,6 +563,89 @@ int QCLDevice::preferredHalfFloatVectorSize() const
 }
 
 /*!
+    Returns the native size for vectors of type \c{char}
+    in the device.  For example, 4 indicates that 4 \c{char}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0.
+*/
+int QCLDevice::nativeCharVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR);
+}
+
+/*!
+    Returns the native size for vectors of type \c{short}
+    in the device.  For example, 4 indicates that 4 \c{short}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0.
+*/
+int QCLDevice::nativeShortVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT);
+}
+
+/*!
+    Returns the native size for vectors of type \c{int}
+    in the device.  For example, 4 indicates that 4 \c{int}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0.
+*/
+int QCLDevice::nativeIntVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_INT);
+}
+
+/*!
+    Returns the native size for vectors of type \c{long}
+    in the device.  For example, 2 indicates that 2 \c{long}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0.
+*/
+int QCLDevice::nativeLongVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG);
+}
+
+/*!
+    Returns the native size for vectors of type \c{float}
+    in the device.  For example, 4 indicates that 4 \c{float}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0.
+*/
+int QCLDevice::nativeFloatVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT);
+}
+
+/*!
+    Returns the native size for vectors of type \c{double}
+    in the device.  For example, 2 indicates that 2 \c{double}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0,
+    or if the device does not support \c{double}.
+
+    \sa hasDouble()
+*/
+int QCLDevice::nativeDoubleVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE);
+}
+
+/*!
+    Returns the native size for vectors of type \c{half}
+    in the device.  For example, 2 indicates that 2 \c{half}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.  Returns zero on OpenCL 1.0,
+    or if the device does not support \c{half}.
+
+    \sa hasHalfFloat()
+*/
+int QCLDevice::nativeHalfFloatVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF);
+}
+
+/*!
     \enum QCLDevice::FloatCapability
     This enum defines the floating-point capabilities of the
     \c{float} or \c{double} type on an OpenCL device.
