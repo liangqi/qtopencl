@@ -154,6 +154,7 @@ public:
     QString name() const;
     QString vendor() const;
     QStringList extensions() const;
+    QString languageVersion() const;
 
     bool hasExtension(const char *name) const;
 

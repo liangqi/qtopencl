@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
         printf("    Profile           : %s\n", dev.profile().toLatin1().constData());
         printf("    Version           : %s\n", dev.version().toLatin1().constData());
         printf("    Driver Version    : %s\n", dev.driverVersion().toLatin1().constData());
+        printf("    Language Version  : %s\n", dev.languageVersion().toLatin1().constData());
         printf("    Name              : %s\n", dev.name().toLatin1().constData());
         printf("    Vendor            : %s\n", dev.vendor().toLatin1().constData());
         printf("    Available         : %s\n",

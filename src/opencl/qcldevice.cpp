@@ -864,6 +864,23 @@ QStringList QCLDevice::extensions() const
         return QStringList();
 }
 
+/*!
+    Returns the highest version of the OpenCL language supported by
+    this device's compiler.  For example, \c{OpenCL 1.1}.
+*/
+QString QCLDevice::languageVersion() const
+{
+    QString vers = qt_cl_paramString(m_id, CL_DEVICE_OPENCL_C_VERSION);
+
+    // The define was introduced in OpenCL 1.1.  If the device is
+    // only OpenCL 1.0 and doesn't respond to the query, then assume
+    // that the device supports at least the OpenCL 1.0 language.
+    if (vers.isEmpty() && !(versionFlags() & QCLPlatform::Version_1_1))
+        vers = QLatin1String("OpenCL 1.0");
+
+    return vers;
+}
+
 bool qt_cl_has_extension(const char *list, size_t listLen, const char *name)
 {
     size_t nameLen = qstrlen(name);
