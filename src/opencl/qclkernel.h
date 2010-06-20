@@ -109,6 +109,8 @@ public:
     QCLWorkSize bestLocalWorkSizeImage2D() const;
     QCLWorkSize bestLocalWorkSizeImage3D() const;
 
+    size_t preferredWorkSizeMultiple() const;
+
     void setArg(int index, cl_int value);
     void setArg(int index, cl_uint value);
     void setArg(int index, cl_long value);

@@ -43,6 +43,7 @@
 #include "qclprogram.h"
 #include "qclbuffer.h"
 #include "qclcontext.h"
+#include "qclext_p.h"
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qpoint.h>
 #include <QtGui/qvector2d.h>
@@ -507,6 +508,25 @@ QCLWorkSize QCLKernel::bestLocalWorkSizeImage3D() const
 {
     // TODO - need some way to determine this from the driver.
     return QCLWorkSize(8, 8, 8);
+}
+
+/*!
+    Returns the preferred work group size multiple, which is a
+    performance hint for the local work group size on OpenCL 1.1
+    systems.  Returns zero if the system is OpenCL 1.0, or a
+    preferred work group size multiple is not available.
+*/
+size_t QCLKernel::preferredWorkSizeMultiple() const
+{
+    Q_D(const QCLKernel);
+    size_t size;
+    if (clGetKernelWorkGroupInfo
+            (d->id, d->context->defaultDevice().deviceId(),
+             CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE,
+             sizeof(size), &size, 0) != CL_SUCCESS)
+        return 0;
+    else
+        return size;
 }
 
 /*!
