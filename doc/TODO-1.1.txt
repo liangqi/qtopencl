@@ -2,56 +2,15 @@
 Items to do for OpenCL 1.1
 ==========================
 
-This file contains some ideas for implementing OpenCL 1.1 features,
-based on the preliminary information revealed in the following file:
-
-http://www.khronos.org/registry/cl/api/1.0/cl.hpp
-
-Need to wait for the actual spec to be released before implementing these.
-
-Device queries to add to QCLDevice
-----------------------------------
-
-- CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF -> preferredHalfVectorSize()
-- CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR, _SHORT, etc -> nativeFooVectorSize()
-- CL_DEVICE_HOST_UNIFIED_MEMORY -> hasUnifiedMemory()
-
 Kernels
 -------
 
-- CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE  (replacement for
-  bestLocalWorkSize?).
-
-Events
-------
-
-- clSetEventCallback() - can we use this inside toFuture() to avoid the
-  background waiter thread?  QCLEventWatcher?  Should be able to hide this
-  detail from the user of QtOpenCL.
-
-User Events
------------
-
-- QCLUserEvent which inherits from QCLEvent.
-- clCreateUserEvent() -> QCLContext::createUserEvent(), which returns a
-  new event object, or null if not OpenCL 1.1.
-- clSetUserEventStatus() -> setFinished() and setError(cl_int).
+- Use preferredWorkSizeMultiple() to determine best 2D/3D sizes.
 
 Memory objects
 --------------
 
-- Destructor callbacks -> what is the use case?  Can we hide this?
-- clCreateSubBuffer() -> QCLBuffer::createSubBuffer() ?
 - clEnqueueReadBufferRect(), clEnqueueWriteBufferRect(), and
   clEnqueueCopyBufferRect() -> should be able to implement as overloads
   to QCLBuffer::read(), write(), and copyTo(), with fallback implementations
   for OpenCL 1.0.
-- CL_MEM_ASSOCIATED_MEMOBJECT -> QCLBuffer::parentBuffer() ?
-- CL_MEM_OFFSET -> QCLBuffer::offset() ?
-
-config.tests
-------------
-
-- Add a config.test that checks for the new event and memory object
-  functions, and sets "opencl_1_1" or similar on qmake when building
-  the QtOpenCL library.
