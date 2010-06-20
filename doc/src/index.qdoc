@@ -84,6 +84,7 @@
         <li><a href="clinfo.html">Device Capabilities</a></li>
         <li><a href="openclgl.html">OpenGL Interoperation</a></li>
         <li><a href="concurrent.html">OpenCL and QtConcurrent</a></li>
+        <li><a href="opencl11.html">OpenCL 1.1 Support</a></li>
         <li><a href="contrib.html">Contributing</a></li>
         </ul>
         </td>
