@@ -153,7 +153,7 @@ void QCLUserEvent::setStatus(cl_int status)
 */
 void QCLUserEvent::validateEvent()
 {
-    if (commandType() != CL_COMMAND_USER) {
+    if (m_id && commandType() != CL_COMMAND_USER) {
         clReleaseEvent(m_id);
         m_id = 0;
     }
