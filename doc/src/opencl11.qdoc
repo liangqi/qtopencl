@@ -66,6 +66,10 @@
        created with QCLContext::createCommandQueue().
     \o New channel orders have been added to QCLImageFormat for
        the \c CL_Rx, \c CL_RGx, and \c CL_RGBx values.
+    \o Support for sub-buffers in QCLBuffer:
+       \l{QCLBuffer::createSubBuffer()}{createSubBuffer()},
+       \l{QCLBuffer::createSubBuffer()}{parentBuffer()}, and
+       \l{QCLBuffer::createSubBuffer()}{offset()}.
     \endlist
 
     \l{index.html}{Return to Home}

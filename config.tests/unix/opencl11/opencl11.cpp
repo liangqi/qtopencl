@@ -47,14 +47,16 @@
 #include <CL/cl.h>
 #endif
 
-// Try to link against the function in the library, even if the
-// installed system header happens to be for OpenCL 1.0.
-#if !defined(CL_VERSION_1_1)
-extern cl_event clCreateUserEvent(cl_context, cl_int *);
-#endif
-
 int main(int, char **)
 {
     clCreateUserEvent(0, 0);
+
+    cl_buffer_region region;
+    region.origin = 0;
+    region.size = 0;
+    clCreateSubBuffer
+        (0, CL_MEM_READ_WRITE,
+         CL_BUFFER_CREATE_TYPE_REGION, &region, 0);
+
     return 0;
 }

@@ -102,6 +102,12 @@ public:
     QCLEvent mapAsync(void **ptr, size_t offset, size_t size,
                       QCLMemoryObject::Access access,
                       const QCLEventList &after = QCLEventList());
+
+    QCLBuffer createSubBuffer
+        (size_t offset, size_t size, QCLMemoryObject::Access access);
+
+    QCLBuffer parentBuffer() const;
+    size_t offset() const;
 };
 
 QT_END_NAMESPACE

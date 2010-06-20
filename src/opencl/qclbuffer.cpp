@@ -42,6 +42,7 @@
 #include "qclbuffer.h"
 #include "qclimage.h"
 #include "qclcontext.h"
+#include "qclext_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -460,6 +461,70 @@ QCLEvent QCLBuffer::mapAsync
         return QCLEvent(event);
     else
         return QCLEvent();
+}
+
+/*!
+    Creates a new buffer that refers to the \a size bytes,
+    starting at \a offset within this buffer.  The data in
+    the new buffer will be accessed according to \a access.
+
+    Sub-buffers are an OpenCL 1.1 feature.  On OpenCL 1.0,
+    this function will return a null buffer.
+
+    \sa parentBuffer(), offset()
+*/
+QCLBuffer QCLBuffer::createSubBuffer
+    (size_t offset, size_t size, QCLMemoryObject::Access access)
+{
+#ifdef QT_OPENCL_1_1
+    cl_int error;
+    cl_buffer_region region;
+    region.origin = offset;
+    region.size = size;
+    cl_mem mem = clCreateSubBuffer
+        (memoryId(), cl_mem_flags(access),
+         CL_BUFFER_CREATE_TYPE_REGION, &region, &error);
+    context()->reportError("QCLBuffer::createSubBuffer:", error);
+    return QCLBuffer(context(), mem);
+#else
+    Q_UNUSED(offset);
+    Q_UNUSED(size);
+    Q_UNUSED(access);
+    return QCLBuffer();
+#endif
+}
+
+/*!
+    Returns the parent of this buffer if it is a sub-buffer;
+    null otherwise.
+
+    \sa createSubBuffer(), offset()
+*/
+QCLBuffer QCLBuffer::parentBuffer() const
+{
+    cl_mem parent;
+    if (clGetMemObjectInfo(memoryId(), CL_MEM_ASSOCIATED_MEMOBJECT,
+                           sizeof(parent), &parent, 0) != CL_SUCCESS)
+        return QCLBuffer();
+    if (parent)
+        clRetainMemObject(parent);
+    return QCLBuffer(context(), parent);
+}
+
+/*!
+    Returns the offset of this buffer within its parentBuffer()
+    if it is a sub-buffer; zero otherwise.
+
+    \sa createSubBuffer(), parentBuffer()
+*/
+size_t QCLBuffer::offset() const
+{
+    size_t value;
+    if (clGetMemObjectInfo(memoryId(), CL_MEM_OFFSET,
+                           sizeof(value), &value, 0) != CL_SUCCESS)
+        return 0;
+    else
+        return value;
 }
 
 QT_END_NAMESPACE
