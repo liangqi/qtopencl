@@ -104,6 +104,7 @@ public:
     int preferredLongVectorSize() const;
     int preferredFloatVectorSize() const;
     int preferredDoubleVectorSize() const;
+    int preferredHalfFloatVectorSize() const;
 
     enum FloatCapability
     {

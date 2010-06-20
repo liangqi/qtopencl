@@ -534,6 +534,22 @@ int QCLDevice::preferredDoubleVectorSize() const
 }
 
 /*!
+    Returns the preferred size for vectors of type \c{half}
+    in the device.  For example, 2 indicates that 2 \c{half}
+    values can be packed into a vector and operated on as a
+    unit for optimal performance.
+
+    Returns zero if the device does not support \c{half},
+    or the device does not support OpenCL 1.1.
+
+    \sa hasHalfFloat()
+*/
+int QCLDevice::preferredHalfFloatVectorSize() const
+{
+    return qt_cl_paramInt(m_id, CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF);
+}
+
+/*!
     \enum QCLDevice::FloatCapability
     This enum defines the floating-point capabilities of the
     \c{float} or \c{double} type on an OpenCL device.

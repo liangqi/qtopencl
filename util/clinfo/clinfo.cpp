@@ -177,9 +177,11 @@ int main(int argc, char *argv[])
                dev.preferredFloatVectorSize());
         int dsize = dev.preferredDoubleVectorSize();
         if (dsize)
-            printf(", double%d\n", dsize);
-        else
-            printf("\n");
+            printf(", double%d", dsize);
+        int hsize = dev.preferredHalfFloatVectorSize();
+        if (hsize)
+            printf(", half%d\n", hsize);
+        printf("\n");
         printf("    Extensions        :\n");
         QStringList extns = dev.extensions();
         foreach (QString ext, extns)
