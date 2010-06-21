@@ -75,16 +75,48 @@ public:
     QCLEvent readAsync(size_t offset, void *data, size_t size,
                        const QCLEventList &after = QCLEventList());
 
+    bool readRect(const QRect &rect, void *data,
+                  size_t bufferBytesPerLine, size_t hostBytesPerLine);
+    bool readRect(const size_t origin[3], const size_t size[3], void *data,
+                  size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+                  size_t hostBytesPerLine, size_t hostBytesPerSlice);
+    QCLEvent readRectAsync
+            (const QRect &rect, void *data,
+             size_t bufferBytesPerLine, size_t hostBytesPerLine,
+             const QCLEventList &after = QCLEventList());
+    QCLEvent readRectAsync
+            (const size_t origin[3], const size_t size[3], void *data,
+             size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+             size_t hostBytesPerLine, size_t hostBytesPerSlice,
+             const QCLEventList &after = QCLEventList());
+
     bool write(const void *data, size_t size);
     bool write(size_t offset, const void *data, size_t size);
     QCLEvent writeAsync(size_t offset, const void *data, size_t size,
                         const QCLEventList &after = QCLEventList());
+
+    bool writeRect(const QRect &rect, const void *data,
+                   size_t bufferBytesPerLine, size_t hostBytesPerLine);
+    bool writeRect(const size_t origin[3], const size_t size[3],
+                   const void *data, size_t bufferBytesPerLine,
+                   size_t bufferBytesPerSlice, size_t hostBytesPerLine,
+                   size_t hostBytesPerSlice);
+    QCLEvent writeRectAsync
+            (const QRect &rect, const void *data,
+             size_t bufferBytesPerLine, size_t hostBytesPerLine,
+             const QCLEventList &after = QCLEventList());
+    QCLEvent writeRectAsync
+            (const size_t origin[3], const size_t size[3], const void *data,
+             size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+             size_t hostBytesPerLine, size_t hostBytesPerSlice,
+             const QCLEventList &after = QCLEventList());
 
     bool copyTo(size_t offset, size_t size,
                 const QCLBuffer &dest, size_t destOffset);
     bool copyTo(size_t offset, const QCLImage2D &dest, const QRect &rect);
     bool copyTo(size_t offset, const QCLImage3D &dest,
                 const size_t origin[3], const size_t size[3]);
+
     QCLEvent copyToAsync
         (size_t offset, size_t size,
          const QCLBuffer &dest, size_t destOffset,
@@ -96,6 +128,24 @@ public:
         (size_t offset, const QCLImage3D &dest,
          const size_t origin[3], const size_t size[3],
          const QCLEventList &after = QCLEventList());
+
+    bool copyToRect(const QRect &rect, const QCLBuffer &dest,
+                    const QPoint &destPoint, size_t bufferBytesPerLine,
+                    size_t destBytesPerLine);
+    bool copyToRect(const size_t origin[3], const size_t size[3],
+                    const QCLBuffer &dest, const size_t destOrigin[3],
+                    size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+                    size_t destBytesPerLine, size_t destBytesPerSlice);
+    QCLEvent copyToRectAsync
+            (const QRect &rect, const QCLBuffer &dest, const QPoint &destPoint,
+             size_t bufferBytesPerLine, size_t destBytesPerLine,
+             const QCLEventList &after = QCLEventList());
+    QCLEvent copyToRectAsync
+            (const size_t origin[3], const size_t size[3],
+             const QCLBuffer &dest, const size_t destOrigin[3],
+             size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+             size_t destBytesPerLine, size_t destBytesPerSlice,
+             const QCLEventList &after = QCLEventList());
 
     void *map(size_t offset, size_t size, QCLMemoryObject::Access access);
     void *map(QCLMemoryObject::Access access);

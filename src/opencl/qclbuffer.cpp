@@ -151,6 +151,185 @@ QCLEvent QCLBuffer::readAsync(size_t offset, void *data, size_t size,
 }
 
 /*!
+    Reads the bytes defined by \a rect and \a bufferBytesPerLine
+    from this buffer into the supplied \a data array, with a line
+    pitch of \a hostBytesPerLine.  Returns true if the read
+    was successful; false otherwise.
+
+    This function will block until the request finishes.
+    The request is executed on the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa readRectAsync(), writeRect()
+*/
+bool QCLBuffer::readRect
+    (const QRect &rect, void *data,
+     size_t bufferBytesPerLine, size_t hostBytesPerLine)
+{
+#ifdef QT_OPENCL_1_1
+    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
+    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_int error = clEnqueueReadBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_TRUE, bufferOrigin, hostOrigin, bufferRegion,
+         bufferBytesPerLine, 0, hostBytesPerLine, 0,
+         data, 0, 0, 0);
+    context()->reportError("QCLBuffer::readRect:", error);
+    return error == CL_SUCCESS;
+#else
+    context()->reportError("QCLBuffer::readRect:", CL_INVALID_OPERATION);
+    Q_UNUSED(rect);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(hostBytesPerLine);
+    return false;
+#endif
+}
+
+/*!
+    Reads the bytes in the 3D region defined by \a origin, \a size,
+    \a bufferBytesPerLine, and \a bufferBytesPerSlice from this buffer
+    into the supplied \a data array, with a line pitch of
+    \a hostBytesPerLine, and a slice pitch of \a hostBytesPerSlice.
+    Returns true if the read was successful; false otherwise.
+
+    This function will block until the request finishes.
+    The request is executed on the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa readRectAsync(), writeRect()
+*/
+bool QCLBuffer::readRect
+    (const size_t origin[3], const size_t size[3], void *data,
+     size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+     size_t hostBytesPerLine, size_t hostBytesPerSlice)
+{
+#ifdef QT_OPENCL_1_1
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_int error = clEnqueueReadBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_TRUE, origin, hostOrigin, size,
+         bufferBytesPerLine, bufferBytesPerSlice,
+         hostBytesPerLine, hostBytesPerSlice, data, 0, 0, 0);
+    context()->reportError("QCLBuffer::readRect(3D):", error);
+    return error == CL_SUCCESS;
+#else
+    context()->reportError("QCLBuffer::readRect(3D):", CL_INVALID_OPERATION);
+    Q_UNUSED(origin);
+    Q_UNUSED(size);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(bufferBytesPerSlice);
+    Q_UNUSED(hostBytesPerLine);
+    Q_UNUSED(hostBytesPerSlice);
+    return false;
+#endif
+}
+
+/*!
+    Reads the bytes defined by \a rect and \a bufferBytesPerLine
+    from this buffer into the supplied \a data array, with a line
+    pitch of \a hostBytesPerLine.
+
+    This function will queue the request and return immediately.
+    Returns an event object that can be used to wait for the
+    request to finish.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.  The request is executed on
+    the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa readRect(), writeRectAsync()
+*/
+QCLEvent QCLBuffer::readRectAsync
+    (const QRect &rect, void *data,
+     size_t bufferBytesPerLine, size_t hostBytesPerLine,
+     const QCLEventList &after)
+{
+#ifdef QT_OPENCL_1_1
+    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
+    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_event event;
+    cl_int error = clEnqueueReadBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_FALSE, bufferOrigin, hostOrigin, bufferRegion,
+         bufferBytesPerLine, 0, hostBytesPerLine, 0, data,
+         after.size(), after.eventData(), &event);
+    context()->reportError("QCLBuffer::readRectAsync:", error);
+    if (error != CL_SUCCESS)
+        return QCLEvent();
+    else
+        return QCLEvent(event);
+#else
+    context()->reportError("QCLBuffer::readRectAsync:", CL_INVALID_OPERATION);
+    Q_UNUSED(rect);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(hostBytesPerLine);
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
+}
+
+/*!
+    Reads the bytes in the 3D region defined by \a origin, \a size,
+    \a bufferBytesPerLine, and \a bufferBytesPerSlice from this buffer
+    into the supplied \a data array, with a line pitch of
+    \a hostBytesPerLine, and a slice pitch of \a hostBytesPerSlice.
+
+    This function will queue the request and return immediately.
+    Returns an event object that can be used to wait for the
+    request to finish.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.  The request is executed on
+    the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa readRect(), writeRectAsync()
+*/
+QCLEvent QCLBuffer::readRectAsync
+    (const size_t origin[3], const size_t size[3], void *data,
+     size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+     size_t hostBytesPerLine, size_t hostBytesPerSlice,
+     const QCLEventList &after)
+{
+#ifdef QT_OPENCL_1_1
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_event event;
+    cl_int error = clEnqueueReadBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_FALSE, origin, hostOrigin, size,
+         bufferBytesPerLine, bufferBytesPerSlice,
+         hostBytesPerLine, hostBytesPerSlice, data,
+         after.size(), after.eventData(), &event);
+    context()->reportError("QCLBuffer::readRectAsync(3D):", error);
+    if (error != CL_SUCCESS)
+        return QCLEvent();
+    else
+        return QCLEvent(event);
+#else
+    context()->reportError("QCLBuffer::readRectAsync(3D):", CL_INVALID_OPERATION);
+    Q_UNUSED(origin);
+    Q_UNUSED(size);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(bufferBytesPerSlice);
+    Q_UNUSED(hostBytesPerLine);
+    Q_UNUSED(hostBytesPerSlice);
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
+}
+
+/*!
     Writes \a size bytes to this buffer, starting at \a offset,
     from the supplied \a data array.  Returns true if the write
     was successful; false otherwise.
@@ -214,6 +393,183 @@ QCLEvent QCLBuffer::writeAsync(size_t offset, const void *data, size_t size,
         return QCLEvent();
     else
         return QCLEvent(event);
+}
+
+/*!
+    Writes the bytes at \a data, with a line pitch of \a hostBytesPerLine
+    to the region of this buffer defined by \a rect and \a bufferBytesPerLine.
+    Returns true if the write was successful; false otherwise.
+
+    This function will block until the request finishes.
+    The request is executed on the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa writeRectAsync(), readRect()
+*/
+bool QCLBuffer::writeRect
+    (const QRect &rect, const void *data,
+     size_t bufferBytesPerLine, size_t hostBytesPerLine)
+{
+#ifdef QT_OPENCL_1_1
+    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
+    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_int error = clEnqueueWriteBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_TRUE, bufferOrigin, hostOrigin, bufferRegion,
+         bufferBytesPerLine, 0, hostBytesPerLine, 0,
+         data, 0, 0, 0);
+    context()->reportError("QCLBuffer::writeRect:", error);
+    return error == CL_SUCCESS;
+#else
+    context()->reportError("QCLBuffer::writeRect:", CL_INVALID_OPERATION);
+    Q_UNUSED(rect);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(hostBytesPerLine);
+    return false;
+#endif
+}
+
+/*!
+    Writes the bytes at \a data, with a line pitch of \a hostBytesPerLine,
+    and a slice pitch of \a hostBytesPerSlice, to the 3D region defined
+    by \a origin, \a size, \a bufferBytesPerLine, and \a bufferBytesPerSlice
+    in this buffer.  Returns true if the write was successful; false otherwise.
+
+    This function will block until the request finishes.
+    The request is executed on the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa writeRectAsync(), readRect()
+*/
+bool QCLBuffer::writeRect
+    (const size_t origin[3], const size_t size[3], const void *data,
+     size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+     size_t hostBytesPerLine, size_t hostBytesPerSlice)
+{
+#ifdef QT_OPENCL_1_1
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_int error = clEnqueueWriteBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_TRUE, origin, hostOrigin, size,
+         bufferBytesPerLine, bufferBytesPerSlice,
+         hostBytesPerLine, hostBytesPerSlice, data, 0, 0, 0);
+    context()->reportError("QCLBuffer::writeRect(3D):", error);
+    return error == CL_SUCCESS;
+#else
+    context()->reportError("QCLBuffer::writeRect(3D):", CL_INVALID_OPERATION);
+    Q_UNUSED(origin);
+    Q_UNUSED(size);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(bufferBytesPerSlice);
+    Q_UNUSED(hostBytesPerLine);
+    Q_UNUSED(hostBytesPerSlice);
+    return false;
+#endif
+}
+
+/*!
+    Writes the bytes at \a data, with a line pitch of \a hostBytesPerLine
+    to the region of this buffer defined by \a rect and \a bufferBytesPerLine.
+    Returns true if the write was successful; false otherwise.
+
+    This function will queue the request and return immediately.
+    Returns an event object that can be used to wait for the
+    request to finish.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.  The request is executed on
+    the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa writeRect(), readRectAsync()
+*/
+QCLEvent QCLBuffer::writeRectAsync
+    (const QRect &rect, const void *data,
+     size_t bufferBytesPerLine, size_t hostBytesPerLine,
+     const QCLEventList &after)
+{
+#ifdef QT_OPENCL_1_1
+    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
+    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_event event;
+    cl_int error = clEnqueueWriteBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_FALSE, bufferOrigin, hostOrigin, bufferRegion,
+         bufferBytesPerLine, 0, hostBytesPerLine, 0, data,
+         after.size(), after.eventData(), &event);
+    context()->reportError("QCLBuffer::writeRectAsync:", error);
+    if (error != CL_SUCCESS)
+        return QCLEvent();
+    else
+        return QCLEvent(event);
+#else
+    context()->reportError("QCLBuffer::writeRectAsync:", CL_INVALID_OPERATION);
+    Q_UNUSED(rect);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(hostBytesPerLine);
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
+}
+
+/*!
+    Writes the bytes at \a data, with a line pitch of \a hostBytesPerLine,
+    and a slice pitch of \a hostBytesPerSlice, to the 3D region defined
+    by \a origin, \a size, \a bufferBytesPerLine, and \a bufferBytesPerSlice
+    in this buffer.
+
+    This function will queue the request and return immediately.
+    Returns an event object that can be used to wait for the
+    request to finish.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.  The request is executed on
+    the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
+
+    \sa writeRect(), readRectAsync()
+*/
+QCLEvent QCLBuffer::writeRectAsync
+    (const size_t origin[3], const size_t size[3], const void *data,
+     size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+     size_t hostBytesPerLine, size_t hostBytesPerSlice,
+     const QCLEventList &after)
+{
+#ifdef QT_OPENCL_1_1
+    static size_t const hostOrigin[3] = {0, 0, 0};
+    cl_event event;
+    cl_int error = clEnqueueWriteBufferRect
+        (context()->activeQueue(), memoryId(),
+         CL_FALSE, origin, hostOrigin, size,
+         bufferBytesPerLine, bufferBytesPerSlice,
+         hostBytesPerLine, hostBytesPerSlice, data,
+         after.size(), after.eventData(), &event);
+    context()->reportError("QCLBuffer::writeRectAsync(3D):", error);
+    if (error != CL_SUCCESS)
+        return QCLEvent();
+    else
+        return QCLEvent(event);
+#else
+    context()->reportError("QCLBuffer::writeRectAsync(3D):", CL_INVALID_OPERATION);
+    Q_UNUSED(origin);
+    Q_UNUSED(size);
+    Q_UNUSED(data);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(bufferBytesPerSlice);
+    Q_UNUSED(hostBytesPerLine);
+    Q_UNUSED(hostBytesPerSlice);
+    Q_UNUSED(after);
+    return QCLEvent();
+#endif
 }
 
 /*!
@@ -382,6 +738,188 @@ QCLEvent QCLBuffer::copyToAsync
         return QCLEvent(event);
     else
         return QCLEvent();
+}
+
+/*!
+    Copies the contents of \a rect within this buffer to \a dest,
+    starting at \a destPoint.  The source and destination line pitch
+    values are given by \a bufferBytesPerLine and \a destBytesPerLine
+    respectively.  Returns true if the copy was successful; false otherwise.
+
+    This function will block until the request finishes.
+    The request is executed on the active command queue for context().
+
+    \sa copyToRectAsync()
+*/
+bool QCLBuffer::copyToRect
+    (const QRect &rect, const QCLBuffer &dest,
+     const QPoint &destPoint, size_t bufferBytesPerLine,
+     size_t destBytesPerLine)
+{
+#ifdef QT_OPENCL_1_1
+    const size_t src_origin[3] = {rect.x(), rect.y(), 0};
+    const size_t dst_origin[3] = {destPoint.x(), destPoint.y(), 0};
+    const size_t region[3] = {rect.width(), rect.height(), 1};
+    cl_event event;
+    cl_int error = clEnqueueCopyBufferRect
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
+         src_origin, dst_origin, region,
+         bufferBytesPerLine, 0, destBytesPerLine, 0, 0, 0, &event);
+    context()->reportError("QCLBuffer::copyToRect:", error);
+    if (error == CL_SUCCESS) {
+        clWaitForEvents(1, &event);
+        clReleaseEvent(event);
+        return true;
+    } else {
+        return false;
+    }
+#else
+    context()->reportError("QCLBuffer::copyToRect:", CL_INVALID_OPERATION);
+    Q_UNUSED(rect);
+    Q_UNUSED(dest);
+    Q_UNUSED(destPoint);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(destBytesPerLine);
+    return false;
+#endif
+}
+
+/*!
+    Copies the 3D rectangle defined by \a origin and \a size within
+    this buffer to \a destOrigin within \a dest.  The source and destination
+    pitch values are given by \a bufferBytesPerLine, \a bufferBytesPerSlice,
+    \a destBytesPerLine, and \a destBytesPerSlice.  Returns true if
+    the copy was successful; false otherwise.
+
+    This function will block until the request finishes.
+    The request is executed on the active command queue for context().
+
+    \sa copyToRectAsync()
+*/
+bool QCLBuffer::copyToRect
+    (const size_t origin[3], const size_t size[3],
+     const QCLBuffer &dest, const size_t destOrigin[3],
+     size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+     size_t destBytesPerLine, size_t destBytesPerSlice)
+{
+#ifdef QT_OPENCL_1_1
+    cl_event event;
+    cl_int error = clEnqueueCopyBufferRect
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
+         origin, destOrigin, size,
+         bufferBytesPerLine, bufferBytesPerSlice,
+         destBytesPerLine, destBytesPerSlice, 0, 0, &event);
+    context()->reportError("QCLBuffer::copyToRect(3D):", error);
+    if (error == CL_SUCCESS) {
+        clWaitForEvents(1, &event);
+        clReleaseEvent(event);
+        return true;
+    } else {
+        return false;
+    }
+#else
+    context()->reportError("QCLBuffer::copyToRect(3D):", CL_INVALID_OPERATION);
+    Q_UNUSED(origin);
+    Q_UNUSED(size);
+    Q_UNUSED(dest);
+    Q_UNUSED(destOrigin);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(bufferBytesPerSlice);
+    Q_UNUSED(destBytesPerLine);
+    Q_UNUSED(destBytesPerSlice);
+    return false;
+#endif
+}
+
+/*!
+    Copies the contents of \a rect within this buffer to \a dest,
+    starting at \a destPoint.  The source and destination line pitch
+    values are given by \a bufferBytesPerLine and \a destBytesPerLine
+    respectively.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.  The request is executed on
+    the active command queue for context().
+
+    \sa copyToRect()
+*/
+QCLEvent QCLBuffer::copyToRectAsync
+    (const QRect &rect, const QCLBuffer &dest, const QPoint &destPoint,
+     size_t bufferBytesPerLine, size_t destBytesPerLine,
+     const QCLEventList &after)
+{
+#ifdef QT_OPENCL_1_1
+    const size_t src_origin[3] = {rect.x(), rect.y(), 0};
+    const size_t dst_origin[3] = {destPoint.x(), destPoint.y(), 0};
+    const size_t region[3] = {rect.width(), rect.height(), 1};
+    cl_event event;
+    cl_int error = clEnqueueCopyBufferRect
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
+         src_origin, dst_origin, region,
+         bufferBytesPerLine, 0, destBytesPerLine, 0,
+         after.size(), after.eventData(), &event);
+    context()->reportError("QCLBuffer::copyToRectAsync:", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+#else
+    context()->reportError("QCLBuffer::copyToRectAsync:", CL_INVALID_OPERATION);
+    Q_UNUSED(rect);
+    Q_UNUSED(dest);
+    Q_UNUSED(destPoint);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(destBytesPerLine);
+    Q_UNUSED(after);
+    return false;
+#endif
+}
+
+/*!
+    Copies the 3D rectangle defined by \a origin and \a size within
+    this buffer to \a destOrigin within \a dest.  The source and destination
+    pitch values are given by \a bufferBytesPerLine, \a bufferBytesPerSlice,
+    \a destBytesPerLine, and \a destBytesPerSlice.
+
+    The request will not start until all of the events in \a after
+    have been signaled as finished.  The request is executed on
+    the active command queue for context().
+
+    \sa copyToRectAsync()
+*/
+QCLEvent QCLBuffer::copyToRectAsync
+    (const size_t origin[3], const size_t size[3],
+     const QCLBuffer &dest, const size_t destOrigin[3],
+     size_t bufferBytesPerLine, size_t bufferBytesPerSlice,
+     size_t destBytesPerLine, size_t destBytesPerSlice,
+     const QCLEventList &after)
+{
+#ifdef QT_OPENCL_1_1
+    cl_event event;
+    cl_int error = clEnqueueCopyBufferRect
+        (context()->activeQueue(), memoryId(), dest.memoryId(),
+         origin, destOrigin, size,
+         bufferBytesPerLine, bufferBytesPerSlice,
+         destBytesPerLine, destBytesPerSlice,
+         after.size(), after.eventData(), &event);
+    context()->reportError("QCLBuffer::copyToRectAsync(3D):", error);
+    if (error == CL_SUCCESS)
+        return QCLEvent(event);
+    else
+        return QCLEvent();
+#else
+    context()->reportError("QCLBuffer::copyToRectAsync(3D):", CL_INVALID_OPERATION);
+    Q_UNUSED(origin);
+    Q_UNUSED(size);
+    Q_UNUSED(dest);
+    Q_UNUSED(destOrigin);
+    Q_UNUSED(bufferBytesPerLine);
+    Q_UNUSED(bufferBytesPerSlice);
+    Q_UNUSED(destBytesPerLine);
+    Q_UNUSED(destBytesPerSlice);
+    Q_UNUSED(after);
+    return false;
+#endif
 }
 
 // We use a single enum in the public API for both memory objects

@@ -74,6 +74,13 @@
        \l{QCLBuffer::createSubBuffer()}{parentBuffer()}, and
        \l{QCLBuffer::createSubBuffer()}{offset()}.
     \o Added QCLKernel::preferredWorkSizeMultiple().
+    \o Rectangle operations on QCLBuffer:
+       \l{QCLBuffer::readRect()}{readRect()},
+       \l{QCLBuffer::readRectAsync()}{readRectAsync()},
+       \l{QCLBuffer::writeRect()}{writeRect()},
+       \l{QCLBuffer::writeRectAsync()}{writeRectAsync()},
+       \l{QCLBuffer::copyToRect()}{copyToRect()}, and
+       \l{QCLBuffer::copyToRectAsync()}{copyToRectAsync()}.
     \endlist
 
     \l{index.html}{Return to Home}
