@@ -749,6 +749,8 @@ QCLEvent QCLBuffer::copyToAsync
     This function will block until the request finishes.
     The request is executed on the active command queue for context().
 
+    This function is only supported in OpenCL 1.1 and higher.
+
     \sa copyToRectAsync()
 */
 bool QCLBuffer::copyToRect
@@ -793,6 +795,8 @@ bool QCLBuffer::copyToRect
 
     This function will block until the request finishes.
     The request is executed on the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
 
     \sa copyToRectAsync()
 */
@@ -841,6 +845,8 @@ bool QCLBuffer::copyToRect
     have been signaled as finished.  The request is executed on
     the active command queue for context().
 
+    This function is only supported in OpenCL 1.1 and higher.
+
     \sa copyToRect()
 */
 QCLEvent QCLBuffer::copyToRectAsync
@@ -884,6 +890,8 @@ QCLEvent QCLBuffer::copyToRectAsync
     The request will not start until all of the events in \a after
     have been signaled as finished.  The request is executed on
     the active command queue for context().
+
+    This function is only supported in OpenCL 1.1 and higher.
 
     \sa copyToRectAsync()
 */
