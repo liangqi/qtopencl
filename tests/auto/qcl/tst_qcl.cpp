@@ -294,7 +294,7 @@ void tst_QCL::argumentPassing()
     QCOMPARE(bufi[0], cl_int(7));
 
     QCLKernel storeUInt = program.createKernel("storeUInt");
-    storeInt(buffer, cl_uint(9));
+    storeUInt(buffer, cl_uint(9));
     buffer.read(&bufui, sizeof(cl_uint));
     QCOMPARE(bufui, cl_uint(9));
 
@@ -319,7 +319,7 @@ void tst_QCL::argumentPassing()
     QCOMPARE(buf[1], 4.0f);
 
     QCLKernel storeVec2i = program.createKernel("storeVec2i");
-    storeVec2(buffer, QPoint(6, -7));
+    storeVec2i(buffer, QPoint(6, -7));
     buffer.read(bufi, sizeof(cl_int) * 2);
     QCOMPARE(bufi[0], cl_int(6));
     QCOMPARE(bufi[1], cl_int(-7));
