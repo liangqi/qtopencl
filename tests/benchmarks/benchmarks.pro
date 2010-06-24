@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS += mandelbrot
+SUBDIRS += mandelbrot overhead
 contains(QT_CONFIG, private_tests): SUBDIRS += blur
