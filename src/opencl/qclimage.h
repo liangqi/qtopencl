@@ -61,8 +61,9 @@ class QPainter;
 class Q_CL_EXPORT QCLImage2D : public QCLMemoryObject
 {
 public:
-    QCLImage2D();
-    QCLImage2D(QCLContext *context, cl_mem id);
+    QCLImage2D() : d_ptr(0) {}
+    QCLImage2D(QCLContext *context, cl_mem id)
+        : QCLMemoryObject(context, id), d_ptr(0) {}
     QCLImage2D(const QCLImage2D &other);
     ~QCLImage2D();
 
@@ -122,7 +123,7 @@ public:
                    Qt::ImageConversionFlags flags = Qt::AutoColor);
 
 private:
-    QScopedPointer<QCLImage2DPrivate> d_ptr;
+    mutable QCLImage2DPrivate *d_ptr;
 
     Q_DECLARE_PRIVATE(QCLImage2D)
 

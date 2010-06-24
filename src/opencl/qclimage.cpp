@@ -79,32 +79,19 @@ public:
 };
 
 /*!
+    \fn QCLImage2D::QCLImage2D()
+
     Constructs a null 2D OpenCL image object.
 */
-QCLImage2D::QCLImage2D()
-    : d_ptr(new QCLImage2DPrivate())
-{
-}
 
 /*!
+    \fn QCLImage2D::QCLImage2D(QCLContext *context, cl_mem id)
+
     Constructs a 2D OpenCL image object that is initialized with the
     native OpenCL identifier \a id, and associates it with \a context.
     This class will take over ownership of \a id and will release
     it in the destructor.
 */
-QCLImage2D::QCLImage2D(QCLContext *context, cl_mem id)
-    : QCLMemoryObject(context, id), d_ptr(new QCLImage2DPrivate())
-{
-    if (id) {
-        cl_image_format iformat;
-        if (clGetImageInfo(id, CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
-                == CL_SUCCESS) {
-            d_ptr->format = QCLImageFormat
-                (QCLImageFormat::ChannelOrder(iformat.image_channel_order),
-                 QCLImageFormat::ChannelType(iformat.image_channel_data_type));
-        }
-    }
-}
 
 /*!
     \internal
@@ -120,7 +107,8 @@ QCLImage2D::QCLImage2D(QCLContext *context, cl_mem id,
     Constructs a copy of \a other.
 */
 QCLImage2D::QCLImage2D(const QCLImage2D &other)
-    : QCLMemoryObject(), d_ptr(new QCLImage2DPrivate(other.d_ptr.data()))
+    : QCLMemoryObject()
+    , d_ptr(other.d_ptr ? new QCLImage2DPrivate(other.d_ptr) : 0)
 {
     setId(other.context(), other.memoryId());
 }
@@ -130,6 +118,7 @@ QCLImage2D::QCLImage2D(const QCLImage2D &other)
 */
 QCLImage2D::~QCLImage2D()
 {
+    delete d_ptr;
 }
 
 /*!
@@ -139,7 +128,14 @@ QCLImage2D &QCLImage2D::operator=(const QCLImage2D &other)
 {
     if (this != &other) {
         setId(other.context(), other.memoryId());
-        d_ptr->assign(other.d_ptr.data());
+        if (!d_ptr && other.d_ptr) {
+            d_ptr = new QCLImage2DPrivate(other.d_ptr);
+        } else if (other.d_ptr) {
+            d_ptr->assign(other.d_ptr);
+        } else {
+            delete d_ptr;
+            d_ptr = 0;
+        }
     }
     return *this;
 }
@@ -149,6 +145,17 @@ QCLImage2D &QCLImage2D::operator=(const QCLImage2D &other)
 */
 QCLImageFormat QCLImage2D::format() const
 {
+    if (!d_ptr) {
+        d_ptr = new QCLImage2DPrivate();
+        cl_image_format iformat;
+        if (clGetImageInfo
+                (memoryId(), CL_IMAGE_FORMAT, sizeof(iformat), &iformat, 0)
+                    == CL_SUCCESS) {
+            d_ptr->format = QCLImageFormat
+                (QCLImageFormat::ChannelOrder(iformat.image_channel_order),
+                 QCLImageFormat::ChannelType(iformat.image_channel_data_type));
+        }
+    }
     return d_ptr->format;
 }
 
@@ -615,10 +622,10 @@ QImage QCLImage2D::toQImage(bool cached)
 {
     if (!memoryId())
         return QImage();
-    Q_D(QCLImage2D);
-    QImage::Format qformat = d->format.toQImageFormat();
+    QImage::Format qformat = format().toQImageFormat();
     if (qformat == QImage::Format_Invalid)
         return QImage();
+    Q_D(QCLImage2D);
     if (cached) {
         if (d->cachedImage.isNull())
             d->cachedImage = QImage(width(), height(), qformat);
@@ -740,18 +747,17 @@ void QCLImage2D::drawImage
     (QPainter *painter, const QRect &targetRect,
      const QRect &subRect, Qt::ImageConversionFlags flags)
 {
-    Q_D(QCLImage2D);
-
     // Bail out if the OpenCL image doesn't have a drawable format.
     if (isNull())
         return;
-    QImage::Format qformat = d->format.toQImageFormat();
+    QImage::Format qformat = format().toQImageFormat();
     if (qformat == QImage::Format_Invalid)
         return;
     int wid = width();
     int ht = height();
 
     // Can we draw directly into the painter's surface as a QImage?
+    Q_D(QCLImage2D);
     QPoint offset;
     QImage *surfaceImage = qt_cl_surface_image(painter, &offset);
     if (surfaceImage && qformat == surfaceImage->format() &&
