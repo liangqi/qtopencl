@@ -78,14 +78,11 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
+    \fn QCLMemoryObject::~QCLMemoryObject()
+
     Releases this OpenCL memory object.  If this is the last reference
     to the memory object, it will be destroyed.
 */
-QCLMemoryObject::~QCLMemoryObject()
-{
-    if (m_id)
-        clReleaseMemObject(m_id);
-}
 
 /*!
     \fn bool QCLMemoryObject::isNull() const
@@ -238,18 +235,8 @@ QCLEvent QCLMemoryObject::unmapAsync(void *ptr, const QCLEventList &after)
 */
 
 /*!
+    \fn void QCLMemoryObject::setId(QCLContext *context, cl_mem id)
     \internal
 */
-void QCLMemoryObject::setId(QCLContext *context, cl_mem id)
-{
-    m_context = context;
-    if (m_id == id)
-        return;
-    if (m_id)
-        clReleaseMemObject(m_id);
-    m_id = id;
-    if (m_id)
-        clRetainMemObject(m_id);
-}
 
 QT_END_NAMESPACE

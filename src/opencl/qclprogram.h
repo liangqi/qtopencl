@@ -101,6 +101,30 @@ inline bool QCLProgram::operator==(const QCLProgram &other) const
     return m_id == other.m_id;
 }
 
+inline QCLProgram::QCLProgram(const QCLProgram &other)
+    : m_context(other.m_context), m_id(other.m_id)
+{
+    if (m_id)
+        clRetainProgram(m_id);
+}
+
+inline QCLProgram::~QCLProgram()
+{
+    if (m_id)
+        clReleaseProgram(m_id);
+}
+
+inline QCLProgram &QCLProgram::operator=(const QCLProgram &other)
+{
+    m_context = other.m_context;
+    if (other.m_id)
+        clRetainProgram(other.m_id);
+    if (m_id)
+        clReleaseProgram(m_id);
+    m_id = other.m_id;
+    return *this;
+}
+
 inline bool QCLProgram::operator!=(const QCLProgram &other) const
 {
     return m_id != other.m_id;

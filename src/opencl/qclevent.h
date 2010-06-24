@@ -98,6 +98,29 @@ private:
     friend class QCLUserEvent;
 };
 
+inline QCLEvent::QCLEvent(const QCLEvent &other)
+    : m_id(other.m_id)
+{
+    if (m_id)
+        clRetainEvent(m_id);
+}
+
+inline QCLEvent::~QCLEvent()
+{
+    if (m_id)
+        clReleaseEvent(m_id);
+}
+
+inline QCLEvent &QCLEvent::operator=(const QCLEvent &other)
+{
+    if (other.m_id)
+        clRetainEvent(other.m_id);
+    if (m_id)
+        clReleaseEvent(m_id);
+    m_id = other.m_id;
+    return *this;
+}
+
 class Q_CL_EXPORT QCLEventList
 {
 public:

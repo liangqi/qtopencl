@@ -79,6 +79,30 @@ private:
     cl_command_queue m_id;
 };
 
+inline QCLCommandQueue::QCLCommandQueue(const QCLCommandQueue &other)
+    : m_context(other.m_context), m_id(other.m_id)
+{
+    if (m_id)
+        clRetainCommandQueue(m_id);
+}
+
+inline QCLCommandQueue::~QCLCommandQueue()
+{
+    if (m_id)
+        clReleaseCommandQueue(m_id);
+}
+
+inline QCLCommandQueue &QCLCommandQueue::operator=(const QCLCommandQueue &other)
+{
+    m_context = other.m_context;
+    if (other.m_id)
+        clRetainCommandQueue(other.m_id);
+    if (m_id)
+        clReleaseCommandQueue(m_id);
+    m_id = other.m_id;
+    return *this;
+}
+
 inline bool QCLCommandQueue::operator==(const QCLCommandQueue &other) const
 {
     return m_id == other.m_id;

@@ -124,41 +124,25 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
+    \fn QCLEvent::QCLEvent(const QCLEvent &other)
+
     Constructs a copy of \a other.  The \c{clRetainEvent()} function
     will be called to update the reference count on eventId().
 */
-QCLEvent::QCLEvent(const QCLEvent &other)
-    : m_id(other.m_id)
-{
-    if (m_id)
-        clRetainEvent(m_id);
-}
 
 /*!
+    \fn QCLEvent::~QCLEvent()
+
     Releases this OpenCL event object by calling \c{clReleaseEvent()}.
 */
-QCLEvent::~QCLEvent()
-{
-    if (m_id)
-        clReleaseEvent(m_id);
-}
 
 /*!
+    \fn QCLEvent &QCLEvent::operator=(const QCLEvent &other)
+
     Assigns \a other to this OpenCL event object.  The current eventId() will
     be released with \c{clReleaseEvent()}, and the new eventId() will be
     retained with \c{clRetainEvent()}.
 */
-QCLEvent &QCLEvent::operator=(const QCLEvent &other)
-{
-    if (m_id != other.m_id) {
-        if (m_id)
-            clReleaseEvent(m_id);
-        m_id = other.m_id;
-        if (m_id)
-            clRetainEvent(m_id);
-    }
-    return *this;
-}
 
 /*!
     \fn bool QCLEvent::isNull() const

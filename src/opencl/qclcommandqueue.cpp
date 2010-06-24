@@ -74,40 +74,23 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
+    \fn QCLCommandQueue::QCLCommandQueue(const QCLCommandQueue &other)
+
     Constructs a copy of \a other.
 */
-QCLCommandQueue::QCLCommandQueue(const QCLCommandQueue &other)
-    : m_context(other.m_context), m_id(other.m_id)
-{
-    if (m_id)
-        clRetainCommandQueue(m_id);
-}
 
 /*!
+    \fn QCLCommandQueue::~QCLCommandQueue()
+
     Releases this OpenCL command queue.  If this object is the
     last reference, the queue will be destroyed.
 */
-QCLCommandQueue::~QCLCommandQueue()
-{
-    if (m_id)
-        clReleaseCommandQueue(m_id);
-}
 
 /*!
+    \fn QCLCommandQueue &QCLCommandQueue::operator=(const QCLCommandQueue &other)
+
     Assigns \a other to this object.
 */
-QCLCommandQueue &QCLCommandQueue::operator=(const QCLCommandQueue &other)
-{
-    m_context = other.m_context;
-    if (m_id == other.m_id)
-        return *this;
-    if (m_id)
-        clReleaseCommandQueue(m_id);
-    m_id = other.m_id;
-    if (m_id)
-        clRetainCommandQueue(m_id);
-    return *this;
-}
 
 /*!
     \fn bool QCLCommandQueue::isNull() const

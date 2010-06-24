@@ -68,40 +68,23 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
+    \fn QCLProgram::QCLProgram(const QCLProgram &other)
+
     Constructs a copy of \a other.
 */
-QCLProgram::QCLProgram(const QCLProgram &other)
-    : m_context(other.m_context), m_id(other.m_id)
-{
-    if (m_id)
-        clRetainProgram(m_id);
-}
 
 /*!
+    \fn QCLProgram::~QCLProgram()
+
     Releases this OpenCL program object.  If this is the last
     reference to the program, it will be destroyed.
 */
-QCLProgram::~QCLProgram()
-{
-    if (m_id)
-        clReleaseProgram(m_id);
-}
 
 /*!
+    \fn QCLProgram &QCLProgram::operator=(const QCLProgram &other)
+
     Assigns \a other to this object.
 */
-QCLProgram &QCLProgram::operator=(const QCLProgram &other)
-{
-    m_context = other.m_context;
-    if (m_id == other.m_id)
-        return *this;
-    if (m_id)
-        clReleaseProgram(m_id);
-    m_id = other.m_id;
-    if (m_id)
-        clRetainProgram(m_id);
-    return *this;
-}
 
 /*!
     \fn bool QCLProgram::isNull() const

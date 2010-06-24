@@ -58,10 +58,9 @@ protected:
     QCLMemoryObject(QCLContext *context = 0) : m_context(context), m_id(0) {}
     QCLMemoryObject(QCLContext *context, cl_mem id)
         : m_context(context), m_id(id) {}
+    ~QCLMemoryObject();
 
 public:
-    virtual ~QCLMemoryObject();
-
     enum Access
     {
         ReadWrite = 0x0001,
@@ -96,6 +95,12 @@ private:
     Q_DISABLE_COPY(QCLMemoryObject)
 };
 
+inline QCLMemoryObject::~QCLMemoryObject()
+{
+    if (m_id)
+        clReleaseMemObject(m_id);
+}
+
 inline bool QCLMemoryObject::operator==(const QCLMemoryObject &other) const
 {
     return m_id == other.m_id;
@@ -104,6 +109,16 @@ inline bool QCLMemoryObject::operator==(const QCLMemoryObject &other) const
 inline bool QCLMemoryObject::operator!=(const QCLMemoryObject &other) const
 {
     return m_id != other.m_id;
+}
+
+inline void QCLMemoryObject::setId(QCLContext *context, cl_mem id)
+{
+    m_context = context;
+    if (id)
+        clRetainMemObject(id);
+    if (m_id)
+        clReleaseMemObject(m_id);
+    m_id = id;
 }
 
 QT_END_NAMESPACE
