@@ -45,9 +45,14 @@
 #include "qclglobal.h"
 #include "qclevent.h"
 #include "qclworksize.h"
+#include "qclmemoryobject.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtconcurrentrun.h>
+#include <QtCore/qpoint.h>
+#include <QtGui/qvector2d.h>
+#include <QtGui/qvector3d.h>
+#include <QtGui/qvector4d.h>
 
 QT_BEGIN_HEADER
 
@@ -61,12 +66,7 @@ class QCLMemoryObject;
 class QCLVectorBase;
 class QCLSampler;
 class QCLDevice;
-class QVector2D;
-class QVector3D;
-class QVector4D;
 class QMatrix4x4;
-class QPoint;
-class QPointF;
 class QColor;
 
 class QCLKernelPrivate;
@@ -279,6 +279,7 @@ public:
 
 private:
     QScopedPointer<QCLKernelPrivate> d_ptr;
+    cl_kernel m_kernelId;
 
     Q_DECLARE_PRIVATE(QCLKernel)
 };
@@ -301,6 +302,84 @@ inline void QCLKernel::setLocalWorkSize(size_t width, size_t height)
 inline void QCLKernel::setLocalWorkSize(size_t width, size_t height, size_t depth)
 {
     setLocalWorkSize(QCLWorkSize(width, height, depth));
+}
+
+inline void QCLKernel::setArg(int index, cl_int value)
+{
+    clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+}
+
+inline void QCLKernel::setArg(int index, cl_uint value)
+{
+    clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+}
+
+inline void QCLKernel::setArg(int index, cl_long value)
+{
+    clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+}
+
+inline void QCLKernel::setArg(int index, cl_ulong value)
+{
+    clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+}
+
+inline void QCLKernel::setArg(int index, float value)
+{
+    clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+}
+
+inline void QCLKernel::setArg(int index, const QVector2D &value)
+{
+    if (sizeof(value) == (sizeof(float) * 2)) {
+        clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+    } else {
+        float values[2] = {value.x(), value.y()};
+        clSetKernelArg(m_kernelId, index, sizeof(values), values);
+    }
+}
+
+inline void QCLKernel::setArg(int index, const QVector3D &value)
+{
+    float values[4] = {value.x(), value.y(), value.z(), 1.0f};
+    clSetKernelArg(m_kernelId, index, sizeof(values), values);
+}
+
+inline void QCLKernel::setArg(int index, const QVector4D &value)
+{
+    if (sizeof(value) == (sizeof(float) * 4)) {
+        clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+    } else {
+        float values[4] = {value.x(), value.y(), value.z(), value.w()};
+        clSetKernelArg(m_kernelId, index, sizeof(values), values);
+    }
+}
+
+inline void QCLKernel::setArg(int index, const QPoint &value)
+{
+    cl_int values[2] = {value.x(), value.y()};
+    clSetKernelArg(m_kernelId, index, sizeof(values), values);
+}
+
+inline void QCLKernel::setArg(int index, const QPointF &value)
+{
+    if (sizeof(value) == (sizeof(float) * 2)) {
+        clSetKernelArg(m_kernelId, index, sizeof(value), &value);
+    } else {
+        float values[2] = {value.x(), value.y()};
+        clSetKernelArg(m_kernelId, index, sizeof(values), values);
+    }
+}
+
+inline void QCLKernel::setArg(int index, const QCLMemoryObject &value)
+{
+    cl_mem id = value.memoryId();
+    clSetKernelArg(m_kernelId, index, sizeof(id), &id);
+}
+
+inline void QCLKernel::setArg(int index, const void *data, size_t size)
+{
+    clSetKernelArg(m_kernelId, index, size, data);
 }
 
 #ifndef QT_NO_CONCURRENT

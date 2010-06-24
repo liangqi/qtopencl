@@ -225,7 +225,7 @@ public:
     Constructs a null OpenCL kernel object.
 */
 QCLKernel::QCLKernel()
-    : d_ptr(new QCLKernelPrivate(0, 0))
+    : d_ptr(new QCLKernelPrivate(0, 0)), m_kernelId(0)
 {
 }
 
@@ -235,7 +235,7 @@ QCLKernel::QCLKernel()
     ownership of \a id and release it in the destructor.
 */
 QCLKernel::QCLKernel(QCLContext *context, cl_kernel id)
-    : d_ptr(new QCLKernelPrivate(context, id))
+    : d_ptr(new QCLKernelPrivate(context, id)), m_kernelId(id)
 {
 }
 
@@ -244,6 +244,7 @@ QCLKernel::QCLKernel(QCLContext *context, cl_kernel id)
 */
 QCLKernel::QCLKernel(const QCLKernel &other)
     : d_ptr(new QCLKernelPrivate(other.d_ptr.data()))
+    , m_kernelId(other.m_kernelId)
 {
 }
 
@@ -261,6 +262,7 @@ QCLKernel::~QCLKernel()
 QCLKernel &QCLKernel::operator=(const QCLKernel &other)
 {
     d_ptr->copy(other.d_ptr.data());
+    m_kernelId = other.m_kernelId;
     return *this;
 }
 
@@ -530,112 +532,77 @@ size_t QCLKernel::preferredWorkSizeMultiple() const
 }
 
 /*!
+    \fn void QCLKernel::setArg(int index, cl_int value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c int.
 */
-void QCLKernel::setArg(int index, cl_int value)
-{
-    Q_D(const QCLKernel);
-    clSetKernelArg(d->id, index, sizeof(value), &value);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, cl_uint value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c uint.
 */
-void QCLKernel::setArg(int index, cl_uint value)
-{
-    Q_D(const QCLKernel);
-    clSetKernelArg(d->id, index, sizeof(value), &value);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, cl_long value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c long.
 */
-void QCLKernel::setArg(int index, cl_long value)
-{
-    Q_D(const QCLKernel);
-    clSetKernelArg(d->id, index, sizeof(value), &value);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, cl_ulong value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c ulong.
 */
-void QCLKernel::setArg(int index, cl_ulong value)
-{
-    Q_D(const QCLKernel);
-    clSetKernelArg(d->id, index, sizeof(value), &value);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, float value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c float.
 */
-void QCLKernel::setArg(int index, float value)
-{
-    Q_D(const QCLKernel);
-    clSetKernelArg(d->id, index, sizeof(value), &value);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QVector2D &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c float2.
 */
-void QCLKernel::setArg(int index, const QVector2D &value)
-{
-    Q_D(const QCLKernel);
-    if (sizeof(value) == (sizeof(float) * 2)) {
-        clSetKernelArg(d->id, index, sizeof(value), &value);
-    } else {
-        float values[2] = {value.x(), value.y()};
-        clSetKernelArg(d->id, index, sizeof(values), values);
-    }
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QVector3D &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c float4 (OpenCL does not have a \c float3 type).
     The value will be passed to the kernel as (x, y, z, 1).
 */
-void QCLKernel::setArg(int index, const QVector3D &value)
-{
-    Q_D(const QCLKernel);
-    float values[4] = {value.x(), value.y(), value.z(), 1.0f};
-    clSetKernelArg(d->id, index, sizeof(values), values);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QVector4D &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c float4.
 */
-void QCLKernel::setArg(int index, const QVector4D &value)
-{
-    Q_D(const QCLKernel);
-    if (sizeof(value) == (sizeof(float) * 4)) {
-        clSetKernelArg(d->id, index, sizeof(value), &value);
-    } else {
-        float values[4] = {value.x(), value.y(), value.z(), value.w()};
-        clSetKernelArg(d->id, index, sizeof(values), values);
-    }
-}
 
 /*!
     Sets argument \a index for this kernel to \a value.
@@ -647,10 +614,9 @@ void QCLKernel::setArg(int index, const QVector4D &value)
 */
 void QCLKernel::setArg(int index, const QColor &value)
 {
-    Q_D(const QCLKernel);
     float values[4] =
         {value.redF(), value.greenF(), value.blueF(), value.alphaF()};
-    clSetKernelArg(d->id, index, sizeof(values), values);
+    clSetKernelArg(m_kernelId, index, sizeof(values), values);
 }
 
 /*!
@@ -663,42 +629,29 @@ void QCLKernel::setArg(int index, const QColor &value)
 */
 void QCLKernel::setArg(int index, Qt::GlobalColor value)
 {
-    Q_D(const QCLKernel);
     QColor color(value);
     float values[4] =
         {color.redF(), color.greenF(), color.blueF(), color.alphaF()};
-    clSetKernelArg(d->id, index, sizeof(values), values);
+    clSetKernelArg(m_kernelId, index, sizeof(values), values);
 }
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QPoint &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c int2.
 */
-void QCLKernel::setArg(int index, const QPoint &value)
-{
-    Q_D(const QCLKernel);
-    cl_int values[2] = {value.x(), value.y()};
-    clSetKernelArg(d->id, index, sizeof(values), values);
-}
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QPointF &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c float2.
 */
-void QCLKernel::setArg(int index, const QPointF &value)
-{
-    Q_D(const QCLKernel);
-    if (sizeof(value) == (sizeof(float) * 2)) {
-        clSetKernelArg(d->id, index, sizeof(value), &value);
-    } else {
-        float values[2] = {value.x(), value.y()};
-        clSetKernelArg(d->id, index, sizeof(values), values);
-    }
-}
 
 /*!
     Sets argument \a index for this kernel to \a value.
@@ -708,30 +661,25 @@ void QCLKernel::setArg(int index, const QPointF &value)
 */
 void QCLKernel::setArg(int index, const QMatrix4x4 &value)
 {
-    Q_D(const QCLKernel);
     if (sizeof(qreal) == sizeof(float)) {
-        clSetKernelArg(d->id, index, sizeof(float) * 16, value.constData());
+        clSetKernelArg(m_kernelId, index, sizeof(float) * 16, value.constData());
     } else {
         float values[16];
         for (int posn = 0; posn < 16; ++posn)
             values[posn] = float(value.constData()[posn]);
-        clSetKernelArg(d->id, index, sizeof(values), values);
+        clSetKernelArg(m_kernelId, index, sizeof(values), values);
     }
 }
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QCLMemoryObject &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c image2d_t, \c image3d_t, or be a pointer to a buffer,
     according to the type of memory object represented by \a value.
 */
-void QCLKernel::setArg(int index, const QCLMemoryObject &value)
-{
-    Q_D(const QCLKernel);
-    cl_mem id = value.memoryId();
-    clSetKernelArg(d->id, index, sizeof(id), &id);
-}
 
 #if defined(qdoc)
 
@@ -750,9 +698,8 @@ void QCLKernel::setArg(int index, const QCLMemoryObject &value)
 
 void QCLKernel::setArg(int index, const QCLVectorBase &value)
 {
-    Q_D(const QCLKernel);
     cl_mem id = value.kernelArg();
-    clSetKernelArg(d->id, index, sizeof(id), &id);
+    clSetKernelArg(m_kernelId, index, sizeof(id), &id);
 }
 
 #endif
@@ -771,13 +718,10 @@ void QCLKernel::setArg(int index, const QCLSampler &value)
 }
 
 /*!
+    \fn void QCLKernel::setArg(int index, const void *data, size_t size)
+
     Sets argument \a index to the \a size bytes at \a data.
 */
-void QCLKernel::setArg(int index, const void *data, size_t size)
-{
-    Q_D(const QCLKernel);
-    clSetKernelArg(d->id, index, size, data);
-}
 
 /*!
     Requests that this kernel instance be run on globalWorkSize() items,
@@ -794,11 +738,11 @@ QCLEvent QCLKernel::run()
     Q_D(const QCLKernel);
     cl_event event;
     cl_int error = clEnqueueNDRangeKernel
-        (d->context->activeQueue(), d->id, d->globalWorkSize.dimensions(),
+        (d->context->activeQueue(), m_kernelId, d->globalWorkSize.dimensions(),
          0, d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
          0, 0, &event);
-    context()->reportError("QCLKernel::run:", error);
+    d->context->reportError("QCLKernel::run:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
     else
@@ -823,11 +767,11 @@ QCLEvent QCLKernel::run(const QCLEventList &after)
     Q_D(const QCLKernel);
     cl_event event;
     cl_int error = clEnqueueNDRangeKernel
-        (d->context->activeQueue(), d->id, d->globalWorkSize.dimensions(),
+        (d->context->activeQueue(), m_kernelId, d->globalWorkSize.dimensions(),
          0, d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
          after.size(), after.eventData(), &event);
-    context()->reportError("QCLKernel::run:", error);
+    d->context->reportError("QCLKernel::run:", error);
     if (error != CL_SUCCESS)
         return QCLEvent();
     else
