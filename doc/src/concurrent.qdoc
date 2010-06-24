@@ -78,25 +78,16 @@
     future.waitForFinished();
     \endcode
 
-    Note that this will create an extra thread on the main CPU to track
-    the completion of the kernel execution, in addition to the
-    thread on the CPU or GPU that is running the kernel.  The extra
-    thread can be avoided by using QCLEvent instead of QFuture<void>:
-
-    \code
-    kernel.setGlobalWorkSize(100, 100);
-    QCLEvent event = QtConcurrent::run(kernel, a1, b1);
-    event.waitForFinished();
-    \endcode
+    This will create a background thread on the main CPU to enqueue
+    the kernel for execution and to wait for the kernel to complete.
 
     Only 5 arguments can be passed to a kernel using
     QtConcurrent::run(), which is the same as for regular functions
-    and QtConcurrent.  Use QCLKernel::run() or QCLKernel::operator()()
-    for kernels with more than 5 arguments.
+    and QtConcurrent.  Use explicit QCLKernel::setArg() calls and
+    QCLKernel::runInThread() for kernels with more than 5 arguments.
 
-    Because OpenCL kernels do not have return values,
-    QtConcurrent::run() will always return a QCLEvent when it is
-    used on a kernel, which can be implicitly cast to QFuture<void>.
+    Because kernels do not have return values, QtConcurrent::run()
+    on a QCLKernel will always return a QFuture<void>.
 
     The main advantage of QFuture<void> compared to QCLEvent is
     that it can be used with QFutureWatcher to receive signal
@@ -106,6 +97,30 @@
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
     watcher->setFuture(QtConcurrent::run(kernel, a1, b1));
     connect(watcher, SIGNAL(finished()), this, SLOT(eventFinished()));
+    \endcode
+
+    The kernel object must not be reused until the background
+    thread finishes execution of the kernel.  Thus, the following
+    code will have unexpected effects:
+
+    \code
+    QFuture<void> future1 = QtConcurrent::run(kernel, a1, b1);
+    QFuture<void> future2 = QtConcurrent::run(kernel, a2, b2);
+    future1.waitForFinished();
+    future2.waitForFinished();
+    \endcode
+
+    The recommended method to run the same kernel multiple times in a
+    background thread is as follows:
+
+    \code
+    void runKernelTwice(QCLKernel &kernel)
+    {
+        kernel(a1, b1);
+        kernel(a2, b2).waitForFinished();
+    }
+
+    QFuture<void> future = QtConcurrent::run(runKernelTwice, kernel);
     \endcode
 
     See \l{Kernels and QtConcurrent} and QCLEvent::toFuture()

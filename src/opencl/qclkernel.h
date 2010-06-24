@@ -277,6 +277,10 @@ public:
         return run();
     }
 
+#ifndef QT_NO_CONCURRENT
+    QFuture<void> runInThread();
+#endif
+
 private:
     QScopedPointer<QCLKernelPrivate> d_ptr;
     cl_kernel m_kernelId;
@@ -389,34 +393,49 @@ inline void QCLKernel::setArg(int index, const void *data, size_t size)
 namespace QtConcurrent
 {
 
-inline QCLEvent run(QCLKernel &kernel)
+inline QFuture<void> run(QCLKernel &kernel)
 {
-    return kernel();
+    return kernel.runInThread();
 }
 template <typename Arg1>
-inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1)
+inline QFuture<void> run(QCLKernel &kernel, const Arg1 &arg1)
 {
-    return kernel(arg1);
+    kernel.setArg(0, arg1);
+    return kernel.runInThread();
 }
 template <typename Arg1, typename Arg2>
-inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2)
+inline QFuture<void> run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2)
 {
-    return kernel(arg1, arg2);
+    kernel.setArg(0, arg1);
+    kernel.setArg(1, arg2);
+    return kernel.runInThread();
 }
 template <typename Arg1, typename Arg2, typename Arg3>
-inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3)
+inline QFuture<void> run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3)
 {
-    return kernel(arg1, arg2, arg3);
+    kernel.setArg(0, arg1);
+    kernel.setArg(1, arg2);
+    kernel.setArg(2, arg3);
+    return kernel.runInThread();
 }
 template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3, const Arg4 &arg4)
+inline QFuture<void> run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3, const Arg4 &arg4)
 {
-    return kernel(arg1, arg2, arg3, arg4);
+    kernel.setArg(0, arg1);
+    kernel.setArg(1, arg2);
+    kernel.setArg(2, arg3);
+    kernel.setArg(3, arg4);
+    return kernel.runInThread();
 }
 template <typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
-inline QCLEvent run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3, const Arg4 &arg4, const Arg5 &arg5)
+inline QFuture<void> run(QCLKernel &kernel, const Arg1 &arg1, const Arg2 &arg2, const Arg3 &arg3, const Arg4 &arg4, const Arg5 &arg5)
 {
-    return kernel(arg1, arg2, arg3, arg4, arg5);
+    kernel.setArg(0, arg1);
+    kernel.setArg(1, arg2);
+    kernel.setArg(2, arg3);
+    kernel.setArg(3, arg4);
+    kernel.setArg(4, arg5);
+    return kernel.runInThread();
 }
 
 } // namespace QtConcurrent
