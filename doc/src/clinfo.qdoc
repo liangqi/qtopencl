@@ -57,6 +57,7 @@ OpenCL Devices:
     Profile           : FULL_PROFILE
     Version           : OpenCL 1.0 CUDA
     Driver Version    : 195.36.15
+    Language Version  : OpenCL 1.0
     Name              : GeForce GTX 275
     Vendor            : NVIDIA Corporation
     Available         : true
@@ -78,6 +79,7 @@ OpenCL Devices:
     Alignment         : 32 (min 16)
     Max Param Bytes   : 4352
     Error Correction  : false
+    Unified Memory    : false
     Float Support     : InfinityNaN RoundNearest RoundZero RoundInfinity FusedMultiplyAdd
     Double Support    : Denom InfinityNaN RoundNearest RoundZero RoundInfinity FusedMultiplyAdd
     Half Float Support: No
