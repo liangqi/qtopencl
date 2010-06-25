@@ -445,6 +445,7 @@ void tst_QCL::sampler()
     QCLSampler sampler;
 
     // Check the default conditions.
+    QVERIFY(sampler.isNull());
     QVERIFY(!sampler.normalizedCoordinates());
     QVERIFY(sampler.addressingMode() == QCLSampler::ClampToEdge);
     QVERIFY(sampler.filterMode() == QCLSampler::Linear);
@@ -453,13 +454,15 @@ void tst_QCL::sampler()
     QVERIFY(sampler == sampler);
     QVERIFY(!(sampler != sampler));
 
-    // Modify and check that the modifications are correct.
-    sampler.setNormalizedCoordinates(true);
-    sampler.setAddressingMode(QCLSampler::None);
-    sampler.setFilterMode(QCLSampler::Nearest);
+    // Create a new sampler with specific values.
+    sampler = context.createSampler
+        (true, QCLSampler::None, QCLSampler::Nearest);
     QVERIFY(sampler.normalizedCoordinates());
     QVERIFY(sampler.addressingMode() == QCLSampler::None);
     QVERIFY(sampler.filterMode() == QCLSampler::Nearest);
+    QVERIFY(!sampler.isNull());
+    QVERIFY(sampler.samplerId() != 0);
+    QVERIFY(sampler.context() == &context);
 
     // Check that the sampler is not the same as the default.
     QCLSampler sampler2;
@@ -479,33 +482,6 @@ void tst_QCL::sampler()
     QVERIFY(!(sampler3 != sampler));
     QVERIFY(sampler2 == sampler);
     QVERIFY(!(sampler2 != sampler));
-
-    // Modify the original and check that the copies don't change.
-    sampler.setNormalizedCoordinates(false);
-    sampler.setAddressingMode(QCLSampler::Repeat);
-    sampler.setFilterMode(QCLSampler::Linear);
-    QVERIFY(sampler3.normalizedCoordinates());
-    QVERIFY(sampler3.addressingMode() == QCLSampler::None);
-    QVERIFY(sampler3.filterMode() == QCLSampler::Nearest);
-    QVERIFY(sampler2.normalizedCoordinates());
-    QVERIFY(sampler2.addressingMode() == QCLSampler::None);
-    QVERIFY(sampler2.filterMode() == QCLSampler::Nearest);
-    QVERIFY(sampler3 == sampler2);
-    QVERIFY(!(sampler3 != sampler2));
-    QVERIFY(sampler3 != sampler);
-    QVERIFY(!(sampler3 == sampler));
-
-    // Bind the sampler to a program and check that the id changes.
-    QVERIFY(sampler3.samplerId() == 0);
-    QCLKernel useSampler = program.createKernel("useSampler");
-    useSampler(sampler3);
-    QVERIFY(sampler3.samplerId() != 0);
-    QVERIFY(sampler3.context() == &context);
-    QVERIFY(sampler2.samplerId() == 0); // Doesn't affect previous copies.
-    QVERIFY(sampler2.context() == 0);
-    sampler2 = sampler3;
-    QVERIFY(sampler3.samplerId() == sampler2.samplerId());
-    QVERIFY(sampler3.context() == sampler2.context());
 
     // Create a sampler from a raw identifier.
     clRetainSampler(sampler3.samplerId());

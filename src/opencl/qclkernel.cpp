@@ -699,17 +699,13 @@ void QCLKernel::setArg(int index, const QCLVectorBase &value)
 #endif
 
 /*!
+    \fn void QCLKernel::setArg(int index, const QCLSampler &value)
+
     Sets argument \a index for this kernel to \a value.
 
     The argument is assumed to have been declared with the
     type \c sampler_t.
 */
-void QCLKernel::setArg(int index, const QCLSampler &value)
-{
-    Q_D(const QCLKernel);
-    // Ask QCLSampler to create the cl_sampler on demand if necessary.
-    value.setKernelArg(d->context, d->id, index);
-}
 
 /*!
     \fn void QCLKernel::setArg(int index, const void *data, size_t size)

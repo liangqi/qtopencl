@@ -106,7 +106,3 @@ __kernel void addToVector(__global float *vector, float value)
 {
     vector[get_global_id(0)] += value;
 }
-
-__kernel void useSampler(sampler_t samp)
-{
-}

@@ -46,6 +46,7 @@
 #include "qclevent.h"
 #include "qclworksize.h"
 #include "qclmemoryobject.h"
+#include "qclsampler.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtconcurrentrun.h>
@@ -62,9 +63,7 @@ QT_MODULE(CL)
 
 class QCLContext;
 class QCLProgram;
-class QCLMemoryObject;
 class QCLVectorBase;
-class QCLSampler;
 class QCLDevice;
 class QMatrix4x4;
 class QColor;
@@ -378,6 +377,12 @@ inline void QCLKernel::setArg(int index, const QPointF &value)
 inline void QCLKernel::setArg(int index, const QCLMemoryObject &value)
 {
     cl_mem id = value.memoryId();
+    clSetKernelArg(m_kernelId, index, sizeof(id), &id);
+}
+
+inline void QCLKernel::setArg(int index, const QCLSampler &value)
+{
+    cl_sampler id = value.samplerId();
     clSetKernelArg(m_kernelId, index, sizeof(id), &id);
 }
 

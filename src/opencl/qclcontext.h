@@ -147,6 +147,10 @@ public:
     QList<QCLImageFormat> supportedImage2DFormats(cl_mem_flags flags) const;
     QList<QCLImageFormat> supportedImage3DFormats(cl_mem_flags flags) const;
 
+    QCLSampler createSampler
+        (bool normalizedCoordinates, QCLSampler::AddressingMode addressingMode,
+         QCLSampler::FilterMode filterMode);
+
     QCLUserEvent createUserEvent();
 
     void flush();

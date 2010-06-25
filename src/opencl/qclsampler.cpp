@@ -51,124 +51,40 @@ QT_BEGIN_NAMESPACE
     \ingroup opencl
 */
 
-class QCLSamplerPrivate
-{
-public:
-    QCLSamplerPrivate()
-        : id(0)
-        , context(0)
-        , normalizedCoordinates(false)
-        , addressingMode(QCLSampler::ClampToEdge)
-        , filterMode(QCLSampler::Linear)
-    {
-    }
-    QCLSamplerPrivate(const QCLSamplerPrivate *other)
-        : id(other->id)
-        , context(other->context)
-        , normalizedCoordinates(other->normalizedCoordinates)
-        , addressingMode(other->addressingMode)
-        , filterMode(other->filterMode)
-    {
-        if (id)
-            clRetainSampler(id);
-    }
-
-    void assign(const QCLSamplerPrivate *other)
-    {
-        if (id)
-            clReleaseSampler(id);
-        id = other->id;
-        if (id)
-            clRetainSampler(id);
-        context = other->context;
-        normalizedCoordinates = other->normalizedCoordinates;
-        addressingMode = other->addressingMode;
-        filterMode = other->filterMode;
-    }
-
-    void detach()
-    {
-        if (id) {
-            clReleaseSampler(id);
-            id = 0;
-        }
-    }
-
-    mutable cl_sampler id;
-    mutable QCLContext *context;
-    bool normalizedCoordinates;
-    QCLSampler::AddressingMode addressingMode;
-    QCLSampler::FilterMode filterMode;
-};
-
 /*!
-    Constructs a default OpenCL sampler object, with unnormalized
-    co-ordinates, clamp-to-edge addressing, and linear filtering.
+    \fn QCLSampler::QCLSampler()
+
+    Constructs a null OpenCL sampler object.
 */
-QCLSampler::QCLSampler()
-    : d_ptr(new QCLSamplerPrivate())
-{
-}
 
 /*!
+    \fn QCLSampler::QCLSampler(QCLContext *context, cl_sampler id)
+
     Constructs an OpenCL sampler object from the native identifier \a id.
     This class takes over ownership of \a id and will release it in
     the destructor.  The sampler \a id will be associated with \a context.
 */
-QCLSampler::QCLSampler(QCLContext *context, cl_sampler id)
-    : d_ptr(new QCLSamplerPrivate())
-{
-    Q_D(QCLSampler);
-    d->id = id;
-
-    // Read the current settings from the OpenCL implementation.
-    if (id) {
-        cl_bool normalized = CL_FALSE;
-        cl_addressing_mode addressing = CL_ADDRESS_CLAMP_TO_EDGE;
-        cl_filter_mode filter = CL_FILTER_LINEAR;
-        clGetSamplerInfo(id, CL_SAMPLER_NORMALIZED_COORDS,
-                         sizeof(normalized), &normalized, 0);
-        clGetSamplerInfo(id, CL_SAMPLER_ADDRESSING_MODE,
-                         sizeof(addressing), &addressing, 0);
-        clGetSamplerInfo(id, CL_SAMPLER_FILTER_MODE,
-                         sizeof(filter), &filter, 0);
-        d->normalizedCoordinates = (normalized != CL_FALSE);
-        d->addressingMode = QCLSampler::AddressingMode(addressing);
-        d->filterMode = QCLSampler::FilterMode(filter);
-        d->context = context;
-    }
-}
 
 /*!
+    \fn QCLSampler::QCLSampler(const QCLSampler &other)
+
     Constructs a copy of \a other.  The \c{clRetainSampler()} function
     will be called to update the reference count on samplerId().
 */
-QCLSampler::QCLSampler(const QCLSampler &other)
-    : d_ptr(new QCLSamplerPrivate(other.d_ptr.data()))
-{
-}
 
 /*!
+    \fn QCLSampler::~QCLSampler()
+
     Releases this OpenCL sampler object by calling \c{clReleaseSampler()}.
 */
-QCLSampler::~QCLSampler()
-{
-    Q_D(QCLSampler);
-    d->detach();
-}
 
 /*!
+    \fn QCLSampler &QCLSampler::operator=(const QCLSampler &other)
+
     Assigns \a other to this OpenCL sampler object.  The current samplerId()
     will be released with \c{clReleaseSampler()}, and the new samplerId()
     will be retained with \c{clRetainSampler()}.
 */
-QCLSampler &QCLSampler::operator=(const QCLSampler &other)
-{
-    Q_D(QCLSampler);
-    if (d != other.d_ptr.data())
-        d->assign(other.d_ptr.data());
-    return *this;
-}
 
 /*!
     \enum QCLSampler::AddressingMode
@@ -192,165 +108,95 @@ QCLSampler &QCLSampler::operator=(const QCLSampler &other)
 */
 
 /*!
-    Returns true if this sampler is using normalized co-ordinates;
-    false otherwise.  The default value is false.
+    \fn bool QCLSampler::isNull() const
 
-    \sa setNormalizedCoordinates()
+    Returns true if this OpenCL sampler object is null; false otherwise.
+*/
+
+/*!
+    Returns true if this sampler is using normalized co-ordinates;
+    false otherwise.
+
+    \sa addressingMode(), filterMode()
 */
 bool QCLSampler::normalizedCoordinates() const
 {
-    Q_D(const QCLSampler);
-    return d->normalizedCoordinates;
-}
-
-/*!
-    Enables or disables normalized co-ordinates according to \a value.
-
-    This function will release samplerId() if \a value is different
-    than the previous value.
-
-    \sa normalizedCoordinates()
-*/
-void QCLSampler::setNormalizedCoordinates(bool value)
-{
-    Q_D(QCLSampler);
-    if (d->normalizedCoordinates != value) {
-        d->detach();
-        d->normalizedCoordinates = value;
+    if (m_id) {
+        cl_bool normalized = CL_FALSE;
+        clGetSamplerInfo(m_id, CL_SAMPLER_NORMALIZED_COORDS,
+                         sizeof(normalized), &normalized, 0);
+        return normalized != CL_FALSE;
+    } else {
+        return false;
     }
 }
 
 /*!
     Returns the addressing mode for out-of-range co-ordinates
-    when reading from an image in OpenCL.  The default value is
-    ClampToEdge.
+    when reading from an image in OpenCL.
 
-    \sa setAddressingMode()
+    \sa normalizedCoordinates(), filterMode()
 */
 QCLSampler::AddressingMode QCLSampler::addressingMode() const
 {
-    Q_D(const QCLSampler);
-    return d->addressingMode;
-}
-
-/*!
-    Sets the addressing mode for out-of-range co-ordinates
-    when reading from an image in OpenCL to \a value.
-
-    This function will release samplerId() if \a value is different
-    than the previous value.
-
-    \sa addressingMode()
-*/
-void QCLSampler::setAddressingMode(QCLSampler::AddressingMode value)
-{
-    Q_D(QCLSampler);
-    if (d->addressingMode != value) {
-        d->detach();
-        d->addressingMode = value;
+    if (m_id) {
+        cl_addressing_mode addressing = CL_ADDRESS_CLAMP_TO_EDGE;
+        clGetSamplerInfo(m_id, CL_SAMPLER_ADDRESSING_MODE,
+                         sizeof(addressing), &addressing, 0);
+        return QCLSampler::AddressingMode(addressing);
+    } else {
+        return ClampToEdge;
     }
 }
 
 /*!
     Returns the type of filter to apply when reading from an image
-    in OpenCL.  The default value is Linear.
+    in OpenCL.
 
-    \sa setFilterMode()
+    \sa normalizedCoordinates(), addressingMode()
 */
 QCLSampler::FilterMode QCLSampler::filterMode() const
 {
-    Q_D(const QCLSampler);
-    return d->filterMode;
-}
-
-/*!
-    Sets the type of filter to apply when reading from an image
-    in OpenCL to \a value.
-
-    This function will release samplerId() if \a value is different
-    than the previous value.
-
-    \sa filterMode()
-*/
-void QCLSampler::setFilterMode(QCLSampler::FilterMode value)
-{
-    Q_D(QCLSampler);
-    if (d->filterMode != value) {
-        d->detach();
-        d->filterMode = value;
+    if (m_id) {
+        cl_filter_mode filter = CL_FILTER_LINEAR;
+        clGetSamplerInfo(m_id, CL_SAMPLER_FILTER_MODE,
+                         sizeof(filter), &filter, 0);
+        return QCLSampler::FilterMode(filter);
+    } else {
+        return Linear;
     }
 }
 
 /*!
-    Returns the native OpenCL identifier for this sampler; or 0 if
-    the identifier has not been created.
+    \fn cl_sampler QCLSampler::samplerId() const
 
-    The identifier is created when the sampler is set on a kernel
-    as an argument with QCLKernel::setArg().
+    Returns the native OpenCL identifier for this sampler; or 0 if
+    the sampler is null.
 */
-cl_sampler QCLSampler::samplerId() const
-{
-    Q_D(const QCLSampler);
-    return d->id;
-}
 
 /*!
+    \fn QCLContext *QCLSampler::context() const
+
     Returns the OpenCL context that this sampler was created for;
     null if not yet created within a context.
 */
-QCLContext *QCLSampler::context() const
-{
-    Q_D(const QCLSampler);
-    return d->context;
-}
 
 /*!
-    Returns true if this OpenCL sampler has the same parameters
-    as \a other; false otherwise.
+    \fn bool QCLSampler::operator==(const QCLSampler &other) const
+
+    Returns true if this OpenCL sampler object is the same as \a other;
+    false otherwise.
 
     \sa operator!=()
 */
-bool QCLSampler::operator==(const QCLSampler &other) const
-{
-    return d_ptr->normalizedCoordinates ==
-                other.d_ptr->normalizedCoordinates &&
-           d_ptr->addressingMode == other.d_ptr->addressingMode &&
-           d_ptr->filterMode == other.d_ptr->filterMode;
-}
 
 /*!
     \fn bool QCLSampler::operator!=(const QCLSampler &other) const
 
-    Returns true if this OpenCL sampler does not have the same
-    parameters as \a other; false otherwise.
+    Returns true if this OpenCL sampler object is not the same as \a other;
+    false otherwise.
 
     \sa operator==()
 */
-
-/*!
-    \internal
-*/
-void QCLSampler::setKernelArg
-    (QCLContext *context, cl_kernel kernel, int index) const
-{
-    Q_D(const QCLSampler);
-    if (!d->id || d->context != context) {
-        // Create a new sampler in the kernel's context.
-        if (d->id)
-            clReleaseSampler(d->id);    // Was created for another context.
-        cl_int error;
-        d->id = clCreateSampler
-            (context->contextId(),
-             d->normalizedCoordinates ? CL_TRUE : CL_FALSE,
-             cl_addressing_mode(d->addressingMode),
-             cl_filter_mode(d->filterMode), &error);
-        context->reportError("QCLKernel::setArg(sampler):", error);
-        if (d->id)
-            d->context = context;
-        else
-            d->context = 0;
-    }
-    clSetKernelArg(kernel, index, sizeof(d->id), &(d->id));
-}
 
 QT_END_NAMESPACE

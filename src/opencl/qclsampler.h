@@ -57,8 +57,9 @@ class QCLContext;
 class Q_CL_EXPORT QCLSampler
 {
 public:
-    QCLSampler();
-    QCLSampler(QCLContext *context, cl_sampler id);
+    QCLSampler() : m_context(0), m_id(0) {}
+    QCLSampler(QCLContext *context, cl_sampler id)
+        : m_context(context), m_id(id) {}
     QCLSampler(const QCLSampler &other);
     ~QCLSampler();
 
@@ -78,35 +79,55 @@ public:
         Linear              = 0x1141    // CL_FILTER_LINEAR
     };
 
+    bool isNull() const { return m_id == 0; }
+
     bool normalizedCoordinates() const;
-    void setNormalizedCoordinates(bool value);
-
     QCLSampler::AddressingMode addressingMode() const;
-    void setAddressingMode(QCLSampler::AddressingMode value);
-
     QCLSampler::FilterMode filterMode() const;
-    void setFilterMode(QCLSampler::FilterMode value);
 
-    cl_sampler samplerId() const;
-    QCLContext *context() const;
+    cl_sampler samplerId() const { return m_id; }
+    QCLContext *context() const { return m_context; }
 
     bool operator==(const QCLSampler &other) const;
     bool operator!=(const QCLSampler &other) const;
 
 private:
-    QScopedPointer<QCLSamplerPrivate> d_ptr;
-
-    Q_DECLARE_PRIVATE(QCLSampler)
-
-    void setKernelArg(QCLContext *context, cl_kernel kernel, int index) const;
-
-    friend class QCLContext;
-    friend class QCLKernel;
+    QCLContext *m_context;
+    cl_sampler m_id;
 };
+
+inline QCLSampler::QCLSampler(const QCLSampler &other)
+    : m_context(other.m_context), m_id(other.m_id)
+{
+    if (m_id)
+        clRetainSampler(m_id);
+}
+
+inline QCLSampler::~QCLSampler()
+{
+    if (m_id)
+        clReleaseSampler(m_id);
+}
+
+inline QCLSampler &QCLSampler::operator=(const QCLSampler &other)
+{
+    m_context = other.m_context;
+    if (other.m_id)
+        clRetainSampler(other.m_id);
+    if (m_id)
+        clReleaseSampler(m_id);
+    m_id = other.m_id;
+    return *this;
+}
+
+inline bool QCLSampler::operator==(const QCLSampler &other) const
+{
+    return m_id == other.m_id;
+}
 
 inline bool QCLSampler::operator!=(const QCLSampler &other) const
 {
-    return !(*this == other);
+    return m_id != other.m_id;
 }
 
 QT_END_NAMESPACE

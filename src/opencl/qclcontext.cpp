@@ -1272,6 +1272,27 @@ QList<QCLImageFormat> QCLContext::supportedImage3DFormats
 }
 
 /*!
+    Creates a sampler for this context from the arguments
+    \a normalizedCoordinates, \a addressingMode, and \a filterMode.
+*/
+QCLSampler QCLContext::createSampler
+    (bool normalizedCoordinates, QCLSampler::AddressingMode addressingMode,
+     QCLSampler::FilterMode filterMode)
+{
+    Q_D(QCLContext);
+    cl_int error;
+    cl_sampler sampler = clCreateSampler
+        (d->id, normalizedCoordinates ? CL_TRUE : CL_FALSE,
+         cl_addressing_mode(addressingMode),
+         cl_filter_mode(filterMode), &error);
+    reportError("QCLContext::createSampler:", error);
+    if (sampler)
+        return QCLSampler(this, sampler);
+    else
+        return QCLSampler();
+}
+
+/*!
     Creates a user event.  Returns null if user events are not
     supported.
 
