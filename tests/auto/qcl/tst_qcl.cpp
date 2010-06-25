@@ -69,6 +69,7 @@ private slots:
     void qimageFormat_data();
     void qimageFormat();
     void eventList();
+    void concurrent();
 
 private:
     QCLContext context;
@@ -841,6 +842,37 @@ void tst_QCL::eventList()
     QVERIFY(list.contains(event1));
     QVERIFY(!list.contains(event2));
     QVERIFY(!list.contains(QCLEvent()));
+}
+
+#ifndef QT_NO_CONCURRENT
+
+// Regular QtConcurrent function that checks that normal usage of
+// QtConcurrent is not inhibited by the definitions in qclkernel.h.
+static void runStoreFloat(QCLKernel &kernel, const QCLBuffer &buffer, float v)
+{
+    kernel(buffer, v).waitForFinished();
+}
+
+#endif
+
+void tst_QCL::concurrent()
+{
+#ifndef QT_NO_CONCURRENT
+    QCLBuffer buffer = context.createBufferDevice
+        (sizeof(float) * 16, QCLMemoryObject::WriteOnly);
+    float buf[16];
+
+    QCLKernel storeFloat = program.createKernel("storeFloat");
+    QFuture<void> future = QtConcurrent::run(storeFloat, buffer, 5.0f);
+    future.waitForFinished();
+    buffer.read(buf, sizeof(float));
+    QCOMPARE(buf[0], 5.0f);
+
+    future = QtConcurrent::run(runStoreFloat, storeFloat, buffer, 7.0f);
+    future.waitForFinished();
+    buffer.read(buf, sizeof(float));
+    QCOMPARE(buf[0], 7.0f);
+#endif
 }
 
 QTEST_MAIN(tst_QCL)
