@@ -47,6 +47,7 @@
 #include "qclworksize.h"
 #include "qclmemoryobject.h"
 #include "qclsampler.h"
+#include "qclvector.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtconcurrentrun.h>
@@ -377,6 +378,12 @@ inline void QCLKernel::setArg(int index, const QPointF &value)
 inline void QCLKernel::setArg(int index, const QCLMemoryObject &value)
 {
     cl_mem id = value.memoryId();
+    clSetKernelArg(m_kernelId, index, sizeof(id), &id);
+}
+
+inline void QCLKernel::setArg(int index, const QCLVectorBase &value)
+{
+    cl_mem id = value.kernelArg();
     clSetKernelArg(m_kernelId, index, sizeof(id), &id);
 }
 

@@ -675,10 +675,6 @@ void QCLKernel::setArg(int index, const QMatrix4x4 &value)
     according to the type of memory object represented by \a value.
 */
 
-#if defined(qdoc)
-
-// Generate nicer qdoc output.
-
 /*!
     \fn void QCLKernel::setArg(int index, const QCLVector<T> &value)
 
@@ -687,16 +683,6 @@ void QCLKernel::setArg(int index, const QMatrix4x4 &value)
     The argument is assumed to have been declared as a pointer
     to a buffer.
 */
-
-#else
-
-void QCLKernel::setArg(int index, const QCLVectorBase &value)
-{
-    cl_mem id = value.kernelArg();
-    clSetKernelArg(m_kernelId, index, sizeof(id), &id);
-}
-
-#endif
 
 /*!
     \fn void QCLKernel::setArg(int index, const QCLSampler &value)
