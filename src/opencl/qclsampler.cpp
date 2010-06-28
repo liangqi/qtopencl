@@ -49,6 +49,39 @@ QT_BEGIN_NAMESPACE
     \brief The QCLSampler class represents an OpenCL sampler object.
     \since 4.7
     \ingroup opencl
+
+    Sampler objects define how to derive pixel values when an
+    image is read by an OpenCL kernel.
+
+    The filterMode() defines how the pixel color should be derived.
+    For example, reading the value at co-ordinates (3.2, 6.7) will
+    read the nearest pixel value at (3, 7) if the filterMode()
+    is \l{QCLSampler::Nearest}{Nearest}, or will interpolate an
+    intermediate color if the filterMode() is \l{QCLSampler::Linear}{Linear}.
+
+    The addressingMode() defines how to handle out of bounds
+    pixel accesses, by clamping to the range, repeating the image's
+    pattern, etc.
+
+    Samplers are created using QCLContext::createSampler(), as follows:
+
+    \code
+    QCLSampler sampler = context.createSampler
+        (false, QCLSampler::ClampToEdge, QCLSampler::Linear);
+    \endcode
+
+    Samplers can also be defined as literals in the OpenCL kernel
+    source code, which avoids the need to create an explicit
+    QCLSampler value:
+
+    \code
+    const sampler_t samp = CLK_ADDRESS_CLAMP_TO_EDGE |
+                           CLK_FILTER_LINEAR;
+    \endcode
+
+    The main advantage of QCLSampler over literal sampler values
+    is that QCLSampler allows the pixel derivation strategy to be
+    modified at runtime.
 */
 
 /*!
