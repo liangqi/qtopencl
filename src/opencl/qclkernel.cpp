@@ -484,26 +484,36 @@ void QCLKernel::setLocalWorkSize(const QCLWorkSize &size)
 
 /*!
     Returns the recommended best local work size for 2D image processing
-    on this kernel.  Default value is 8x8.
+    on this kernel.  Default value is 8x8 unless the maximum work size
+    is not large enough to accomodate 8x8 items.
 
     \sa bestLocalWorkSizeImage3D()
 */
 QCLWorkSize QCLKernel::bestLocalWorkSizeImage2D() const
 {
-    // TODO - need some way to determine this from the driver.
-    return QCLWorkSize(8, 8);
+    QList<QCLDevice> devices = program().devices();
+    size_t maxItems = devices.isEmpty() ? 1 : devices.at(0). maximumWorkItemsPerGroup();
+    size_t size = 8;
+    while (size > 1 && (size * size) > maxItems)
+        size /= 2;
+    return QCLWorkSize(size, size);
 }
 
 /*!
     Returns the recommended best local work size for 3D image processing
-    on this kernel.  Default value is 8x8x8.
+    on this kernel.  Default value is 8x8x8 unless the maximum work size
+    is not large enough to accomodate 8x8x8 items.
 
     \sa bestLocalWorkSizeImage2D()
 */
 QCLWorkSize QCLKernel::bestLocalWorkSizeImage3D() const
 {
-    // TODO - need some way to determine this from the driver.
-    return QCLWorkSize(8, 8, 8);
+    QList<QCLDevice> devices = program().devices();
+    size_t maxItems = devices.isEmpty() ? 1 : devices.at(0). maximumWorkItemsPerGroup();
+    size_t size = 8;
+    while (size > 1 && (size * size * size) > maxItems)
+        size /= 2;
+    return QCLWorkSize(size, size, size);
 }
 
 /*!
