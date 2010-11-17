@@ -19,14 +19,14 @@ $$unixstyle {
     } else {
         QDOC = qdoc3
     }
-    docs.commands = (TOPSRC=$$TOPSRC DESTDIR=$$DESTDIR $$QDOC $$QDOCCONF_FILE)
+    docs.commands = (TOPSRC=$$TOPSRC DESTDIR=$$DESTDIR $$QDOC -online $$QDOCCONF_FILE)
 } else {
     exists($$[QT_INSTALL_BINS]\\qdoc3.exe) {
         QDOC = $$[QT_INSTALL_BINS]\\qdoc3
     } else {
         QDOC = qdoc3
     }
-    docs.commands = (set TOPSRC=$$TOPSRC&set DESTDIR=$$DESTDIR&$$QDOC $$QDOCCONF_FILE)
+    docs.commands = (set TOPSRC=$$TOPSRC&set DESTDIR=$$DESTDIR&$$QDOC -online $$QDOCCONF_FILE)
 }
 
 QMAKE_EXTRA_TARGETS += docs
