@@ -60,6 +60,7 @@ private:
 
     QCLProgram program;
     QCLKernel fillRectWithColor;
+    int workSize;
 
     QSize windowSize;
     QCLImage2D surfaceImage;

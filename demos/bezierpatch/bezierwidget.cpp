@@ -149,7 +149,8 @@ void BezierWidget::initializeGL()
 
     program = context.buildProgramFromSourceFile(QLatin1String(":/bezierpatch.cl"));
     evaluateBezier = program.createKernel("evaluateBezier");
-    evaluateBezier.setLocalWorkSize(8, 8);
+    if (evaluateBezier.bestLocalWorkSizeImage2D().width() == 8)
+        evaluateBezier.setLocalWorkSize(8, 8);
 
     glEnable(GL_DEPTH_TEST);
 

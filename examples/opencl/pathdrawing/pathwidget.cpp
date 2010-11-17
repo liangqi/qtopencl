@@ -52,7 +52,11 @@ PathWidget::PathWidget(QWidget *parent)
     program = context.buildProgramFromSourceFile(QLatin1String(":/pathdrawing.cl"));
 
     fillRectWithColor = program.createKernel("fillRectWithColor");
-    fillRectWithColor.setLocalWorkSize(8, 8);
+    if (fillRectWithColor.bestLocalWorkSizeImage2D().width() == 8)
+        workSize = 8;
+    else
+        workSize = 1;
+    fillRectWithColor.setLocalWorkSize(workSize, workSize);
 }
 
 PathWidget::~PathWidget()
@@ -89,6 +93,6 @@ void PathWidget::fillRect(int x, int y, int width, int height,
     // Round up the global work size so we can process the
     // rectangle in 8x8 local work size units.  The kernel will
     // ignore pixels that are outside the rectangle limits.
-    fillRectWithColor.setGlobalWorkSize((width + 7) & ~7, (height + 7) & ~7);
+    fillRectWithColor.setGlobalWorkSize((width + workSize - 1) & ~(workSize - 1), (height + workSize - 1) & ~(workSize - 1));
     fillRectWithColor(surfaceImage, x, y, x + width, y + height, color);
 }
