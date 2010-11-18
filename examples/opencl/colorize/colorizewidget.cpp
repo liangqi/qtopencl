@@ -58,7 +58,7 @@ ColorizeWidget::ColorizeWidget(QWidget *parent)
 
     colorize = program.createKernel("colorize");
     colorize.setGlobalWorkSize(img.size());
-    colorize.setLocalWorkSize(8, 8);
+    colorize.setLocalWorkSize(colorize.bestLocalWorkSizeImage2D());
 }
 
 ColorizeWidget::~ColorizeWidget()

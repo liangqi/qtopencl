@@ -101,6 +101,10 @@ public:
     void setGlobalWorkSize(size_t width, size_t height);
     void setGlobalWorkSize(size_t width, size_t height, size_t depth);
 
+    void setRoundedGlobalWorkSize(const QCLWorkSize &size);
+    void setRoundedGlobalWorkSize(size_t width, size_t height);
+    void setRoundedGlobalWorkSize(size_t width, size_t height, size_t depth);
+
     QCLWorkSize localWorkSize() const;
     void setLocalWorkSize(const QCLWorkSize &size);
     void setLocalWorkSize(size_t width, size_t height);
@@ -296,6 +300,21 @@ inline void QCLKernel::setGlobalWorkSize(size_t width, size_t height)
 inline void QCLKernel::setGlobalWorkSize(size_t width, size_t height, size_t depth)
 {
     setGlobalWorkSize(QCLWorkSize(width, height, depth));
+}
+
+inline void QCLKernel::setRoundedGlobalWorkSize(const QCLWorkSize &size)
+{
+    setGlobalWorkSize(size.roundTo(localWorkSize()));
+}
+
+inline void QCLKernel::setRoundedGlobalWorkSize(size_t width, size_t height)
+{
+    setRoundedGlobalWorkSize(QCLWorkSize(width, height));
+}
+
+inline void QCLKernel::setRoundedGlobalWorkSize(size_t width, size_t height, size_t depth)
+{
+    setRoundedGlobalWorkSize(QCLWorkSize(width, height, depth));
 }
 
 inline void QCLKernel::setLocalWorkSize(size_t width, size_t height)

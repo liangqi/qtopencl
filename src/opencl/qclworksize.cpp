@@ -222,6 +222,33 @@ QCLWorkSize QCLWorkSize::toLocalWorkSize(const QCLDevice &device) const
                            device.maximumWorkItemsPerGroup());
 }
 
+static inline size_t qt_cl_round_to(size_t value, size_t multiple)
+{
+    if (multiple <= 1)
+        return value;
+    size_t remainder = value % multiple;
+    if (!remainder)
+        return value;
+    else
+        return value + multiple - remainder;
+}
+
+/*!
+    Returns the result of rounding this work size up to a multiple of \a size.
+*/
+QCLWorkSize QCLWorkSize::roundTo(const QCLWorkSize &size) const
+{
+    if (m_dim == 1)
+        return QCLWorkSize(qt_cl_round_to(m_sizes[0], size.m_sizes[0]));
+    else if (m_dim == 2)
+        return QCLWorkSize(qt_cl_round_to(m_sizes[0], size.m_sizes[0]),
+                           qt_cl_round_to(m_sizes[1], size.m_sizes[1]));
+    else
+        return QCLWorkSize(qt_cl_round_to(m_sizes[0], size.m_sizes[0]),
+                           qt_cl_round_to(m_sizes[1], size.m_sizes[1]),
+                           qt_cl_round_to(m_sizes[2], size.m_sizes[2]));
+}
+
 /*!
     Returns the string form of this work size, with components
     separated by 'x'.

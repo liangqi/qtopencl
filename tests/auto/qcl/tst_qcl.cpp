@@ -65,6 +65,8 @@ private slots:
     void eventProfiling();
     void sampler();
     void workSize();
+    void roundWorkSize_data();
+    void roundWorkSize();
     void imageFormat();
     void qimageFormat_data();
     void qimageFormat();
@@ -603,6 +605,72 @@ void tst_QCL::workSize()
     QVERIFY(size2 == QCLWorkSize(42, 12));
     QVERIFY(size3 == QCLWorkSize(2, 3, 1));
     QVERIFY(size4 == QCLWorkSize());
+}
+
+// Test QCLWorkSize::roundTo().
+void tst_QCL::roundWorkSize_data()
+{
+    QTest::addColumn<int>("value");
+    QTest::addColumn<int>("multiple");
+    QTest::addColumn<int>("result");
+
+    QTest::newRow("0-20") << 0 << 20 << 0;
+    QTest::newRow("23-20") << 23 << 20 << 40;
+    QTest::newRow("23-2") << 23 << 2 << 24;
+    QTest::newRow("23-1") << 23 << 1 << 23;
+    QTest::newRow("23-0") << 23 << 0 << 23;
+}
+void tst_QCL::roundWorkSize()
+{
+    QFETCH(int, value);
+    QFETCH(int, multiple);
+    QFETCH(int, result);
+
+    size_t svalue = size_t(value);
+    size_t smultiple = size_t(multiple);
+    size_t sresult = size_t(result);
+
+    QCLWorkSize size1(svalue);
+    QCLWorkSize size2 = size1.roundTo(smultiple);
+    QCOMPARE(size2.width(), sresult);
+    QCOMPARE(size2.height(), size_t(1));
+    QCOMPARE(size2.depth(), size_t(1));
+    QCOMPARE(size2.dimensions(), size_t(1));
+
+    QCLWorkSize size3(svalue, 1);
+    QCLWorkSize size4 = size3.roundTo(QCLWorkSize(smultiple, smultiple));
+    QCOMPARE(size4.width(), sresult);
+    QCOMPARE(size4.height(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size4.depth(), size_t(1));
+    QCOMPARE(size4.dimensions(), size_t(2));
+
+    QCLWorkSize size5(1, svalue);
+    QCLWorkSize size6 = size5.roundTo(QCLWorkSize(smultiple, smultiple));
+    QCOMPARE(size6.width(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size6.height(), sresult);
+    QCOMPARE(size6.depth(), size_t(1));
+    QCOMPARE(size6.dimensions(), size_t(2));
+
+    QCLWorkSize size7(svalue, 1, 1);
+    QCLWorkSize size8 = size7.roundTo(QCLWorkSize(smultiple, smultiple, smultiple));
+    QCOMPARE(size8.width(), sresult);
+    QCOMPARE(size8.height(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size8.depth(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size8.dimensions(), size_t(3));
+
+    QCLWorkSize size9(1, svalue, 1);
+    QCLWorkSize size10 = size9.roundTo(QCLWorkSize(smultiple, smultiple, smultiple));
+    QCOMPARE(size10.width(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size10.height(), sresult);
+    QCOMPARE(size10.depth(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size10.dimensions(), size_t(3));
+
+    QCLWorkSize size11(1, 1, svalue);
+    QCLWorkSize size12 = size11.roundTo(QCLWorkSize(smultiple, smultiple, smultiple));
+    QCOMPARE(size12.width(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size12.height(), smultiple ? smultiple : size_t(1));
+    QCOMPARE(size12.depth(), sresult);
+    QCOMPARE(size12.dimensions(), size_t(3));
 }
 
 // Test QCLImageFormat.

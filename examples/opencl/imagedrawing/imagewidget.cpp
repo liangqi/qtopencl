@@ -53,10 +53,10 @@ ImageWidget::ImageWidget(QWidget *parent)
     program = context.buildProgramFromSourceFile(QLatin1String(":/imagedrawing.cl"));
 
     fillRectWithColor = program.createKernel("fillRectWithColor");
-    fillRectWithColor.setLocalWorkSize(8, 8);
+    fillRectWithColor.setLocalWorkSize(fillRectWithColor.bestLocalWorkSizeImage2D());
 
     drawImageKernel = program.createKernel("drawImage");
-    drawImageKernel.setLocalWorkSize(8, 8);
+    drawImageKernel.setLocalWorkSize(drawImageKernel.bestLocalWorkSizeImage2D());
 
     flower = context.createImage2DCopy
         (QImage(QLatin1String(":/flower.jpg")), QCLMemoryObject::ReadOnly);
@@ -104,9 +104,9 @@ void ImageWidget::fillRect(int x, int y, int width, int height,
                           const QColor& color)
 {
     // Round up the global work size so we can process the
-    // rectangle in 8x8 local work size units.  The kernel will
+    // rectangle in local work size units.  The kernel will
     // ignore pixels that are outside the rectangle limits.
-    fillRectWithColor.setGlobalWorkSize((width + 7) & ~7, (height + 7) & ~7);
+    fillRectWithColor.setRoundedGlobalWorkSize(width, height);
     fillRectWithColor(surfaceImage, x, y, x + width, y + height, color);
 }
 
@@ -126,9 +126,8 @@ void ImageWidget::drawImage(const QCLImage2D& image, int x, int y, float opacity
     if (srcRect.isEmpty() || dstRect.isEmpty())
         return;
 
-    // Set the global work size to the destination size rounded up to 8.
-    drawImageKernel.setGlobalWorkSize
-        ((dstRect.width() + 7) & ~7, (dstRect.height() + 7) & ~7);
+    // Set the global work size to the destination size rounded up to local.
+    drawImageKernel.setRoundedGlobalWorkSize(dstRect.size());
 
     // Draw the image.
     QVector4D src(srcRect.x(), srcRect.y(), srcRect.width(), srcRect.height());
@@ -158,9 +157,8 @@ void ImageWidget::drawScaledImage
     if (srcRect.isEmpty() || dstRect.isEmpty())
         return;
 
-    // Set the global work size to the destination size rounded up to 8.
-    drawImageKernel.setGlobalWorkSize
-        ((dstRect.width() + 7) & ~7, (dstRect.height() + 7) & ~7);
+    // Set the global work size to the destination size rounded up to local.
+    drawImageKernel.setRoundedGlobalWorkSize(dstRect.size());
 
     // Draw the image.
     QVector4D src(srcRect.x(), srcRect.y(), srcRect.width(), srcRect.height());

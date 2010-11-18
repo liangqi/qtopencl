@@ -418,7 +418,7 @@ QCLWorkSize QCLKernel::globalWorkSize() const
 /*!
     Sets the global work size for this instance of the kernel to \a size.
 
-    \sa globalWorkSize(), setLocalWorkSize()
+    \sa globalWorkSize(), setLocalWorkSize(), setRoundedGlobalWorkSize()
 */
 void QCLKernel::setGlobalWorkSize(const QCLWorkSize &size)
 {
@@ -440,6 +440,33 @@ void QCLKernel::setGlobalWorkSize(const QCLWorkSize &size)
 
     Sets the global work size for this instance of the kernel to
     \a width x \a height x \a depth.
+*/
+
+/*!
+    \fn void QCLKernel::setRoundedGlobalWorkSize(const QCLWorkSize &size)
+
+    Sets the global work size for this instance of the kernel to \a size,
+    after rounding it up to the next multiple of localWorkSize().
+
+    \sa globalWorkSize(), QCLWorkSize::roundTo()
+*/
+
+/*!
+    \fn void QCLKernel::setRoundedGlobalWorkSize(size_t width, size_t height)
+    \overload
+
+    Sets the global work size for this instance of the kernel to
+    \a width x \a height, after rounding it up to the next multiple
+    of localWorkSize().
+*/
+
+/*!
+    \fn void QCLKernel::setRoundedGlobalWorkSize(size_t width, size_t height, size_t depth)
+    \overload
+
+    Sets the global work size for this instance of the kernel to
+    \a width x \a height x \a depth, after rounding it up to the
+    next multiple of localWorkSize().
 */
 
 /*!
