@@ -248,9 +248,9 @@ void tst_QCL::device()
         }
 
         // Split the devices based on type.
-        if (device2.deviceType() == QCLDevice::GPU)
+        if ((device2.deviceType() & QCLDevice::GPU) != 0)
             gpus.append(device2);
-        else if (device2.deviceType() == QCLDevice::CPU)
+        if ((device2.deviceType() & QCLDevice::CPU) != 0)
             cpus.append(device2);
     }
 
