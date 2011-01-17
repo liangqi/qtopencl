@@ -50,13 +50,11 @@ QT_BEGIN_HEADER
 
 QT_BEGIN_NAMESPACE
 
-QT_MODULE(CLGL)
-
 class QCLContextGL;
 class CLTexture2DPrivate;
 
 // Note: this class probably should be in the QtOpenGL library.
-class Q_CLGL_EXPORT CLTexture2D : public QCLImage2D
+class CLTexture2D : public QCLImage2D
 {
 public:
     CLTexture2D();
