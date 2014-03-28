@@ -167,7 +167,7 @@ static void setGLMatrix(GLenum type, const QMatrix4x4& m)
         glLoadMatrixf(reinterpret_cast<const GLfloat *>(m.constData()));
     } else {
         GLfloat mat[16];
-        const qreal *data = m.constData();
+        const float *data = m.constData();
         for (int index = 0; index < 16; ++index)
             mat[index] = data[index];
         glLoadMatrixf(mat);
@@ -417,11 +417,11 @@ void BezierWidget::allocVertices()
     // Expand the vertex and index arrays.
     int num = subdivisionSize * subdivisionSize;
     if (num > numVertices) {
-        positions = (QVector4D *)qRealloc(positions, num * sizeof(GLfloat) * 4);
-        texCoords = (QVector2D *)qRealloc(texCoords, num * sizeof(GLfloat) * 2);
+        positions = (QVector4D *)::realloc(positions, num * sizeof(GLfloat) * 4);
+        texCoords = (QVector2D *)::realloc(texCoords, num * sizeof(GLfloat) * 2);
 
         int maxIndices = num * 6;
-        indices = (IndexType *)qRealloc(indices, maxIndices * sizeof(IndexType));
+        indices = (IndexType *)::realloc(indices, maxIndices * sizeof(IndexType));
     }
     numVertices = num;
 #ifdef USE_VBOS
@@ -527,15 +527,15 @@ void BezierWidget::freeVertices()
     positionBuffer = QCLBuffer();
     texCoordBuffer = QCLBuffer();
     if (positions) {
-        qFree(positions);
+        ::free(positions);
         positions = 0;
     }
     if (texCoords) {
-        qFree(texCoords);
+        ::free(texCoords);
         texCoords = 0;
     }
     if (indices) {
-        qFree(indices);
+        ::free(indices);
         indices = 0;
     }
 #ifdef USE_VBOS

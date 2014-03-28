@@ -44,6 +44,7 @@
 #include "qclcontext.h"
 #include <QtGui/qpainter.h>
 #include <QtGui/qpaintdevice.h>
+#include <qpa/qplatformpixmap.h>
 #ifdef QT_BUILD_INTERNAL
 #include <QtGui/private/qpixmap_raster_p.h>
 #endif
@@ -221,8 +222,8 @@ int QCLImage2D::bytesPerLine() const
 */
 bool QCLImage2D::read(void *data, const QRect &rect, int bytesPerLine)
 {
-    size_t origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_int error = clEnqueueReadImage
         (context()->activeQueue(), memoryId(), CL_TRUE,
          origin, region, bytesPerLine, 0, data, 0, 0, 0);
@@ -271,8 +272,8 @@ QCLEvent QCLImage2D::readAsync
     (void *data, const QRect &rect,
      const QCLEventList &after, int bytesPerLine)
 {
-    size_t origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueReadImage
         (context()->activeQueue(), memoryId(), CL_FALSE,
@@ -298,8 +299,8 @@ QCLEvent QCLImage2D::readAsync
 */
 bool QCLImage2D::write(const void *data, const QRect &rect, int bytesPerLine)
 {
-    size_t origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_int error = clEnqueueWriteImage
         (context()->activeQueue(), memoryId(), CL_TRUE,
          origin, region, bytesPerLine, 0, data, 0, 0, 0);
@@ -348,8 +349,8 @@ QCLEvent QCLImage2D::writeAsync
     (const void *data, const QRect &rect,
      const QCLEventList &after, int bytesPerLine)
 {
-    size_t origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueWriteImage
         (context()->activeQueue(), memoryId(), CL_FALSE,
@@ -374,9 +375,9 @@ QCLEvent QCLImage2D::writeAsync
 bool QCLImage2D::copyTo
     (const QRect &rect, const QCLImage2D &dest, const QPoint &destOffset)
 {
-    size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t dst_origin[3] = {static_cast<size_t>(destOffset.x()), static_cast<size_t>(destOffset.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -403,8 +404,8 @@ bool QCLImage2D::copyTo
 bool QCLImage2D::copyTo
     (const QRect &rect, const QCLImage3D &dest, const size_t destOffset[3])
 {
-    size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -431,8 +432,8 @@ bool QCLImage2D::copyTo
 bool QCLImage2D::copyTo
     (const QRect &rect, const QCLBuffer &dest, size_t destOffset)
 {
-    size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -462,9 +463,9 @@ QCLEvent QCLImage2D::copyToAsync
     (const QRect &rect, const QCLImage2D &dest, const QPoint &destOffset,
      const QCLEventList &after)
 {
-    size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t dst_origin[3] = {static_cast<size_t>(destOffset.x()), static_cast<size_t>(destOffset.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -492,8 +493,8 @@ QCLEvent QCLImage2D::copyToAsync
     (const QRect &rect, const QCLImage3D &dest, const size_t destOffset[3],
      const QCLEventList &after)
 {
-    size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -521,8 +522,8 @@ QCLEvent QCLImage2D::copyToAsync
     (const QRect &rect, const QCLBuffer &dest, size_t destOffset,
      const QCLEventList &after)
 {
-    size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImageToBuffer
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -553,8 +554,8 @@ extern cl_map_flags qt_cl_map_flags(QCLMemoryObject::Access access);
 void *QCLImage2D::map
     (const QRect &rect, QCLMemoryObject::Access access, int *bytesPerLine)
 {
-    size_t origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_int error;
     size_t rowPitch;
     void *data = clEnqueueMapImage
@@ -589,8 +590,8 @@ QCLEvent QCLImage2D::mapAsync
     (void **ptr, const QRect &rect, QCLMemoryObject::Access access,
      const QCLEventList &after, int *bytesPerLine)
 {
-    size_t origin[3] = {rect.x(), rect.y(), 0};
-    size_t region[3] = {rect.width(), rect.height(), 1};
+    size_t origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_int error;
     size_t rowPitch;
     cl_event event;
@@ -651,11 +652,14 @@ QImage QCLImage2D::toQImage(bool cached)
 static QImage *qt_cl_pixmap_image(QPaintDevice *device)
 {
 #ifdef QT_BUILD_INTERNAL
-    QPixmapData *pd = static_cast<QPixmap *>(device)->pixmapData();
+    Q_UNUSED(device);
+    /*
+    QPlatformPixmap *pd = static_cast<QPixmap *>(device)->pixmapData();
     if (pd->classId() == QPixmapData::RasterClass) {
         QRasterPixmapData *rpd = static_cast<QRasterPixmapData *>(pd);
         return rpd->buffer();
     }
+    */
     return 0;
 #else
     Q_UNUSED(device);
@@ -1094,8 +1098,8 @@ bool QCLImage3D::copyTo
     (const size_t origin[3], const QSize &size, const QCLImage2D &dest,
      const QPoint &destOffset)
 {
-    size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
-    size_t region[3] = {size.width(), size.height(), 1};
+    size_t dst_origin[3] = {static_cast<size_t>(destOffset.x()), static_cast<size_t>(destOffset.y()), 0};
+    size_t region[3] = {static_cast<size_t>(size.width()), static_cast<size_t>(size.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -1191,8 +1195,8 @@ QCLEvent QCLImage3D::copyToAsync
      const QCLImage2D &dest, const QPoint &destOffset,
      const QCLEventList &after)
 {
-    size_t dst_origin[3] = {destOffset.x(), destOffset.y(), 0};
-    size_t region[3] = {size.width(), size.height(), 1};
+    size_t dst_origin[3] = {static_cast<size_t>(destOffset.x()), static_cast<size_t>(destOffset.y()), 0};
+    size_t region[3] = {static_cast<size_t>(size.width()), static_cast<size_t>(size.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),

@@ -1,16 +1,11 @@
-TEMPLATE = lib
-TARGET = QtOpenCL
-gcov {
-    CONFIG += staticlib
-} else {
-    CONFIG += dll
-}
-CONFIG += warn_on
-win32 { 
-    DESTDIR = ../../bin
-    !static:DEFINES += QT_MAKEDLL
-}
-else:DESTDIR = ../../lib
+TARGET     = QtOpenCL
+QT         += core-private gui-private concurrent
+
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x66000000
+solaris-cc*:QMAKE_CXXFLAGS_RELEASE -= -O2
+
+#QMAKE_DOCS = $$PWD/doc/qtopencl.qdocconf
+load(qt_module)
 
 win32 {
     !isEmpty(QMAKE_INCDIR_OPENCL) {
@@ -26,7 +21,7 @@ win32 {
     }
 }
 
-macx:!opencl_configure {
+macx: {
     LIBS += -framework OpenCL
 }
 
@@ -69,8 +64,8 @@ PRIVATE_HEADERS += \
     qclext_p.h
 
 HEADERS += $$PRIVATE_HEADERS
-DEFINES += QT_BUILD_CL_LIB
 
-opencl_1_1 {
+DEFINES += QT_BUILD_CL_LIB
+config_opencl_1_1 {
     DEFINES += QT_OPENCL_1_1
 }

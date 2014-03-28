@@ -50,7 +50,7 @@
 #include "qclvector.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qscopedpointer.h>
-#include <QtCore/qtconcurrentrun.h>
+#include <QtConcurrent>
 #include <QtCore/qpoint.h>
 #include <QtGui/qvector2d.h>
 #include <QtGui/qvector3d.h>
@@ -389,7 +389,7 @@ inline void QCLKernel::setArg(int index, const QPointF &value)
     if (sizeof(value) == (sizeof(float) * 2)) {
         clSetKernelArg(m_kernelId, index, sizeof(value), &value);
     } else {
-        float values[2] = {value.x(), value.y()};
+        qreal values[2] = {value.x(), value.y()};
         clSetKernelArg(m_kernelId, index, sizeof(values), values);
     }
 }

@@ -1,3 +1,9 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = opencl openclgl
+config_opencl {
+    SUBDIRS += opencl
+
+    config_openclgl {
+        SUBDIRS += openclgl
+    }
+}

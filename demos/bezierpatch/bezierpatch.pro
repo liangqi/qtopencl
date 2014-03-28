@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = bezierpatch
 DEPENDPATH += .
 INCLUDEPATH += .
-QT += opengl
+QT += opengl opencl openclgl concurrent widgets
 
 VPATH += ../mandelbrot
 INCLUDEPATH += ../mandelbrot
@@ -19,6 +19,3 @@ HEADERS += bezierwidget.h \
            framerate.h
 RESOURCES += bezierpatch.qrc
 FORMS += beziermainwindow.ui
-
-LIBS += -L../../lib -L../../bin
-include(../../src/openclgl/openclgl_dep.pri)

@@ -47,7 +47,7 @@
 #include <QtGui/qvector2d.h>
 #include <QtGui/qvector3d.h>
 #include <QtGui/qvector4d.h>
-#include "qclcontextgl.h"
+#include <qclcontextgl.h>
 #include "qglcamera.h"
 #include "framerate.h"
 

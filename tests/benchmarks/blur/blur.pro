@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT += testlib
+QT += testlib opencl widgets
 CONFIG += unittest \
     warn_on
 SOURCES += tst_blur.cpp \
@@ -8,9 +8,6 @@ SOURCES += tst_blur.cpp \
     clwidget.cpp
 RESOURCES += blur.qrc \
     images/images.qrc
-LIBS += -L../../../lib \
-    -L../../../bin
-include(../../../src/opencl/opencl_dep.pri)
 OTHER_FILES += blur.cl
 HEADERS += pixmapfilterwidget.h \
     graphicseffectview.h \

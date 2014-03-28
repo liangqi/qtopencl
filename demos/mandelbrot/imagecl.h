@@ -43,7 +43,7 @@
 #define IMAGECL_H
 
 #include "image.h"
-#include "qclcontextgl.h"
+#include <qclcontextgl.h>
 #include "cltexture2d.h"
 
 class ImageCL : public Image

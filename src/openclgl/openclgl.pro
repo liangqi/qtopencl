@@ -1,21 +1,13 @@
-TEMPLATE = lib
-TARGET = QtOpenCLGL
-QT += opengl
-gcov {
-    CONFIG += staticlib
-} else {
-    CONFIG += dll
-}
-CONFIG += warn_on
-win32 { 
-    DESTDIR = ../../bin
-    !static:DEFINES += QT_MAKEDLL
-}
-else:DESTDIR = ../../lib
+TARGET     = QtOpenCLGL
+QT         += core-private gui-private concurrent opengl opencl
 
-LIBS += -L../../lib -L../../bin
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x66000000
+solaris-cc*:QMAKE_CXXFLAGS_RELEASE -= -O2
+
+#QMAKE_DOCS = $$PWD/doc/qtopenclgl.qdocconf
+load(qt_module)
+
 win32 {
-    LIBS += -lQtOpenCL
     !isEmpty(QMAKE_INCDIR_OPENCL) {
         QMAKE_CXXFLAGS += -I$$QMAKE_INCDIR_OPENCL
     }
@@ -27,10 +19,9 @@ win32 {
     } else {
         LIBS += -lOpenCL
     }
-} else {
-    LIBS += -lQtOpenCL
 }
-macx:!opencl_configure {
+
+macx: {
     LIBS += -framework OpenCL
 }
 

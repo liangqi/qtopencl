@@ -42,7 +42,7 @@
 #ifndef BEZIERMAINWINDOW_H
 #define BEZIERMAINWINDOW_H
 
-#include <QtGui/qwidget.h>
+#include <QtWidgets/qwidget.h>
 #include "ui_beziermainwindow.h"
 
 class BezierMainWindow : public QWidget, public Ui_BezierMainWindow

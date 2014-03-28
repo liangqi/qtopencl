@@ -168,8 +168,8 @@ bool QCLBuffer::readRect
      size_t bufferBytesPerLine, size_t hostBytesPerLine)
 {
 #ifdef QT_OPENCL_1_1
-    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
-    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    size_t bufferOrigin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t bufferRegion[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     static size_t const hostOrigin[3] = {0, 0, 0};
     cl_int error = clEnqueueReadBufferRect
         (context()->activeQueue(), memoryId(),
@@ -252,8 +252,8 @@ QCLEvent QCLBuffer::readRectAsync
      const QCLEventList &after)
 {
 #ifdef QT_OPENCL_1_1
-    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
-    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    size_t bufferOrigin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t bufferRegion[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     static size_t const hostOrigin[3] = {0, 0, 0};
     cl_event event;
     cl_int error = clEnqueueReadBufferRect
@@ -412,8 +412,8 @@ bool QCLBuffer::writeRect
      size_t bufferBytesPerLine, size_t hostBytesPerLine)
 {
 #ifdef QT_OPENCL_1_1
-    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
-    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    size_t bufferOrigin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t bufferRegion[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     static size_t const hostOrigin[3] = {0, 0, 0};
     cl_int error = clEnqueueWriteBufferRect
         (context()->activeQueue(), memoryId(),
@@ -495,8 +495,8 @@ QCLEvent QCLBuffer::writeRectAsync
      const QCLEventList &after)
 {
 #ifdef QT_OPENCL_1_1
-    size_t bufferOrigin[3] = {rect.x(), rect.y(), 0};
-    size_t bufferRegion[3] = {rect.width(), rect.height(), 1};
+    size_t bufferOrigin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    size_t bufferRegion[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     static size_t const hostOrigin[3] = {0, 0, 0};
     cl_event event;
     cl_int error = clEnqueueWriteBufferRect
@@ -612,8 +612,8 @@ bool QCLBuffer::copyTo
 bool QCLBuffer::copyTo
     (size_t offset, const QCLImage2D &dest, const QRect &rect)
 {
-    const size_t dst_origin[3] = {rect.x(), rect.y(), 0};
-    const size_t region[3] = {rect.width(), rect.height(), 1};
+    const size_t dst_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    const size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -698,8 +698,8 @@ QCLEvent QCLBuffer::copyToAsync
     (size_t offset, const QCLImage2D &dest, const QRect &rect,
      const QCLEventList &after)
 {
-    const size_t dst_origin[3] = {rect.x(), rect.y(), 0};
-    const size_t region[3] = {rect.width(), rect.height(), 1};
+    const size_t dst_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    const size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferToImage
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -759,9 +759,9 @@ bool QCLBuffer::copyToRect
      size_t destBytesPerLine)
 {
 #ifdef QT_OPENCL_1_1
-    const size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    const size_t dst_origin[3] = {destPoint.x(), destPoint.y(), 0};
-    const size_t region[3] = {rect.width(), rect.height(), 1};
+    const size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    const size_t dst_origin[3] = {static_cast<size_t>(destPoint.x()), static_cast<size_t>(destPoint.y()), 0};
+    const size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferRect
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -855,9 +855,9 @@ QCLEvent QCLBuffer::copyToRectAsync
      const QCLEventList &after)
 {
 #ifdef QT_OPENCL_1_1
-    const size_t src_origin[3] = {rect.x(), rect.y(), 0};
-    const size_t dst_origin[3] = {destPoint.x(), destPoint.y(), 0};
-    const size_t region[3] = {rect.width(), rect.height(), 1};
+    const size_t src_origin[3] = {static_cast<size_t>(rect.x()), static_cast<size_t>(rect.y()), 0};
+    const size_t dst_origin[3] = {static_cast<size_t>(destPoint.x()), static_cast<size_t>(destPoint.y()), 0};
+    const size_t region[3] = {static_cast<size_t>(rect.width()), static_cast<size_t>(rect.height()), 1};
     cl_event event;
     cl_int error = clEnqueueCopyBufferRect
         (context()->activeQueue(), memoryId(), dest.memoryId(),
@@ -877,7 +877,7 @@ QCLEvent QCLBuffer::copyToRectAsync
     Q_UNUSED(bufferBytesPerLine);
     Q_UNUSED(destBytesPerLine);
     Q_UNUSED(after);
-    return false;
+    return QCLEvent();
 #endif
 }
 
@@ -926,7 +926,7 @@ QCLEvent QCLBuffer::copyToRectAsync
     Q_UNUSED(destBytesPerLine);
     Q_UNUSED(destBytesPerSlice);
     Q_UNUSED(after);
-    return false;
+    return QCLEvent();
 #endif
 }
 

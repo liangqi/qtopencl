@@ -104,7 +104,7 @@ public:
     void *hostPointer(size_t size)
     {
         if (!hostCopy)
-            hostCopy = qMalloc(size);
+            hostCopy = ::malloc(size);
         return hostCopy;
     }
 };
@@ -198,7 +198,7 @@ void QCLVectorBase::release()
     d_ptr->state = State_Uninitialized;
     m_size = 0;
     if (d_ptr->hostCopy) {
-        qFree(d_ptr->hostCopy);
+        ::free(d_ptr->hostCopy);
         d_ptr->hostCopy = 0;
     }
     delete d_ptr;
@@ -280,7 +280,7 @@ void QCLVectorBase::read(void *data, int count, int offset)
     if (count <= 0)
         return;
     if (m_mapped) {
-        qMemCopy(data, reinterpret_cast<uchar *>(m_mapped) + offset, count);
+        ::memcpy(data, reinterpret_cast<uchar *>(m_mapped) + offset, count);
     } else if (d_ptr && d_ptr->id) {
         cl_int error = clEnqueueReadBuffer
             (d_ptr->context->activeQueue(), d_ptr->id, CL_TRUE,
@@ -295,7 +295,7 @@ void QCLVectorBase::write(const void *data, int count, int offset)
     if (count <= 0)
         return;
     if (m_mapped) {
-        qMemCopy(reinterpret_cast<uchar *>(m_mapped) + offset, data, count);
+        ::memcpy(reinterpret_cast<uchar *>(m_mapped) + offset, data, count);
     } else if (d_ptr && d_ptr->id) {
         cl_int error = clEnqueueWriteBuffer
             (d_ptr->context->activeQueue(), d_ptr->id, CL_TRUE,

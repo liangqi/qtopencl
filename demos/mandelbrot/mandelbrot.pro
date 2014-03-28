@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = mandelbrot
 DEPENDPATH += .
 INCLUDEPATH += .
-
+QT += opencl openclgl concurrent widgets
 # Input
 SOURCES += main.cpp \
            palette.cpp \
@@ -29,6 +29,3 @@ HEADERS += palette.h \
            glproxy.h \
            zoom.h
 RESOURCES += mandelbrot.qrc
-
-LIBS += -L../../lib -L../../bin
-include(../../src/openclgl/openclgl_dep.pri)

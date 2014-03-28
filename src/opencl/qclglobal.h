@@ -44,42 +44,33 @@
 
 #include <QtCore/qglobal.h>
 
-// XXX: Move to qglobal.h eventually.
-QT_LICENSED_MODULE(CL)
-#if defined(Q_OS_WIN) && defined(QT_MAKEDLL)
-#   if defined(QT_BUILD_CL_LIB)
-#       define Q_CL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CL_EXPORT Q_DECL_IMPORT
-#   endif
-#elif defined(Q_OS_WIN) && defined(QT_DLL)
-#   define Q_CL_EXPORT Q_DECL_IMPORT
-#endif
-#if !defined(Q_CL_EXPORT)
-#   if defined(QT_SHARED)
-#       define Q_CL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CL_EXPORT
-#   endif
+QT_BEGIN_NAMESPACE
+
+#ifndef Q_CL_EXPORT
+#  ifndef QT_STATIC
+#    if defined(QT_BUILD_CL_LIB)
+#      define Q_CL_EXPORT Q_DECL_EXPORT
+#    else
+#      define Q_CL_EXPORT Q_DECL_IMPORT
+#    endif
+#  else
+#    define Q_CL_EXPORT
+#  endif
 #endif
 
-QT_LICENSED_MODULE(CLGL)
-#if defined(Q_OS_WIN) && defined(QT_MAKEDLL)
-#   if defined(QT_BUILD_CLGL_LIB)
-#       define Q_CLGL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CLGL_EXPORT Q_DECL_IMPORT
-#   endif
-#elif defined(Q_OS_WIN) && defined(QT_DLL)
-#   define Q_CLGL_EXPORT Q_DECL_IMPORT
+#ifndef Q_CLGL_EXPORT
+#  ifndef QT_STATIC
+#    if defined(QT_BUILD_CLGL_LIB)
+#      define Q_CLGL_EXPORT Q_DECL_EXPORT
+#    else
+#      define Q_CLGL_EXPORT Q_DECL_IMPORT
+#    endif
+#  else
+#    define Q_CLGL_EXPORT
+#  endif
 #endif
-#if !defined(Q_CLGL_EXPORT)
-#   if defined(QT_SHARED)
-#       define Q_CLGL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CLGL_EXPORT
-#   endif
-#endif
+
+QT_END_NAMESPACE
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_platform.h>

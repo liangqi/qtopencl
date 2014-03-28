@@ -39,7 +39,6 @@
 **
 ****************************************************************************/
 
-#include <QtOpenGL/qgl.h>
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenGL/OpenGL.h>
 #include <OpenCL/cl_platform.h>

@@ -116,7 +116,7 @@ void ImageWidget::drawImage(const QCLImage2D& image, int x, int y, float opacity
     QRect dstRect = QRect(x, y, srcRect.width(), srcRect.height());
 
     // Clamp the draw to the surface extents.
-    QRect dstRect2 = dstRect.intersect
+    QRect dstRect2 = dstRect.intersected
         (QRect(0, 0, windowSize.width(), windowSize.height()));
     srcRect.setLeft(srcRect.left() + dstRect2.left() - dstRect.left());
     srcRect.setTop(srcRect.top() + dstRect2.top() - dstRect.top());
@@ -145,7 +145,7 @@ void ImageWidget::drawScaledImage
     QRect dstRect = QRect(x, y, width, height);
 
     // Clamp the draw to the surface extents.
-    QRect dstRect2 = dstRect.intersect
+    QRect dstRect2 = dstRect.intersected
         (QRect(0, 0, windowSize.width(), windowSize.height()));
     qreal scaleX = srcRect.width() / width;
     qreal scaleY = srcRect.height() / height;

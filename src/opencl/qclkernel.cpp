@@ -645,7 +645,7 @@ size_t QCLKernel::preferredWorkSizeMultiple() const
 */
 void QCLKernel::setArg(int index, const QColor &value)
 {
-    float values[4] =
+    qreal values[4] =
         {value.redF(), value.greenF(), value.blueF(), value.alphaF()};
     clSetKernelArg(m_kernelId, index, sizeof(values), values);
 }
@@ -661,7 +661,7 @@ void QCLKernel::setArg(int index, const QColor &value)
 void QCLKernel::setArg(int index, Qt::GlobalColor value)
 {
     QColor color(value);
-    float values[4] =
+    qreal values[4] =
         {color.redF(), color.greenF(), color.blueF(), color.alphaF()};
     clSetKernelArg(m_kernelId, index, sizeof(values), values);
 }

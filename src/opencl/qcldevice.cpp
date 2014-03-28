@@ -192,7 +192,7 @@ QCLDevice::DeviceTypes QCLDevice::deviceType() const
             != CL_SUCCESS)
         return QCLDevice::DeviceTypes(0);
     else
-        return QCLDevice::DeviceTypes(type);
+        return QCLDevice::DeviceTypes(static_cast<int>(type));
 }
 
 /*!
@@ -673,7 +673,7 @@ QCLDevice::FloatCapabilities QCLDevice::floatCapabilities() const
             != CL_SUCCESS)
         return NotSupported;
     else
-        return QCLDevice::FloatCapabilities(config);
+        return QCLDevice::FloatCapabilities(static_cast<int>(config));
 }
 
 /*!
@@ -693,7 +693,7 @@ QCLDevice::FloatCapabilities QCLDevice::doubleCapabilities() const
             != CL_SUCCESS)
         return NotSupported;
     else
-        return QCLDevice::FloatCapabilities(config);
+        return QCLDevice::FloatCapabilities(static_cast<int>(config));
 }
 
 /*!
@@ -713,7 +713,7 @@ QCLDevice::FloatCapabilities QCLDevice::halfFloatCapabilities() const
             != CL_SUCCESS)
         return NotSupported;
     else
-        return QCLDevice::FloatCapabilities(config);
+        return QCLDevice::FloatCapabilities(static_cast<int>(config));
 }
 
 /*!

@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include "cltexture2d.h"
-#include "qclcontextgl.h"
+#include <qclcontextgl.h>
 #include "glproxy.h"
 #if QT_VERSION >= 0x040700 && !defined(QT_OPENGL_ES)
 #include <QtOpenGL/qglbuffer.h>

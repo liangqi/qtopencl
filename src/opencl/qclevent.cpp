@@ -44,7 +44,7 @@
 #include "qclcontext.h"
 #include "qclext_p.h"
 #include <QtCore/qdebug.h>
-#include <QtCore/qtconcurrentrun.h>
+#include <QtConcurrent>
 
 QT_BEGIN_NAMESPACE
 

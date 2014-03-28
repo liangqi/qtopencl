@@ -42,7 +42,7 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <QtGui/qwidget.h>
+#include <QtWidgets/qwidget.h>
 #include "framerate.h"
 
 class Image;
